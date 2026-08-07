@@ -1,31 +1,42 @@
-import { Reveal } from "@/components/Reveal"
+import { Reveal } from "@/components/telemetry"
 import { cn } from "@/lib/utils"
 
 interface Props {
-  eyebrow: string
+  channel: string
+  index?: string
   title: string
   highlight?: string
   description?: string
   className?: string
 }
 
-export function SectionHeading({ eyebrow, title, highlight, description, className }: Props) {
+/** Cabecera de seccion: regla + etiqueta de canal (mono) + titulo Saira. */
+export function SectionHeading({
+  channel,
+  index,
+  title,
+  highlight,
+  description,
+  className,
+}: Props) {
   return (
-    <div className={cn("mx-auto max-w-2xl text-center", className)}>
+    <div className={cn("max-w-3xl", className)}>
       <Reveal>
-        <span className="inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.28em] text-flame">
-          <span className="h-px w-6 bg-flame/60" />
-          {eyebrow}
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="channel">{channel}</span>
+          {index && <span className="font-mono text-[0.7rem] text-steel">{index}</span>}
+        </div>
+        <div className="rule mt-4" />
       </Reveal>
       <Reveal delay={80}>
-        <h2 className="mt-5 font-display text-4xl font-extrabold uppercase leading-tight tracking-tight text-white sm:text-5xl">
-          {title} {highlight && <span className="text-gradient">{highlight}</span>}
+        <h2 className="mt-6 font-display text-[clamp(2.2rem,5.5vw,4.25rem)] font-extrabold uppercase leading-[0.92] tracking-[-0.01em] text-chalk">
+          {title}
+          {highlight && <span className="text-ember"> {highlight}</span>}
         </h2>
       </Reveal>
       {description && (
-        <Reveal delay={160}>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">{description}</p>
+        <Reveal delay={150}>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-ash">{description}</p>
         </Reveal>
       )}
     </div>

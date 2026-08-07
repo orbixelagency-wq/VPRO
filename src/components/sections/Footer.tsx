@@ -1,33 +1,34 @@
 import { Logo } from "@/components/Logo"
-import { Instagram, Youtube, Mail, MapPin } from "lucide-react"
+import { Instagram, Youtube, Mail } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer id="contacto" className="relative border-t border-white/5 bg-ink-soft">
+    <footer className="relative border-t border-line bg-carbon">
       <div className="container py-16">
-        <div className="grid gap-10 md:grid-cols-3">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <Logo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Tecnificacion y alto rendimiento de futbol personalizado. Cada detalle suma.
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-ash">
+              Centro de tecnificación y alto rendimiento de fútbol. Cada detalle suma.
             </p>
           </div>
 
           <div>
-            <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">Sedes</p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-flame" /> Girona, Cataluna
+            <p className="channel">Sedes</p>
+            <ul className="mt-4 space-y-2 text-sm text-ash">
+              <li>
+                Girona{" "}
+                <span className="datum text-[0.62rem] text-steel">41.98° N · 2.82° E</span>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-flame" /> Olot, Cataluna
+              <li>
+                Olot <span className="datum text-[0.62rem] text-steel">42.18° N · 2.49° E</span>
               </li>
             </ul>
           </div>
 
           <div>
-            <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">Contacto</p>
-            <div className="flex gap-3">
+            <p className="channel">Contacto</p>
+            <div className="mt-4 flex gap-3">
               {[
                 { icon: Instagram, label: "Instagram" },
                 { icon: Youtube, label: "YouTube" },
@@ -35,9 +36,9 @@ export function Footer() {
               ].map((s) => (
                 <a
                   key={s.label}
-                  href="#"
+                  href="#contacto"
                   aria-label={s.label}
-                  className="grid h-10 w-10 place-items-center rounded-[5px] border border-white/10 bg-ink-card text-white/70 transition-colors hover:border-flame/50 hover:text-flame"
+                  className="grid h-10 w-10 place-items-center border border-line text-ash transition-colors hover:border-ember hover:text-ember"
                 >
                   <s.icon className="h-5 w-5" />
                 </a>
@@ -46,9 +47,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} V Pro Training. Todos los derechos reservados.</p>
-          <p>Girona · Olot — Alto rendimiento de futbol</p>
+        <div className="mt-14 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel sm:flex-row sm:items-center">
+          <p>© {new Date().getFullYear()} V Pro Total Training</p>
+          <p>Girona · Olot — Alto rendimiento de fútbol</p>
         </div>
       </div>
     </footer>

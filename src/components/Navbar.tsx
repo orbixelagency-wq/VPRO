@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils"
 import { Menu, X } from "lucide-react"
 
 const LINKS = [
-  { href: "#filosofia", label: "Filosofia" },
-  { href: "#ofrecemos", label: "Programa" },
+  { href: "#manifiesto", label: "Manifiesto" },
+  { href: "#programa", label: "Programa" },
   { href: "#sedes", label: "Sedes" },
-  { href: "#metodo", label: "Metodo" },
-  { href: "#jugadores", label: "Talento" },
+  { href: "#metodo", label: "Método" },
+  { href: "#talento", label: "Talento" },
 ]
 
 export function Navbar() {
@@ -31,23 +31,23 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
         scrolled
-          ? "border-b border-white/10 bg-ink/85 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent"
+          ? "border-b border-line bg-carbon/80 backdrop-blur-md"
+          : "border-b border-transparent"
       )}
     >
-      <nav className="container flex h-[68px] items-center justify-between">
-        <button onClick={() => go("#inicio")} aria-label="V Pro Total Training - inicio">
+      <nav className="container flex h-16 items-center justify-between">
+        <button onClick={() => go("#inicio")} aria-label="V Pro Total Training — inicio">
           <Logo />
         </button>
 
-        <div className="hidden items-center gap-9 md:flex">
+        <div className="hidden items-center gap-8 lg:flex">
           {LINKS.map((l) => (
             <button
               key={l.href}
               onClick={() => go(l.href)}
-              className="text-[13px] font-medium uppercase tracking-wider text-white/70 transition-colors hover:text-flame"
+              className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ash transition-colors hover:text-chalk"
             >
               {l.label}
             </button>
@@ -58,22 +58,22 @@ export function Navbar() {
         </div>
 
         <button
-          className="text-white md:hidden"
+          className="text-chalk lg:hidden"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Menu"
+          aria-label="Menú"
         >
           {open ? <X /> : <Menu />}
         </button>
       </nav>
 
       {open && (
-        <div className="border-t border-white/10 bg-ink/95 px-6 py-5 md:hidden">
+        <div className="border-t border-line bg-carbon/95 px-6 py-5 lg:hidden">
           <div className="flex flex-col gap-4">
             {LINKS.map((l) => (
               <button
                 key={l.href}
                 onClick={() => go(l.href)}
-                className="text-left text-sm font-medium uppercase tracking-wider text-white/80"
+                className="text-left font-mono text-xs uppercase tracking-[0.18em] text-ash"
               >
                 {l.label}
               </button>

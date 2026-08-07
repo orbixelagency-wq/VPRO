@@ -1,80 +1,76 @@
-import { Reveal } from "@/components/Reveal"
+import { Reveal } from "@/components/telemetry"
+import { CornerFrame } from "@/components/telemetry"
 import { SectionHeading } from "@/components/SectionHeading"
 import { BrandImage } from "@/components/BrandImage"
-import { MapPin } from "lucide-react"
 
-interface Sede {
-  ciudad: string
-  enfoque: string
-  descripcion: string
-  puntos: string[]
-  img: string
-}
-
-const SEDES: Sede[] = [
+const SEDES = [
   {
     ciudad: "Girona",
-    enfoque: "Tecnica individualizada y biomecanica",
-    descripcion:
-      "Sede orientada al perfeccionamiento tecnico jugador a jugador y al analisis biomecanico del gesto deportivo.",
-    puntos: ["Analisis biomecanico", "Tecnica individual", "Correccion del gesto"],
+    coord: "41.9794° N · 2.8214° E",
+    enfoque: "Técnica individualizada · Biomecánica",
+    desc: "Perfeccionamiento técnico jugador a jugador y análisis biomecánico del gesto deportivo.",
+    tags: ["Técnica individual", "Biomecánica", "Corrección del gesto"],
     img: "/brand/sede-girona.jpg",
   },
   {
     ciudad: "Olot",
-    enfoque: "Rendimiento fisico integral y resistencia tactica",
-    descripcion:
-      "Sede centrada en el desarrollo fisico completo del futbolista y en la resistencia tactica bajo carga de competicion.",
-    puntos: ["Preparacion fisica", "Resistencia tactica", "Fuerza y velocidad"],
+    coord: "42.1817° N · 2.4899° E",
+    enfoque: "Rendimiento físico · Resistencia táctica",
+    desc: "Desarrollo físico integral del futbolista y resistencia táctica bajo carga de competición.",
+    tags: ["Preparación física", "Resistencia táctica", "Fuerza y velocidad"],
     img: "/brand/sede-olot.jpg",
   },
 ]
 
 export function Sedes() {
   return (
-    <section id="sedes" className="relative border-t border-white/5 bg-ink-soft py-24 sm:py-32">
+    <section id="sedes" className="relative border-t border-line bg-graphite/30 py-24 sm:py-32">
       <div className="container">
         <SectionHeading
-          eyebrow="Sedes oficiales"
-          title="Dos centros, un"
-          highlight="estandar"
-          description="Tecnificacion de alto rendimiento en dos sedes oficiales de Cataluna, cada una con un enfoque especializado."
+          channel="Sedes"
+          index="EST · 02"
+          title="Dos centros,"
+          highlight="un estándar"
+          description="Tecnificación de alto rendimiento en dos sedes oficiales de Cataluña, cada una con un enfoque especializado."
         />
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-2">
+        <div className="mt-14 grid gap-px border border-line bg-line lg:grid-cols-2">
           {SEDES.map((s, i) => (
             <Reveal key={s.ciudad} delay={i * 120}>
-              <article className="group overflow-hidden rounded-[6px] border border-white/8 bg-ink-card">
+              <article className="group h-full bg-carbon">
                 <div className="relative aspect-[16/10] overflow-hidden">
                   <BrandImage
                     src={s.img}
                     alt={`Sede de ${s.ciudad}`}
                     label={`Sede ${s.ciudad}`}
-                    imgClassName="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    imgClassName="transition-transform duration-700 group-hover:scale-[1.03]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink-card via-transparent to-transparent" />
-                  <div className="absolute left-5 top-5 flex items-center gap-2 border border-flame/40 bg-ink/70 px-3 py-1.5 backdrop-blur">
-                    <MapPin className="h-3.5 w-3.5 text-flame" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white">
+                  <div className="absolute inset-0 bg-gradient-to-t from-carbon via-transparent to-transparent" />
+                  <div className="absolute inset-4 text-white/25">
+                    <CornerFrame />
+                  </div>
+                  <div className="absolute left-5 top-5 flex flex-col gap-1">
+                    <span className="font-display text-3xl font-extrabold uppercase leading-none text-chalk">
                       {s.ciudad}
+                    </span>
+                    <span className="datum text-[0.6rem] tracking-[0.12em] text-ember">
+                      {s.coord}
                     </span>
                   </div>
                 </div>
 
                 <div className="p-7">
-                  <h3 className="font-display text-xl font-bold uppercase tracking-tight text-white">
+                  <h3 className="font-display text-lg font-bold uppercase tracking-tight text-chalk">
                     {s.enfoque}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    {s.descripcion}
-                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-ash">{s.desc}</p>
                   <ul className="mt-5 flex flex-wrap gap-2">
-                    {s.puntos.map((p) => (
+                    {s.tags.map((t) => (
                       <li
-                        key={p}
-                        className="border border-white/10 bg-ink px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-white/70"
+                        key={t}
+                        className="border border-line px-3 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel"
                       >
-                        {p}
+                        {t}
                       </li>
                     ))}
                   </ul>

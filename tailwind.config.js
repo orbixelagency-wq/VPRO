@@ -6,77 +6,53 @@ export default {
     container: {
       center: true,
       padding: "1.5rem",
-      screens: { "2xl": "1280px" },
+      screens: { "2xl": "1320px" },
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        // Performance-lab palette (derivada del logo: negro + fuego)
+        carbon: "#0A0A0C",
+        graphite: {
+          DEFAULT: "#14161A",
+          2: "#1C1F25",
+        },
+        chalk: "#F2F3F5",
+        ash: "#9BA1AB",
+        steel: "#6E7B8C", // etiquetas de medicion (frio)
+        ember: {
+          DEFAULT: "#FF5A1F", // energia / esfuerzo (calido)
+          2: "#FF7A45",
+        },
+        gold: "#F5B301", // acento raro (el balon)
+        line: "rgba(242,243,245,0.10)",
+        // semanticos para shadcn
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        // V Pro brand palette
-        ink: {
-          DEFAULT: "#0b0f19",
-          soft: "#0e1424",
-          card: "#141c2e",
-        },
-        flame: {
-          DEFAULT: "#F97316", // naranja fuego
-          bright: "#FF6B00",
-        },
-        volt: {
-          DEFAULT: "#FACC15", // amarillo electrico
-          bright: "#FFD700",
-        },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+        border: "hsl(var(--border))",
+        ring: "hsl(var(--ring))",
       },
       fontFamily: {
+        display: ['"Saira Condensed"', "Inter", "sans-serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Syne", "Inter", "sans-serif"],
+        mono: ['"Space Mono"', "ui-monospace", "monospace"],
       },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+      letterSpacing: {
+        widest2: "0.32em",
       },
       keyframes: {
-        "fade-up": {
-          from: { opacity: "0", transform: "translateY(24px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
+        "draw-x": {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
         },
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+        blink: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.2" },
         },
       },
       animation: {
-        "fade-up": "fade-up 0.7s ease-out both",
+        blink: "blink 1.4s steps(1) infinite",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 }

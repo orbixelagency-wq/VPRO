@@ -22,7 +22,7 @@ export function BrandImage({ src, alt, label, className, imgClassName }: BrandIm
   const showImage = src && !failed
 
   return (
-    <div className={cn("relative h-full w-full overflow-hidden bg-ink-card", className)}>
+    <div className={cn("relative h-full w-full overflow-hidden bg-graphite", className)}>
       {showImage ? (
         <img
           src={asset(src)}
@@ -35,13 +35,13 @@ export function BrandImage({ src, alt, label, className, imgClassName }: BrandIm
           )}
         />
       ) : (
-        <div className="grid h-full w-full place-items-center bg-[radial-gradient(circle_at_50%_30%,rgba(249,115,22,0.14),transparent_60%)]">
-          <div className="flex flex-col items-center gap-3 opacity-70">
-            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-volt to-flame font-display text-2xl font-black text-ink">
+        <div className="grid h-full w-full place-items-center bg-[radial-gradient(circle_at_50%_35%,rgba(255,90,31,0.10),transparent_62%)]">
+          <div className="flex flex-col items-center gap-3">
+            <span className="grid h-12 w-12 place-items-center rounded-[3px] bg-ember font-display text-2xl font-extrabold text-carbon">
               V
             </span>
             {label && (
-              <span className="px-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
+              <span className="px-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.24em] text-steel">
                 {label}
               </span>
             )}

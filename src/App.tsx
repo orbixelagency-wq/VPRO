@@ -1,10 +1,10 @@
 import { Navbar } from "@/components/Navbar"
 import { VideoHero } from "@/components/ui/video-hero"
-import { Philosophy } from "@/components/sections/Philosophy"
-import { Offerings } from "@/components/sections/Offerings"
+import { Manifesto } from "@/components/sections/Manifesto"
+import { Programa } from "@/components/sections/Programa"
 import { Sedes } from "@/components/sections/Sedes"
 import { Method } from "@/components/sections/Method"
-import { Players } from "@/components/sections/Players"
+import { Talento } from "@/components/sections/Talento"
 import { Contact } from "@/components/sections/Contact"
 import { Footer } from "@/components/sections/Footer"
 
@@ -13,18 +13,17 @@ const scrollTo = (id: string) =>
 
 export default function App() {
   return (
-    <div className="relative min-h-screen bg-ink text-foreground">
+    <div className="relative min-h-screen bg-carbon text-chalk">
       <Navbar />
 
-      {/* Hero corporativo con revelado multimedia dirigido por scroll */}
       <VideoHero onContacto={() => scrollTo("contacto")} />
 
-      <main className="relative z-10 bg-ink">
-        <Philosophy />
-        <Offerings />
+      <main className="relative z-10 bg-carbon">
+        <Manifesto />
+        <Programa />
         <Sedes />
         <Method />
-        <Players />
+        <Talento />
         <Contact />
       </main>
 

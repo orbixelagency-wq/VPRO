@@ -1,60 +1,55 @@
-import { Reveal } from "@/components/Reveal"
+import { Reveal } from "@/components/telemetry"
 import { SectionHeading } from "@/components/SectionHeading"
-import { ClipboardList, PencilRuler, Activity } from "lucide-react"
 
 const STEPS = [
   {
     n: "01",
-    icon: ClipboardList,
-    title: "Analisis inicial",
-    text: "Evaluamos el estado del jugador: nivel tecnico, condicion fisica, historial de lesiones y objetivos.",
+    title: "Análisis inicial",
+    desc: "Evaluamos estado técnico, condición física, historial de lesiones y objetivos del jugador.",
   },
   {
     n: "02",
-    icon: PencilRuler,
-    title: "Rutinas personalizadas",
-    text: "Creamos un programa a medida con progresiones claras, adaptado a tu calendario de competicion.",
+    title: "Programa a medida",
+    desc: "Diseñamos rutinas y progresiones personalizadas, adaptadas a tu calendario de competición.",
   },
   {
     n: "03",
-    icon: Activity,
     title: "Campo y seguimiento",
-    text: "Entrenamientos en campo/pista y acompanamiento continuo, ajustando la carga sesion a sesion.",
+    desc: "Entrenamiento en campo/pista y acompañamiento continuo, ajustando la carga sesión a sesión.",
   },
 ]
 
 export function Method() {
   return (
-    <section id="metodo" className="relative py-24 sm:py-32">
+    <section id="metodo" className="relative border-t border-line py-24 sm:py-32">
       <div className="container">
         <SectionHeading
-          eyebrow="Nuestro metodo de trabajo"
-          title="Tres pasos, un"
-          highlight="proceso"
-          description="Un sistema probado durante mas de 10 anos con jugadores de Girona y Olot."
+          channel="Método"
+          index="SEQ · 03"
+          title="Tres fases,"
+          highlight="un proceso"
+          description="Un sistema probado durante más de diez años con jugadores de Girona y Olot."
         />
 
-        <div className="relative mt-16">
-          {/* linea conectora */}
-          <div className="pointer-events-none absolute left-0 right-0 top-10 hidden h-px bg-gradient-to-r from-transparent via-flame/40 to-transparent md:block" />
-          <div className="grid gap-8 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <Reveal key={s.n} delay={i * 120}>
-                <div className="relative flex flex-col items-center text-center">
-                  <div className="relative z-10 grid h-20 w-20 place-items-center rounded-[6px] border border-flame/40 bg-ink-card text-flame">
-                    <s.icon className="h-8 w-8" />
-                    <span className="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-[4px] bg-flame text-xs font-black text-ink">
-                      {s.n}
-                    </span>
-                  </div>
-                  <h3 className="mt-6 text-xl font-bold text-white">{s.title}</h3>
-                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                    {s.text}
-                  </p>
+        <div className="mt-16 grid gap-px border border-line bg-line md:grid-cols-3">
+          {STEPS.map((s, i) => (
+            <Reveal key={s.n} delay={i * 120}>
+              <div className="group flex h-full flex-col bg-carbon p-8 transition-colors hover:bg-graphite">
+                <div className="flex items-center justify-between">
+                  <span className="font-display text-6xl font-extrabold leading-none text-graphite-2 transition-colors group-hover:text-ember">
+                    {s.n}
+                  </span>
+                  <span className="datum text-[0.6rem] uppercase tracking-[0.16em] text-steel">
+                    Fase {s.n}
+                  </span>
                 </div>
-              </Reveal>
-            ))}
-          </div>
+                <h3 className="mt-8 font-display text-2xl font-bold uppercase tracking-tight text-chalk">
+                  {s.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-ash">{s.desc}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>

@@ -4,45 +4,36 @@ import { asset } from "@/lib/asset"
 
 interface LogoProps {
   className?: string
-  /** Muestra el wordmark "VPRO / TOTAL TRAINING" junto al icono. */
   withText?: boolean
 }
 
 /**
- * Logo de V Pro Training. Usa /public/brand/logo.png si existe;
- * si no, muestra un lockup tipografico de marca como respaldo.
+ * Logo de V Pro Total Training. Usa /public/brand/logo.png si existe;
+ * si no, un isotipo "V" sobre cuadrado fuego como respaldo.
  */
 export function Logo({ className, withText = true }: LogoProps) {
   const [failed, setFailed] = useState(false)
 
-  if (!failed) {
-    return (
-      <span className={cn("flex items-center gap-2.5", className)}>
-        <img
-          src={asset("/brand/logo.png")}
-          alt="V Pro Training"
-          onError={() => setFailed(true)}
-          className="h-10 w-10 rounded-md object-contain"
-        />
-        {withText && (
-          <span className="font-display text-lg font-black tracking-tight text-white">
-            VPRO<span className="text-flame"> TOTAL TRAINING</span>
-          </span>
-        )}
-      </span>
-    )
-  }
-
-  // Respaldo tipografico (hasta que exista logo.png)
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
-      <span className="grid h-10 w-10 place-items-center rounded-md bg-gradient-to-br from-flame-bright via-flame to-volt font-display text-lg font-black text-ink shadow-lg shadow-flame/30">
-        V
-      </span>
+      {!failed ? (
+        <img
+          src={asset("/brand/logo.png")}
+          alt="V Pro Total Training"
+          onError={() => setFailed(true)}
+          className="h-9 w-9 object-contain"
+        />
+      ) : (
+        <span className="grid h-9 w-9 place-items-center rounded-[2px] bg-ember font-display text-lg font-extrabold text-carbon">
+          V
+        </span>
+      )}
       {withText && (
         <span className="flex flex-col leading-none">
-          <span className="font-display text-lg font-black tracking-tight text-white">VPRO</span>
-          <span className="text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-flame">
+          <span className="font-display text-base font-extrabold uppercase tracking-tight text-chalk">
+            V PRO
+          </span>
+          <span className="font-mono text-[0.55rem] uppercase tracking-[0.28em] text-steel">
             Total Training
           </span>
         </span>
