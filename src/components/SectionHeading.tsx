@@ -1,4 +1,4 @@
-import { Reveal } from "@/components/telemetry"
+import { Reveal, Rule } from "@/components/telemetry"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -26,7 +26,7 @@ export function SectionHeading({
           <span className="channel">{channel}</span>
           {index && <span className="font-mono text-[0.7rem] text-steel">{index}</span>}
         </div>
-        <div className="rule mt-4" />
+        <Rule className="mt-4" />
       </Reveal>
       <Reveal delay={80}>
         <h2 className="mt-6 font-display text-[clamp(2.2rem,5.5vw,4.25rem)] font-extrabold uppercase leading-[0.92] tracking-[-0.01em] text-chalk">

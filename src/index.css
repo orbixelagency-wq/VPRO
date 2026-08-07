@@ -154,6 +154,72 @@
   }
 }
 
+/* ===========================================================
+   Secuencia de arranque del HUD (focal). CSS puro: se reproduce
+   al renderizar (sin depender de rAF) y degrada al estado final
+   visible si las animaciones estan desactivadas.
+   =========================================================== */
+@keyframes hud-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes hud-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes hud-frame {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cross-x {
+  from {
+    transform: translateY(-50%) scaleX(0);
+  }
+  to {
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+@keyframes cross-y {
+  from {
+    transform: translateX(-50%) scaleY(0);
+  }
+  to {
+    transform: translateX(-50%) scaleY(1);
+  }
+}
+
+.b-up {
+  animation: hud-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.b-in {
+  animation: hud-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.b-frame {
+  animation: hud-frame 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.b-crossx {
+  animation: cross-x 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+}
+.b-crossy {
+  animation: cross-y 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

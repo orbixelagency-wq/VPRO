@@ -13,6 +13,38 @@ export function CornerFrame({ className }: { className?: string }) {
   )
 }
 
+/** Regla hairline que se "dibuja" (scaleX) al entrar en viewport —
+ *  como trazar un eje de medicion. Reemplaza al fade generico. */
+export function Rule({ className }: { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { threshold: 1 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "rule origin-left transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        shown ? "scale-x-100" : "scale-x-0",
+        className
+      )}
+    />
+  )
+}
+
 interface RevealProps {
   children: ReactNode
   className?: string

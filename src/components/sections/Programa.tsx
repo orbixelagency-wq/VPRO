@@ -47,9 +47,10 @@ export function Programa() {
                   <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-chalk sm:text-3xl">
                     {c.title}
                   </h3>
-                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ash">{c.desc}</p>
+                  <span className="mt-2 block h-px w-14 origin-left scale-x-0 bg-ember transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
+                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ash">{c.desc}</p>
                 </div>
-                <span className="hidden self-center font-mono text-steel transition-colors group-hover:text-ember sm:block">
+                <span className="hidden self-center font-mono text-steel transition-all duration-300 group-hover:translate-x-1 group-hover:text-ember sm:block">
                   →
                 </span>
               </div>

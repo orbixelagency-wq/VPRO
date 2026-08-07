@@ -184,31 +184,43 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-carbon via-carbon/55 to-carbon/30" />
         <div className="absolute inset-0 bg-gradient-to-r from-carbon/80 via-transparent to-transparent" />
 
-        {/* Crosshair de encuadre (analisis) */}
+        {/* Crosshair de encuadre (analisis) — se expande desde el centro */}
         <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/[0.04]" />
-          <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-white/[0.04]" />
+          <div className="b-crossy absolute left-1/2 top-0 h-full w-px origin-center bg-white/[0.05]" />
+          <div className="b-crossx absolute left-0 top-1/2 h-px w-full origin-center bg-white/[0.05]" />
         </div>
 
         {/* HUD */}
         <div className="pointer-events-none absolute inset-0 z-20 text-steel">
           {/* marco */}
-          <div className="absolute inset-5 text-white/25 sm:inset-8">
+          <div
+            className="b-frame absolute inset-5 text-white/25 sm:inset-8"
+            style={{ animationDelay: "150ms" }}
+          >
             <CornerFrame />
           </div>
           {/* REC arriba izq */}
-          <div className="absolute left-8 top-8 flex items-center gap-2 font-mono text-[0.65rem] uppercase tracking-[0.2em] sm:left-11 sm:top-11">
+          <div
+            className="b-up absolute left-8 top-8 flex items-center gap-2 font-mono text-[0.65rem] uppercase tracking-[0.2em] sm:left-11 sm:top-11"
+            style={{ animationDelay: "300ms" }}
+          >
             <span className="h-1.5 w-1.5 rounded-full bg-ember animate-blink" />
             <span className="text-chalk/80">REC</span>
             <span>· Análisis en directo</span>
           </div>
           {/* timecode arriba der */}
-          <div className="absolute right-8 top-8 font-mono text-[0.65rem] tracking-[0.15em] sm:right-11 sm:top-11">
+          <div
+            className="b-up absolute right-8 top-8 font-mono text-[0.65rem] tracking-[0.15em] sm:right-11 sm:top-11"
+            style={{ animationDelay: "360ms" }}
+          >
             <span className="text-chalk/80">{fmt(videoTime)}</span>
             <span className="text-steel/60"> / {fmt(duration)}</span>
           </div>
           {/* ticks laterales */}
-          <div className="absolute right-8 top-1/2 hidden -translate-y-1/2 flex-col items-end gap-2 sm:flex sm:right-11">
+          <div
+            className="b-in absolute right-8 top-1/2 hidden -translate-y-1/2 flex-col items-end gap-2 sm:flex sm:right-11"
+            style={{ animationDelay: "500ms" }}
+          >
             {Array.from({ length: 9 }).map((_, i) => (
               <span
                 key={i}
@@ -218,13 +230,16 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
             ))}
           </div>
           {/* readout abajo izq */}
-          <div className="absolute bottom-8 left-8 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-steel sm:bottom-11 sm:left-11">
+          <div
+            className="b-up absolute bottom-8 left-8 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-steel sm:bottom-11 sm:left-11"
+            style={{ animationDelay: "420ms" }}
+          >
             LAT 41.98 · LON 2.82&nbsp;&nbsp;|&nbsp;&nbsp;FR {Math.round(videoTime * 25)}
           </div>
         </div>
 
         {/* Contenido corporativo (crossfade por etapa) */}
-        <div className="absolute inset-0 z-10">
+        <div className="b-up absolute inset-0 z-10" style={{ animationDelay: "340ms" }}>
           <div className="container flex h-full flex-col justify-center">
             {STAGES.map((s, i) => {
               const op = band(progress, s.start, s.end)
@@ -277,7 +292,10 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
         <div className="absolute bottom-0 left-0 z-20 h-[2px] w-full bg-white/10">
           <div className="h-full bg-ember" style={{ width: `${progress * 100}%` }} />
         </div>
-        <div className="absolute bottom-5 left-1/2 z-20 -translate-x-1/2 font-mono text-[0.6rem] tracking-[0.3em] text-steel sm:bottom-6">
+        <div
+          className="b-in absolute bottom-5 left-1/2 z-20 -translate-x-1/2 font-mono text-[0.6rem] tracking-[0.3em] text-steel sm:bottom-6"
+          style={{ animationDelay: "560ms" }}
+        >
           {String(activeStage + 1).padStart(2, "0")} / {String(STAGES.length).padStart(2, "0")}
           <span className="ml-3 text-steel/60">scroll</span>
         </div>

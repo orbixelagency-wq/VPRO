@@ -47,9 +47,10 @@ export function Navbar() {
             <button
               key={l.href}
               onClick={() => go(l.href)}
-              className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ash transition-colors hover:text-chalk"
+              className="group relative font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ash transition-colors hover:text-chalk"
             >
               {l.label}
+              <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-ember transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
             </button>
           ))}
           <Button size="sm" onClick={() => go("#contacto")}>
