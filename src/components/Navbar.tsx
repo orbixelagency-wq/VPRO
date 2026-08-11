@@ -9,7 +9,7 @@ const LINKS = [
   { href: "#programa", label: "Programa" },
   { href: "#sedes", label: "Sedes" },
   { href: "#metodo", label: "Método" },
-  { href: "#talento", label: "Talento" },
+  { href: "#once", label: "Once XI" },
 ]
 
 export function Navbar() {

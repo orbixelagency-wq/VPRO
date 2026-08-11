@@ -128,11 +128,20 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
       const d = durationRef.current
       if (d) {
         const cur = currentTimeRef.current
-        const next = cur + (targetTimeRef.current - cur) * 0.14
+        // Suavizado exponencial hacia el objetivo: la bajada "persigue" al scroll
+        const next = cur + (targetTimeRef.current - cur) * 0.16
         currentTimeRef.current = next
-        if (Math.abs(next - v.currentTime) > 0.03) {
+        const gap = Math.abs(next - v.currentTime)
+        // No encolamos un seek si el video aun esta buscando (evita tirones)
+        if (!v.seeking && gap > 0.012) {
           try {
-            v.currentTime = next
+            // Saltos grandes: fastSeek (al keyframe mas cercano) = mucho mas fluido.
+            // Ajuste fino al asentarse: seek preciso.
+            if (gap > 0.25 && typeof v.fastSeek === "function") {
+              v.fastSeek(next)
+            } else {
+              v.currentTime = next
+            }
           } catch {
             /* seek en curso */
           }

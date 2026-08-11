@@ -1,5 +1,4 @@
-import { Reveal } from "@/components/telemetry"
-import { CornerFrame } from "@/components/telemetry"
+import { Reveal, ClipReveal, Parallax, CornerFrame } from "@/components/telemetry"
 import { SectionHeading } from "@/components/SectionHeading"
 import { BrandImage } from "@/components/BrandImage"
 
@@ -38,13 +37,19 @@ export function Sedes() {
           {SEDES.map((s, i) => (
             <Reveal key={s.ciudad} delay={i * 120}>
               <article className="group h-full bg-carbon">
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <BrandImage
-                    src={s.img}
-                    alt={`Sede de ${s.ciudad}`}
-                    label={`Sede ${s.ciudad}`}
-                    imgClassName="transition-transform duration-700 group-hover:scale-[1.03]"
-                  />
+                <ClipReveal direction="up" className="relative aspect-[16/10] overflow-hidden">
+                  <Parallax
+                    speed={46}
+                    className="absolute -inset-y-[10%] inset-x-0"
+                    innerClassName="h-full w-full"
+                  >
+                    <BrandImage
+                      src={s.img}
+                      alt={`Sede de ${s.ciudad}`}
+                      label={`Sede ${s.ciudad}`}
+                      imgClassName="transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  </Parallax>
                   <div className="absolute inset-0 bg-gradient-to-t from-carbon via-transparent to-transparent" />
                   <div className="absolute inset-4 text-white/25">
                     <CornerFrame />
@@ -57,7 +62,7 @@ export function Sedes() {
                       {s.coord}
                     </span>
                   </div>
-                </div>
+                </ClipReveal>
 
                 <div className="p-7">
                   <h3 className="font-display text-lg font-bold uppercase tracking-tight text-chalk">

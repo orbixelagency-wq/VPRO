@@ -28,7 +28,7 @@ export function SectionHeading({
         </div>
         <Rule className="mt-4" />
       </Reveal>
-      <Reveal delay={80}>
+      <Reveal delay={80} y={22} blur>
         <h2 className="mt-6 font-display text-[clamp(2.2rem,5.5vw,4.25rem)] font-extrabold uppercase leading-[0.92] tracking-[-0.01em] text-chalk">
           {title}
           {highlight && <span className="text-ember"> {highlight}</span>}

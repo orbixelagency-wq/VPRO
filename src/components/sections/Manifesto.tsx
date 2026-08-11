@@ -1,4 +1,4 @@
-import { Reveal, CountUp } from "@/components/telemetry"
+import { Reveal, CountUp, Parallax } from "@/components/telemetry"
 
 const VALUES = [
   { name: "Humildad", desc: "Escuchar antes de corregir." },
@@ -11,8 +11,22 @@ const VALUES = [
 
 export function Manifesto() {
   return (
-    <section id="manifiesto" className="relative border-t border-line py-24 sm:py-32">
-      <div className="container">
+    <section id="manifiesto" className="relative overflow-hidden border-t border-line py-24 sm:py-32">
+      {/* Marca de agua tipografica con parallax (profundidad) */}
+      <Parallax
+        speed={120}
+        className="pointer-events-none absolute inset-x-0 top-16 select-none"
+        innerClassName="text-center"
+      >
+        <span
+          aria-hidden
+          className="font-display text-[26vw] font-extrabold uppercase leading-none tracking-tighter text-chalk/[0.025]"
+        >
+          Total
+        </span>
+      </Parallax>
+
+      <div className="container relative">
         <Reveal>
           <span className="channel">Manifiesto</span>
         </Reveal>

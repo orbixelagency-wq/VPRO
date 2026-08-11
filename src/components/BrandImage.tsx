@@ -35,13 +35,22 @@ export function BrandImage({ src, alt, label, className, imgClassName }: BrandIm
           )}
         />
       ) : (
-        <div className="grid h-full w-full place-items-center bg-[radial-gradient(circle_at_50%_35%,rgba(255,90,31,0.10),transparent_62%)]">
-          <div className="flex flex-col items-center gap-3">
-            <span className="grid h-12 w-12 place-items-center rounded-[3px] bg-ember font-display text-2xl font-extrabold text-carbon">
+        <div className="relative grid h-full w-full place-items-center bg-carbon">
+          {/* Marca de agua tipografica: el propio nombre, muy tenue */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 grid place-items-center overflow-hidden font-display text-[26vw] font-extrabold uppercase leading-none tracking-tighter text-chalk/[0.035] md:text-[12vw]"
+          >
+            V PRO
+          </span>
+          {/* Marco fino de encuadre */}
+          <span aria-hidden className="pointer-events-none absolute inset-4 border border-line" />
+          <div className="relative flex flex-col items-center gap-3">
+            <span className="grid h-11 w-11 place-items-center rounded-[3px] bg-ember font-display text-xl font-extrabold text-carbon">
               V
             </span>
             {label && (
-              <span className="px-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.24em] text-steel">
+              <span className="px-4 text-center font-mono text-[0.62rem] uppercase tracking-[0.24em] text-steel">
                 {label}
               </span>
             )}

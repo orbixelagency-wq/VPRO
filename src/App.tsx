@@ -1,10 +1,11 @@
 import { Navbar } from "@/components/Navbar"
+import { ScrollProgressBar } from "@/components/telemetry"
 import { VideoHero } from "@/components/ui/video-hero"
 import { Manifesto } from "@/components/sections/Manifesto"
 import { Programa } from "@/components/sections/Programa"
 import { Sedes } from "@/components/sections/Sedes"
 import { Method } from "@/components/sections/Method"
-import { Talento } from "@/components/sections/Talento"
+import { OnceInicial } from "@/components/sections/OnceInicial"
 import { Contact } from "@/components/sections/Contact"
 import { Footer } from "@/components/sections/Footer"
 
@@ -14,6 +15,7 @@ const scrollTo = (id: string) =>
 export default function App() {
   return (
     <div className="relative min-h-screen bg-carbon text-chalk">
+      <ScrollProgressBar />
       <Navbar />
 
       <VideoHero onContacto={() => scrollTo("contacto")} />
@@ -23,7 +25,7 @@ export default function App() {
         <Programa />
         <Sedes />
         <Method />
-        <Talento />
+        <OnceInicial />
         <Contact />
       </main>
 
