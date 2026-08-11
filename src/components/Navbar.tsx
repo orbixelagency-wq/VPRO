@@ -1,31 +1,27 @@
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Logo } from "@/components/Logo"
-import { cn } from "@/lib/utils"
 import { Menu, X } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { NAV, LOCATIONS } from "@/lib/content"
+import { Wordmark } from "@/components/Brand"
 
-const LINKS = [
-  { href: "#manifiesto", label: "Manifiesto" },
-  { href: "#programa", label: "Programa" },
-  { href: "#sedes", label: "Sedes" },
-  { href: "#metodo", label: "Método" },
-  { href: "#talento", label: "Talento" },
-]
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+}
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener("scroll", onScroll, { passive: true })
+    const onScroll = () => setScrolled(window.scrollY > 24)
     onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  const go = (href: string) => {
+  const go = (id: string) => {
     setOpen(false)
-    document.querySelector(href)?.scrollIntoView({ behavior: "smooth" })
+    scrollTo(id)
   }
 
   return (
@@ -33,58 +29,78 @@ export function Navbar() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
         scrolled
-          ? "border-b border-line bg-carbon/80 backdrop-blur-md"
-          : "border-b border-transparent"
+          ? "bg-ink/95 backdrop-blur-md border-b border-line"
+          : "bg-transparent"
       )}
     >
-      <nav className="container flex h-16 items-center justify-between">
-        <button onClick={() => go("#inicio")} aria-label="V Pro Total Training — inicio">
-          <Logo />
+      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6">
+        <button
+          onClick={() => go("top")}
+          className="shrink-0"
+          aria-label="Scoundrels Barbers — inicio"
+        >
+          <Wordmark />
         </button>
 
-        <div className="hidden items-center gap-8 lg:flex">
-          {LINKS.map((l) => (
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Principal">
+          {NAV.map((n) => (
             <button
-              key={l.href}
-              onClick={() => go(l.href)}
-              className="group relative font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ash transition-colors hover:text-chalk"
+              key={n.id}
+              onClick={() => go(n.id)}
+              className="font-cond text-[0.95rem] font-600 uppercase tracking-[0.14em] text-bone-dim transition-colors hover:text-bone"
             >
-              {l.label}
-              <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-ember transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
+              {n.label}
             </button>
           ))}
-          <Button size="sm" onClick={() => go("#contacto")}>
-            Contacto
-          </Button>
+        </nav>
+
+        <div className="hidden items-center gap-3 md:flex">
+          <a
+            href={LOCATIONS[0].phoneHref}
+            className="font-cond text-sm font-600 uppercase tracking-[0.12em] text-bone-dim transition-colors hover:text-neon"
+          >
+            {LOCATIONS[0].phone}
+          </a>
+          <button className="btn btn-neon" onClick={() => go("contacto")}>
+            Reserva
+          </button>
         </div>
 
         <button
-          className="text-chalk lg:hidden"
+          className="text-bone md:hidden"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Menú"
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={open}
         >
-          {open ? <X /> : <Menu />}
+          {open ? <X size={26} /> : <Menu size={26} />}
         </button>
-      </nav>
+      </div>
 
-      {open && (
-        <div className="border-t border-line bg-carbon/95 px-6 py-5 lg:hidden">
-          <div className="flex flex-col gap-4">
-            {LINKS.map((l) => (
-              <button
-                key={l.href}
-                onClick={() => go(l.href)}
-                className="text-left font-mono text-xs uppercase tracking-[0.18em] text-ash"
-              >
-                {l.label}
-              </button>
-            ))}
-            <Button size="sm" onClick={() => go("#contacto")}>
-              Contacto
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* menú móvil */}
+      <div
+        className={cn(
+          "overflow-hidden border-line bg-ink/95 backdrop-blur-md transition-[max-height] duration-300 md:hidden",
+          open ? "max-h-96 border-b" : "max-h-0"
+        )}
+      >
+        <nav className="flex flex-col px-6 py-4" aria-label="Móvil">
+          {NAV.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => go(n.id)}
+              className="border-b border-line py-3 text-left font-cond text-lg font-600 uppercase tracking-[0.12em] text-bone"
+            >
+              {n.label}
+            </button>
+          ))}
+          <button
+            className="btn btn-neon mt-4 w-full"
+            onClick={() => go("contacto")}
+          >
+            Reserva tu cita
+          </button>
+        </nav>
+      </div>
     </header>
   )
 }

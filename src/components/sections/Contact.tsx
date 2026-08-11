@@ -1,102 +1,175 @@
-import { Reveal, CornerFrame } from "@/components/telemetry"
-import { SectionHeading } from "@/components/SectionHeading"
-import { Button } from "@/components/ui/button"
-import { Mail, Instagram, MapPin, Phone } from "lucide-react"
-
-const CANALES = [
-  { icon: Mail, label: "Email", value: "info@vprototaltraining.com" },
-  { icon: Phone, label: "Teléfono", value: "+34 000 000 000" },
-  { icon: Instagram, label: "Instagram", value: "@vpro.totaltraining" },
-  { icon: MapPin, label: "Sedes", value: "Girona · Olot (Cataluña)" },
-]
+import { useState } from "react"
+import { Mail, Phone, Instagram, MapPin } from "lucide-react"
+import { CONTACT, LOCATIONS } from "@/lib/content"
+import { useReveal } from "@/lib/useReveal"
 
 export function Contact() {
+  const ref = useReveal<HTMLDivElement>()
+  const [form, setForm] = useState({
+    name: "",
+    contact: "",
+    place: "Girona",
+    message: "",
+  })
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const subject = `Cita en Scoundrels ${form.place} — ${form.name || "Nuevo mensaje"}`
+    const body = [
+      `Nombre: ${form.name}`,
+      `Contacto: ${form.contact}`,
+      `Local preferido: ${form.place}`,
+      "",
+      form.message,
+    ].join("\n")
+    window.location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`
+  }
+
+  const set =
+    (k: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setForm((f) => ({ ...f, [k]: e.target.value }))
+
   return (
-    <section id="contacto" className="relative border-t border-line py-24 sm:py-32">
-      <div className="container">
-        <SectionHeading
-          channel="Contacto"
-          index="REQ"
-          title="Solicita un análisis de"
-          highlight="talento"
-          description="El acceso al programa es personalizado. Escríbenos y valoramos el perfil del jugador antes de iniciar el proceso."
-        />
+    <section id="contacto" className="relative bg-ink">
+      <div className="mx-auto grid max-w-[1280px] gap-14 px-6 py-24 md:grid-cols-2 md:py-32">
+        {/* Columna de datos */}
+        <div ref={ref} className="reveal">
+          <p className="eyebrow mb-6">Contacta</p>
+          <h2 className="max-w-[12ch] text-[clamp(2.1rem,5vw,3.6rem)] text-bone">
+            Reserva tu momento
+          </h2>
+          <p className="mt-6 max-w-md font-sans text-lg leading-relaxed text-bone-dim">
+            Escríbenos o llámanos directamente al local. Te confirmamos hueco y
+            te esperamos con una cerveza fría.
+          </p>
 
-        <div className="mt-14 grid gap-px border border-line bg-line lg:grid-cols-[0.85fr_1.15fr]">
-          {/* Canales */}
-          <Reveal>
-            <div className="grid h-full grid-cols-1 gap-px bg-line sm:grid-cols-2 lg:grid-cols-1">
-              {CANALES.map((c) => (
-                <div key={c.label} className="flex items-center gap-4 bg-carbon p-6">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center border border-line text-ember">
-                    <c.icon className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-steel">
-                      {c.label}
-                    </p>
-                    <p className="text-sm font-medium text-chalk">{c.value}</p>
-                  </div>
+          <div className="mt-10 space-y-6">
+            <a
+              href={`mailto:${CONTACT.email}`}
+              className="group flex items-center gap-4"
+            >
+              <span className="grid h-11 w-11 place-items-center rounded-sm border border-line text-neon transition-colors group-hover:border-neon">
+                <Mail size={18} />
+              </span>
+              <span className="font-cond text-lg font-600 text-bone transition-colors group-hover:text-neon">
+                {CONTACT.email}
+              </span>
+            </a>
+
+            {LOCATIONS.map((loc) => (
+              <div key={loc.city} className="flex items-start gap-4">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-sm border border-line text-neon">
+                  <MapPin size={18} />
+                </span>
+                <div>
+                  <p className="font-cond text-[0.75rem] uppercase tracking-[0.14em] text-bone-dim">
+                    {loc.city}
+                  </p>
+                  <a
+                    href={loc.phoneHref}
+                    className="inline-flex items-center gap-2 font-cond text-lg font-700 text-bone transition-colors hover:text-neon"
+                  >
+                    <Phone size={15} className="text-neon" />
+                    {loc.phone}
+                  </a>
                 </div>
-              ))}
-            </div>
-          </Reveal>
+              </div>
+            ))}
 
-          {/* Formulario */}
-          <Reveal delay={120}>
-            <form className="relative bg-carbon p-7 sm:p-9" onSubmit={(e) => e.preventDefault()}>
-              <div className="absolute inset-4 text-white/10">
-                <CornerFrame />
-              </div>
-              <div className="relative grid gap-5 sm:grid-cols-2">
-                <Field label="Nombre y apellidos">
-                  <input className="vp-input" type="text" placeholder="Jugador o tutor" />
-                </Field>
-                <Field label="Email">
-                  <input className="vp-input" type="email" placeholder="correo@ejemplo.com" />
-                </Field>
-                <Field label="Sede de interés">
-                  <select className="vp-input">
-                    <option>Girona</option>
-                    <option>Olot</option>
-                    <option>Ambas</option>
-                  </select>
-                </Field>
-                <Field label="Posición / categoría">
-                  <input className="vp-input" type="text" placeholder="Ej. Extremo · Juvenil" />
-                </Field>
-              </div>
-              <div className="relative mt-5">
-                <Field label="Mensaje">
-                  <textarea
-                    className="vp-input min-h-[120px] resize-y"
-                    placeholder="Cuéntanos el objetivo del jugador…"
-                  />
-                </Field>
-              </div>
-              <div className="relative mt-7 flex items-center justify-between gap-4">
-                <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-steel">
-                  Respuesta 24–48h
-                </p>
-                <Button type="submit" size="lg">
-                  Enviar solicitud
-                </Button>
-              </div>
-            </form>
-          </Reveal>
+            <a
+              href={CONTACT.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-4"
+            >
+              <span className="grid h-11 w-11 place-items-center rounded-sm border border-line text-neon transition-colors group-hover:border-neon">
+                <Instagram size={18} />
+              </span>
+              <span className="font-cond text-lg font-600 text-bone transition-colors group-hover:text-neon">
+                @scoundrelsbarbers
+              </span>
+            </a>
+          </div>
         </div>
+
+        {/* Formulario */}
+        <form
+          onSubmit={onSubmit}
+          className="rounded-sm border border-line bg-ink-2 p-7 sm:p-9"
+        >
+          <p className="mb-6 font-cond text-[0.8rem] uppercase tracking-ticket text-neon">
+            Envía un mensaje
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="c-name" className="sr-only">
+                Nombre
+              </label>
+              <input
+                id="c-name"
+                className="field"
+                placeholder="Tu nombre"
+                value={form.name}
+                onChange={set("name")}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="c-contact" className="sr-only">
+                Email o teléfono
+              </label>
+              <input
+                id="c-contact"
+                className="field"
+                placeholder="Email o teléfono"
+                value={form.contact}
+                onChange={set("contact")}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="c-place" className="sr-only">
+                Local preferido
+              </label>
+              <select
+                id="c-place"
+                className="field appearance-none"
+                value={form.place}
+                onChange={set("place")}
+              >
+                {LOCATIONS.map((l) => (
+                  <option key={l.city} value={l.city}>
+                    Local: {l.city}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="c-msg" className="sr-only">
+                Mensaje
+              </label>
+              <textarea
+                id="c-msg"
+                className="field min-h-[120px] resize-y"
+                placeholder="¿Qué servicio buscas y cuándo te va bien?"
+                value={form.message}
+                onChange={set("message")}
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="btn btn-neon mt-6 w-full">
+            Enviar mensaje
+          </button>
+          <p className="mt-4 text-center font-cond text-[0.78rem] uppercase tracking-[0.1em] text-bone-dim">
+            Abrimos tu correo con el mensaje listo para enviar
+          </p>
+        </form>
       </div>
     </section>
-  )
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block font-mono text-[0.6rem] uppercase tracking-[0.2em] text-steel">
-        {label}
-      </span>
-      {children}
-    </label>
   )
 }

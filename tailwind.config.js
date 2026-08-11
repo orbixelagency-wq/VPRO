@@ -6,51 +6,51 @@ export default {
     container: {
       center: true,
       padding: "1.5rem",
-      screens: { "2xl": "1320px" },
+      screens: { "2xl": "1280px" },
     },
     extend: {
       colors: {
-        // Performance-lab palette (derivada del logo: negro + fuego)
-        carbon: "#0A0A0C",
-        graphite: {
-          DEFAULT: "#14161A",
-          2: "#1C1F25",
+        // Scoundrels — tinta cálida + papel de flash + neón rojo
+        ink: {
+          DEFAULT: "#14100E", // negro cálido dominante (interior del local)
+          2: "#1E1813", // paneles elevados
+          3: "#2A211B", // bordes cálidos / madera
         },
-        chalk: "#F2F3F5",
-        ash: "#9BA1AB",
-        steel: "#6E7B8C", // etiquetas de medicion (frio)
-        ember: {
-          DEFAULT: "#FF5A1F", // energia / esfuerzo (calido)
-          2: "#FF7A45",
+        bone: {
+          DEFAULT: "#ECE3D0", // papel de "flash" de tatuaje
+          2: "#DED2B8",
+          dim: "#B7AC93", // texto apagado sobre tinta
         },
-        gold: "#F5B301", // acento raro (el balon)
-        line: "rgba(242,243,245,0.10)",
-        // semanticos para shadcn
+        neon: {
+          DEFAULT: "#F5361F", // el rótulo de neón (acento único y fuerte)
+          2: "#FF6A4D",
+        },
+        rose: "#C22A1C", // rojo rosa profundo del logo
+        brass: "#C9A24B", // latón / bombilla Edison (acento raro)
+        line: "rgba(236,227,208,0.12)",
+        // semánticos shadcn
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         border: "hsl(var(--border))",
         ring: "hsl(var(--ring))",
       },
       fontFamily: {
-        display: ['"Saira Condensed"', "Inter", "sans-serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ['"Space Mono"', "ui-monospace", "monospace"],
+        slab: ['"Alfa Slab One"', "Georgia", "serif"],
+        script: ['"Yellowtail"', "cursive"],
+        sans: ['"Barlow"', "system-ui", "sans-serif"],
+        cond: ['"Barlow Condensed"', '"Barlow"', "sans-serif"],
       },
       letterSpacing: {
-        widest2: "0.32em",
+        ticket: "0.26em",
       },
       keyframes: {
-        "draw-x": {
-          from: { transform: "scaleX(0)" },
-          to: { transform: "scaleX(1)" },
-        },
-        blink: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.2" },
+        "pole-scroll": {
+          from: { backgroundPosition: "0 0" },
+          to: { backgroundPosition: "0 -56px" },
         },
       },
       animation: {
-        blink: "blink 1.4s steps(1) infinite",
+        pole: "pole-scroll 1.1s linear infinite",
       },
     },
   },
