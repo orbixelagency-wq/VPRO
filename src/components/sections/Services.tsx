@@ -1,12 +1,11 @@
 import { SERVICE_GROUPS } from "@/lib/content"
 import { Scissors } from "@/components/Brand"
 import { useReveal } from "@/lib/useReveal"
-
-const scrollTo = (id: string) =>
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+import { useBooking } from "@/components/Booking"
 
 export function Services() {
   const head = useReveal<HTMLDivElement>()
+  const book = useBooking()
   return (
     <section id="servicios" className="relative bg-ink">
       <div className="mx-auto max-w-[1280px] px-6 py-24 md:py-32">
@@ -40,7 +39,7 @@ export function Services() {
             Tarifas y packs disponibles en tienda — te asesoramos sin
             compromiso.
           </p>
-          <button className="btn btn-neon" onClick={() => scrollTo("contacto")}>
+          <button className="btn btn-neon" onClick={() => book()}>
             Pedir cita
           </button>
         </div>
@@ -57,6 +56,7 @@ function Ticket({
   delay: number
 }) {
   const ref = useReveal<HTMLDivElement>(delay)
+  const book = useBooking()
   return (
     <div
       ref={ref}
@@ -75,20 +75,25 @@ function Ticket({
 
       <ul className="divide-y divide-line">
         {group.items.map((s) => (
-          <li
-            key={s.name}
-            className="flex items-baseline justify-between gap-3 px-6 py-3.5"
-          >
-            <span className="font-sans font-600 text-bone">{s.name}</span>
-            <span className="mx-2 h-px flex-1 translate-y-[-2px] bg-line" />
-            <span className="text-right font-script text-lg leading-none text-neon">
-              {s.alias ?? ""}
-              {s.note ? (
-                <span className="ml-2 font-cond text-[0.7rem] uppercase tracking-wide text-bone-dim">
-                  {s.note}
-                </span>
-              ) : null}
-            </span>
+          <li key={s.name}>
+            <button
+              onClick={() =>
+                book(`${s.name}${s.alias ? ` · ${s.alias}` : ""}`)
+              }
+              className="flex w-full items-baseline justify-between gap-3 px-6 py-3.5 text-left transition-colors hover:bg-ink"
+              aria-label={`Reservar ${s.name}`}
+            >
+              <span className="font-sans font-600 text-bone">{s.name}</span>
+              <span className="mx-2 h-px flex-1 translate-y-[-2px] bg-line" />
+              <span className="text-right font-script text-lg leading-none text-neon">
+                {s.alias ?? ""}
+                {s.note ? (
+                  <span className="ml-2 font-cond text-[0.7rem] uppercase tracking-wide text-bone-dim">
+                    {s.note}
+                  </span>
+                ) : null}
+              </span>
+            </button>
           </li>
         ))}
       </ul>

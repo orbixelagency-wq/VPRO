@@ -1,9 +1,11 @@
 import { ArrowDown } from "lucide-react"
+import { useBooking } from "@/components/Booking"
 
 const scrollTo = (id: string) =>
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
 
 export function Hero() {
+  const book = useBooking()
   return (
     <section
       id="top"
@@ -46,8 +48,8 @@ export function Hero() {
         </p>
 
         <div className="mt-10 flex flex-wrap items-center gap-4">
-          <button className="btn btn-neon" onClick={() => scrollTo("contacto")}>
-            Reserva tu cita
+          <button className="btn btn-neon" onClick={() => book()}>
+            Reserva online
           </button>
           <button className="btn btn-ghost" onClick={() => scrollTo("servicios")}>
             Ver servicios

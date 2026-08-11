@@ -2,9 +2,11 @@ import { useState } from "react"
 import { Mail, Phone, Instagram, MapPin } from "lucide-react"
 import { CONTACT, LOCATIONS } from "@/lib/content"
 import { useReveal } from "@/lib/useReveal"
+import { useBooking } from "@/components/Booking"
 
 export function Contact() {
   const ref = useReveal<HTMLDivElement>()
+  const book = useBooking()
   const [form, setForm] = useState({
     name: "",
     contact: "",
@@ -42,9 +44,13 @@ export function Contact() {
             Reserva tu momento
           </h2>
           <p className="mt-6 max-w-md font-sans text-lg leading-relaxed text-bone-dim">
-            Escríbenos o llámanos directamente al local. Te confirmamos hueco y
-            te esperamos con una cerveza fría.
+            Reserva online en un minuto, escríbenos o llámanos directamente al
+            local. Te confirmamos hueco y te esperamos con una cerveza fría.
           </p>
+
+          <button className="btn btn-neon mt-6" onClick={() => book()}>
+            Reserva online
+          </button>
 
           <div className="mt-10 space-y-6">
             <a

@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { NAV, LOCATIONS } from "@/lib/content"
 import { Wordmark } from "@/components/Brand"
+import { useBooking } from "@/components/Booking"
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
@@ -11,6 +12,7 @@ const scrollTo = (id: string) => {
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const book = useBooking()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -61,7 +63,7 @@ export function Navbar() {
           >
             {LOCATIONS[0].phone}
           </a>
-          <button className="btn btn-neon" onClick={() => go("contacto")}>
+          <button className="btn btn-neon" onClick={() => book()}>
             Reserva
           </button>
         </div>
@@ -95,7 +97,10 @@ export function Navbar() {
           ))}
           <button
             className="btn btn-neon mt-4 w-full"
-            onClick={() => go("contacto")}
+            onClick={() => {
+              setOpen(false)
+              book()
+            }}
           >
             Reserva tu cita
           </button>
