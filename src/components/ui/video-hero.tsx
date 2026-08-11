@@ -6,14 +6,24 @@ import { asset } from "@/lib/asset"
 import { cn } from "@/lib/utils"
 
 /**
- * Hero-signature: "analisis en directo".
- * La linea de tiempo del video se vincula al scroll (scrubbing) y se enmarca
- * como material de analisis con un HUD de telemetria (timecode, corchetes,
- * coordenadas, ticks). Al bajar, el video se funde con fotos de rendimiento.
+ * HERO — "Secuencia de salida / analisis en directo"
+ * ---------------------------------------------------
+ * Un unico valor de progreso de scroll (0..1) sobre un tramo sticky dirige
+ * varios actos coreografiados:
+ *   0.00–0.22  Cold open: se ensambla la marca; el video se revela con cortina.
+ *   0.10–0.66  Scrubbing: la linea de tiempo del video sigue al scroll.
+ *   0.20–0.80  Titular que muta por actos + escala de medicion + HUD.
+ *   0.60–0.80  Crossfade a fotografia de rendimiento.
+ *   0.82–1.00  Cierre: todo se funde a carbon y entrega el testigo al Manifiesto.
+ *
+ * Coherente con la identidad "performance telemetry": timecode, coordenadas,
+ * corchetes de encuadre y datos en Space Mono. Cero imagenes de stock.
  */
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
+/** Opacidad de banda con desvanecido en los bordes. */
 const band = (p: number, start: number, end: number, fade = 0.06) => {
   if (p <= start - fade || p >= end + fade) return 0
   if (p < start) return (p - (start - fade)) / fade
@@ -27,7 +37,7 @@ const fmt = (t: number) => {
   return `00:${String(ss).padStart(2, "0")}:${String(mmm).padStart(3, "0")}`
 }
 
-interface Stage {
+interface Act {
   code: string
   eyebrow: string
   title: string
@@ -38,14 +48,14 @@ interface Stage {
   cta?: boolean
 }
 
-const STAGES: Stage[] = [
+const ACTS: Act[] = [
   {
     code: "EST",
     eyebrow: "Girona · Olot",
     title: "V PRO",
     text: "Centro de tecnificación y alto rendimiento de fútbol.",
-    start: 0,
-    end: 0.24,
+    start: 0.0,
+    end: 0.2,
     big: true,
   },
   {
@@ -53,21 +63,30 @@ const STAGES: Stage[] = [
     eyebrow: "Análisis",
     title: "Cada gesto, medido",
     text: "Perfeccionamos la técnica jugador a jugador con análisis biomecánico del movimiento.",
-    start: 0.34,
-    end: 0.58,
+    start: 0.3,
+    end: 0.5,
   },
   {
     code: "02",
     eyebrow: "Rendimiento",
     title: "Rendir bajo presión",
     text: "Físico integral y resistencia táctica para competir al máximo nivel.",
-    start: 0.66,
-    end: 1.05,
+    start: 0.58,
+    end: 0.78,
     cta: true,
   },
 ]
 
-const VIDEO_PHASE = 0.72
+const TICKER = [
+  "Tecnificación",
+  "Alto rendimiento",
+  "Biomecánica",
+  "Físico integral",
+  "Girona",
+  "Olot",
+]
+
+const VIDEO_PHASE = 0.66
 
 interface VideoHeroProps {
   onContacto?: () => void
@@ -83,6 +102,7 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(10)
 
+  // Progreso de scroll del tramo sticky
   useEffect(() => {
     let raf = 0
     const onScroll = () => {
@@ -105,6 +125,7 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
     }
   }, [])
 
+  // Scrubbing suave del video
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
@@ -128,15 +149,11 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
       const d = durationRef.current
       if (d) {
         const cur = currentTimeRef.current
-        // Suavizado exponencial hacia el objetivo: la bajada "persigue" al scroll
         const next = cur + (targetTimeRef.current - cur) * 0.16
         currentTimeRef.current = next
         const gap = Math.abs(next - v.currentTime)
-        // No encolamos un seek si el video aun esta buscando (evita tirones)
         if (!v.seeking && gap > 0.012) {
           try {
-            // Saltos grandes: fastSeek (al keyframe mas cercano) = mucho mas fluido.
-            // Ajuste fino al asentarse: seek preciso.
             if (gap > 0.25 && typeof v.fastSeek === "function") {
               v.fastSeek(next)
             } else {
@@ -158,57 +175,75 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
     }
   }, [])
 
-  const videoTime = clamp01(progress / VIDEO_PHASE) * duration
-  const photoA = clamp01((progress - 0.56) / 0.16)
-  const photoB = clamp01((progress - 0.76) / 0.16)
-  const videoOpacity = 1 - Math.max(photoA, photoB)
-  const activeStage = STAGES.reduce(
-    (acc, s, i) => (band(progress, s.start, s.end) > 0.5 ? i : acc),
+  const p = progress
+  const videoTime = clamp01(p / VIDEO_PHASE) * duration
+
+  // Cortina de revelado del video (de rendija a pantalla completa)
+  const revealT = clamp01((p - 0.04) / 0.18)
+  const inset = lerp(46, 0, revealT)
+  const videoClip = `inset(${inset}% 0% ${inset}% 0%)`
+
+  // Crossfade video -> foto -> cierre
+  const photo = clamp01((p - 0.6) / 0.16)
+  const outro = clamp01((p - 0.82) / 0.16)
+  const videoOpacity = (1 - photo) * (1 - outro)
+  const photoOpacity = photo * (1 - outro)
+
+  const activeAct = ACTS.reduce(
+    (acc, a, i) => (band(p, a.start, a.end) > 0.5 ? i : acc),
     0
   )
 
   return (
-    <section ref={wrapperRef} id="inicio" className="relative" style={{ height: "440vh" }}>
+    <section ref={wrapperRef} id="inicio" className="relative" style={{ height: "520vh" }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-carbon">
-        {/* Capas de video / foto */}
-        <div className="absolute inset-0" style={{ opacity: videoOpacity }}>
+        {/* ── Capa de video (revelado + scrub) ── */}
+        <div
+          className="absolute inset-0"
+          style={{ opacity: videoOpacity, clipPath: videoClip }}
+        >
           <video
             ref={videoRef}
             src={asset("/media/vpro-hero.mp4")}
             muted
             playsInline
             preload="auto"
+            disablePictureInPicture
             className="h-full w-full object-cover"
-            style={{ transform: `scale(${1.04 + progress * 0.05})` }}
+            style={{ transform: `scale(${1.06 + p * 0.06})` }}
           />
         </div>
-        <div className="absolute inset-0" style={{ opacity: photoA * (1 - photoB) }}>
-          <BrandImage src="/brand/hero-1.jpg" alt="Análisis técnico" label="Análisis · Girona" />
-        </div>
-        <div className="absolute inset-0" style={{ opacity: photoB }}>
-          <BrandImage src="/brand/hero-2.jpg" alt="Rendimiento físico" label="Rendimiento · Olot" />
+
+        {/* ── Fotografia de rendimiento (crossfade) ── */}
+        <div className="absolute inset-0" style={{ opacity: photoOpacity }}>
+          <BrandImage
+            src="/brand/hero-2.jpg"
+            alt="Rendimiento físico"
+            label="Rendimiento · Olot"
+            imgClassName="scale-105"
+          />
         </div>
 
-        {/* Oscurecido institucional */}
-        <div className="absolute inset-0 bg-gradient-to-t from-carbon via-carbon/55 to-carbon/30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-carbon/80 via-transparent to-transparent" />
+        {/* ── Gradientes institucionales ── */}
+        <div className="absolute inset-0 bg-gradient-to-t from-carbon via-carbon/55 to-carbon/25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-carbon/85 via-transparent to-transparent" />
+        {/* Cierre a carbon (handoff) */}
+        <div className="absolute inset-0 bg-carbon" style={{ opacity: outro }} />
 
-        {/* Crosshair de encuadre (analisis) — se expande desde el centro */}
-        <div className="pointer-events-none absolute inset-0" aria-hidden>
+        {/* ── Crosshair de encuadre ── */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden style={{ opacity: 1 - outro }}>
           <div className="b-crossy absolute left-1/2 top-0 h-full w-px origin-center bg-white/[0.05]" />
           <div className="b-crossx absolute left-0 top-1/2 h-px w-full origin-center bg-white/[0.05]" />
         </div>
 
-        {/* HUD */}
-        <div className="pointer-events-none absolute inset-0 z-20 text-steel">
-          {/* marco */}
-          <div
-            className="b-frame absolute inset-5 text-white/25 sm:inset-8"
-            style={{ animationDelay: "150ms" }}
-          >
+        {/* ── HUD de telemetria ── */}
+        <div
+          className="pointer-events-none absolute inset-0 z-20 text-steel"
+          style={{ opacity: (1 - outro) * clamp01(revealT + 0.15) }}
+        >
+          <div className="b-frame absolute inset-5 text-white/25 sm:inset-8" style={{ animationDelay: "150ms" }}>
             <CornerFrame />
           </div>
-          {/* REC arriba izq */}
           <div
             className="b-up absolute left-8 top-8 flex items-center gap-2 font-mono text-[0.65rem] uppercase tracking-[0.2em] sm:left-11 sm:top-11"
             style={{ animationDelay: "300ms" }}
@@ -217,7 +252,6 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
             <span className="text-chalk/80">REC</span>
             <span>· Análisis en directo</span>
           </div>
-          {/* timecode arriba der */}
           <div
             className="b-up absolute right-8 top-8 font-mono text-[0.65rem] tracking-[0.15em] sm:right-11 sm:top-11"
             style={{ animationDelay: "360ms" }}
@@ -225,20 +259,27 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
             <span className="text-chalk/80">{fmt(videoTime)}</span>
             <span className="text-steel/60"> / {fmt(duration)}</span>
           </div>
-          {/* ticks laterales */}
+
+          {/* Escala de medicion vertical que "se llena" con el scroll */}
           <div
             className="b-in absolute right-8 top-1/2 hidden -translate-y-1/2 flex-col items-end gap-2 sm:flex sm:right-11"
             style={{ animationDelay: "500ms" }}
           >
-            {Array.from({ length: 9 }).map((_, i) => (
-              <span
-                key={i}
-                className="block h-px bg-white/20"
-                style={{ width: i % 2 === 0 ? 14 : 7 }}
-              />
-            ))}
+            {Array.from({ length: 11 }).map((_, i) => {
+              const on = p > i / 11
+              return (
+                <span
+                  key={i}
+                  className="block h-px transition-colors duration-300"
+                  style={{
+                    width: i % 2 === 0 ? 16 : 8,
+                    background: on ? "#FF5A1F" : "rgba(255,255,255,0.2)",
+                  }}
+                />
+              )
+            })}
           </div>
-          {/* readout abajo izq */}
+
           <div
             className="b-up absolute bottom-8 left-8 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-steel sm:bottom-11 sm:left-11"
             style={{ animationDelay: "420ms" }}
@@ -247,11 +288,11 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
           </div>
         </div>
 
-        {/* Contenido corporativo (crossfade por etapa) */}
-        <div className="b-up absolute inset-0 z-10" style={{ animationDelay: "340ms" }}>
+        {/* ── Contenido corporativo (crossfade por acto) ── */}
+        <div className="absolute inset-0 z-10" style={{ opacity: 1 - outro }}>
           <div className="container flex h-full flex-col justify-center">
-            {STAGES.map((s, i) => {
-              const op = band(progress, s.start, s.end)
+            {ACTS.map((a, i) => {
+              const op = band(p, a.start, a.end)
               return (
                 <div
                   key={i}
@@ -259,35 +300,39 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
                   style={{
                     opacity: op,
                     transform: `translateY(${(1 - op) * 26}px)`,
+                    filter: op < 0.9 ? `blur(${(1 - op) * 8}px)` : "none",
                     pointerEvents: op > 0.6 ? "auto" : "none",
                   }}
                 >
                   <div className="mx-auto w-full max-w-6xl">
                     <span className="channel text-ember">
                       <span className="text-steel">
-                        {s.code}
+                        {a.code}
                         {" · "}
-                        {s.eyebrow}
+                        {a.eyebrow}
                       </span>
                     </span>
                     <h1
                       className={cn(
                         "mt-4 font-display font-extrabold uppercase leading-[0.86] text-chalk",
-                        s.big
+                        a.big
                           ? "text-[clamp(4.5rem,17vw,15rem)] tracking-[-0.02em]"
                           : "text-[clamp(2.6rem,8vw,6rem)] tracking-[-0.01em]"
                       )}
                     >
-                      {s.title}
+                      {a.title}
                     </h1>
                     <p className="mt-5 max-w-lg text-base leading-relaxed text-ash sm:text-lg">
-                      {s.text}
+                      {a.text}
                     </p>
-                    {s.cta && (
-                      <div className="mt-8">
+                    {a.cta && (
+                      <div className="mt-8 flex items-center gap-4">
                         <Button size="lg" onClick={onContacto}>
                           Solicitar análisis
                         </Button>
+                        <span className="hidden font-mono text-[0.6rem] uppercase tracking-[0.2em] text-steel sm:block">
+                          Respuesta 24–48h
+                        </span>
                       </div>
                     )}
                   </div>
@@ -297,15 +342,58 @@ export function VideoHero({ onContacto }: VideoHeroProps) {
           </div>
         </div>
 
-        {/* Barra de progreso + etapa */}
+        {/* ── Ticker vinculado al scroll ── */}
+        <div
+          className="pointer-events-none absolute bottom-16 left-0 z-10 w-full overflow-hidden sm:bottom-20"
+          style={{ opacity: (1 - outro) * clamp01((p - 0.02) / 0.1) }}
+          aria-hidden
+        >
+          <div
+            className="flex w-max gap-8 whitespace-nowrap font-display text-xl font-bold uppercase tracking-tight text-chalk/10 sm:text-2xl"
+            style={{ transform: `translateX(${-p * 55}%)` }}
+          >
+            {[...TICKER, ...TICKER, ...TICKER].map((w, i) => (
+              <span key={i} className="flex items-center gap-8">
+                {w}
+                <span className="text-ember/40">/</span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Cierre / handoff al Manifiesto: sello de marca ── */}
+        <div
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5"
+          style={{ opacity: outro, pointerEvents: "none" }}
+        >
+          <span
+            className="grid h-16 w-16 place-items-center rounded-[4px] bg-ember font-display text-3xl font-extrabold text-carbon"
+            style={{ transform: `scale(${lerp(0.9, 1, outro)})` }}
+          >
+            V
+          </span>
+          <div className="flex flex-col items-center leading-none">
+            <span className="font-display text-2xl font-extrabold uppercase tracking-tight text-chalk">
+              V PRO
+            </span>
+            <span className="mt-1.5 font-mono text-[0.6rem] uppercase tracking-[0.3em] text-steel">
+              Total Training
+            </span>
+          </div>
+          <span className="mt-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-steel">
+            ↓ Manifiesto
+          </span>
+        </div>
+
+        {/* ── Barra de progreso + contador de acto ── */}
         <div className="absolute bottom-0 left-0 z-20 h-[2px] w-full bg-white/10">
-          <div className="h-full bg-ember" style={{ width: `${progress * 100}%` }} />
+          <div className="h-full bg-ember" style={{ width: `${p * 100}%` }} />
         </div>
         <div
           className="b-in absolute bottom-5 left-1/2 z-20 -translate-x-1/2 font-mono text-[0.6rem] tracking-[0.3em] text-steel sm:bottom-6"
-          style={{ animationDelay: "560ms" }}
+          style={{ animationDelay: "560ms", opacity: 1 - outro }}
         >
-          {String(activeStage + 1).padStart(2, "0")} / {String(STAGES.length).padStart(2, "0")}
+          {String(activeAct + 1).padStart(2, "0")} / {String(ACTS.length).padStart(2, "0")}
           <span className="ml-3 text-steel/60">scroll</span>
         </div>
       </div>
