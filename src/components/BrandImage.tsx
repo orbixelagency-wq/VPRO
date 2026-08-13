@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils"
 import { asset } from "@/lib/asset"
 
 interface BrandImageProps {
-  /** Ruta a la foto OFICIAL de marca en /public/brand (ej. "/brand/giro-1.jpg").
-   *  Si no existe todavia, se muestra un placeholder de marca (nunca stock). */
+  /** Ruta a la foto oficial en /public/brand (ej. "/brand/local-mahon.jpg").
+   *  Mientras el archivo no exista, se muestra un placeholder de marca. */
   src?: string
   alt: string
   label?: string
@@ -14,8 +14,8 @@ interface BrandImageProps {
 
 /**
  * Muestra una imagen oficial de la marca. Mientras el archivo no exista,
- * renderiza un placeholder cinematografico (negro + monograma V) para
- * cumplir la regla estricta de "cero imagenes de stock".
+ * renderiza un placeholder cinematográfico (onyx + monograma) para no
+ * depender de imágenes de stock.
  */
 export function BrandImage({ src, alt, label, className, imgClassName }: BrandImageProps) {
   const [failed, setFailed] = useState(false)
@@ -35,13 +35,13 @@ export function BrandImage({ src, alt, label, className, imgClassName }: BrandIm
           )}
         />
       ) : (
-        <div className="grid h-full w-full place-items-center bg-[radial-gradient(circle_at_50%_35%,rgba(255,90,31,0.10),transparent_62%)]">
+        <div className="grain grid h-full w-full place-items-center bg-[radial-gradient(circle_at_50%_38%,rgba(200,155,75,0.12),transparent_64%)]">
           <div className="flex flex-col items-center gap-3">
-            <span className="grid h-12 w-12 place-items-center rounded-[3px] bg-ember font-display text-2xl font-extrabold text-carbon">
-              V
+            <span className="grid h-14 w-14 place-items-center rounded-full border border-ember/70 font-display text-2xl text-ember">
+              O
             </span>
             {label && (
-              <span className="px-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.24em] text-steel">
+              <span className="px-4 text-center font-sans text-[0.62rem] font-semibold uppercase tracking-[0.26em] text-steel">
                 {label}
               </span>
             )}

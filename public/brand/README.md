@@ -1,33 +1,40 @@
-# Assets oficiales de marca — V Pro Total Training
+# Assets oficiales de marca — Oblivion Barbers & Care
 
-Regla estricta: en esta web **solo** se usan el logo y las fotos oficiales de
-V Pro Total Training. Nada de imagenes de stock.
+En esta web se usan el logo y las fotos oficiales de Oblivion. Mientras no
+existan, se muestra un placeholder de marca (onyx + monograma "O"), así que la
+web funciona igual sin las imágenes.
 
-Deja aqui los siguientes archivos con **exactamente estos nombres** y apareceran
-automaticamente (mientras no existan, se muestra un placeholder de marca):
+Deja aquí los archivos con **exactamente estos nombres** y aparecerán solos:
 
 ## Logo
-- `logo.png` — icono corporativo (la "V" sobre fondo naranja/dorado), idealmente
-  cuadrado y con fondo transparente. Se usa en navbar y footer.
 
-## Hero (revelado multimedia por scroll)
-- El video ya esta integrado en `public/media/vpro-hero.mp4`.
-- `hero-1.jpg` — foto de rendimiento (tecnificacion / biomecanica)
-- `hero-2.jpg` — foto de rendimiento (fisico / tactica)
+- `logo.png` — isotipo/logo de Oblivion (idealmente cuadrado, fondo
+  transparente). Se usa en la barra superior y el pie.
 
-## Sedes
-- `sede-girona.jpg` — instalacion / entrenamiento en Girona
-- `sede-olot.jpg` — instalacion / entrenamiento en Olot
+## Hero (portada)
 
-## Jugadores destacados
-- `player-krishna.jpg`    — Krishna Rawal
-- `player-saibo.jpg`      — Saibo
-- `player-polcufi.jpg`    — Pol Cufi
-- `player-isaacbruno.jpg` — Isaac Bruno
-- `player-kirandopico.jpg`— Kiran Dopico
+- `hero.jpg` — retrato de barbería (barbero trabajando / cliente). Horizontal,
+  min. 1600×1000 px. Se muestra velado detrás del texto gigante.
+
+## Experiencia
+
+- `ambiente.jpg` — foto del interior/ambiente de un local.
+
+## Locales
+
+- `local-escastell.jpg` — local de Es Castell (Villacarlos)
+- `local-mahon.jpg` — local de Mahón
+- `local-ciutadella.jpg` — local de Ciutadella
 
 ## Recomendaciones
-- Hero/sedes: horizontal, min. 1600x1000 px, .jpg optimizado (<400 KB).
-- Jugadores: vertical (retrato 3:4), min. 700x930 px.
-- Para cambiar rutas/nombres, edita los arrays en los componentes de
-  `src/components/ui/video-hero.tsx` y `src/components/sections/*`.
+
+- Formato `.jpg` optimizado (<400 KB), a poder ser en blanco y negro o con
+  tono cálido para encajar con la estética latón/oro sobre onyx.
+- Para cambiar rutas o textos, edita los arrays en
+  `src/components/Hero.tsx` y `src/components/sections/*`.
+
+## Enlaces de reserva
+
+Los botones de reserva apuntan a las plataformas Yeasy y Fresha
+(`src/components/sections/Reservas.tsx`). Sustituye las URLs genéricas por los
+enlaces directos de cada local cuando los tengas.

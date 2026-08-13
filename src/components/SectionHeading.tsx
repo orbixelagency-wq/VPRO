@@ -24,7 +24,11 @@ export function SectionHeading({
       <Reveal>
         <div className="flex items-center justify-between">
           <span className="channel">{channel}</span>
-          {index && <span className="font-mono text-[0.7rem] text-steel">{index}</span>}
+          {index && (
+            <span className="datum font-sans text-[0.7rem] font-semibold tracking-[0.14em] text-steel">
+              {index}
+            </span>
+          )}
         </div>
         <Rule className="mt-4" />
       </Reveal>

@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 /* ===========================================================
-   V PRO TOTAL TRAINING — "Performance telemetry"
-   Carbon negro + fuego (ember/gold) + acero (steel) para datos.
-   Display: Saira Condensed · Body: Inter · Datos: Space Mono
+   OBLIVION BARBERS & CARE — barbería premium en Menorca
+   Onyx cálido + latón/oro (ember/gold) + crema (chalk).
+   Display: Anton · Editorial: Cormorant Garamond · Texto: Inter
    =========================================================== */
 @layer base {
   :root {
-    --background: 240 8% 4%;
-    --foreground: 220 12% 96%;
-    --border: 220 10% 100% / 0.1;
-    --ring: 16 100% 56%;
+    --background: 40 12% 4%;
+    --foreground: 42 33% 93%;
+    --border: 42 40% 92% / 0.1;
+    --ring: 40 52% 54%;
   }
 
   * {
@@ -26,9 +26,8 @@
 
   body {
     @apply bg-carbon font-sans text-chalk;
-    background-color: #0a0a0c;
-    /* clip (no hidden) para no convertir el body en scroll-container,
-       lo que romperia el sticky del hero y el scroll de la ventana */
+    background-color: #0c0b0a;
+    /* clip (no hidden) para no convertir el body en scroll-container */
     overflow-x: clip;
   }
 
@@ -36,48 +35,48 @@
   h2,
   h3 {
     @apply font-display;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    font-weight: 400; /* Anton ya es pesada */
+    letter-spacing: 0.01em;
   }
 
   ::selection {
-    background: #ff5a1f;
-    color: #0a0a0c;
+    background: #c89b4b;
+    color: #0c0b0a;
   }
 
   ::-webkit-scrollbar {
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0a0a0c;
+    background: #0c0b0a;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2d34;
+    background: #2a2419;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #ff5a1f;
+    background: #c89b4b;
   }
 
   :focus-visible {
-    outline: 2px solid #ff5a1f;
+    outline: 2px solid #c89b4b;
     outline-offset: 3px;
   }
 }
 
 @layer components {
-  /* Etiqueta de canal mono: [ TEC · TECNIFICACION ] */
+  /* Etiqueta de sección: — CUIDADO MASCULINO */
   .channel {
-    @apply inline-flex items-center gap-2.5 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-steel;
+    @apply inline-flex items-center gap-2.5 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-steel;
   }
   .channel::before {
     content: "";
     width: 26px;
     height: 1px;
-    background: #ff5a1f;
+    background: #c89b4b;
     display: inline-block;
   }
 
-  /* Regla fina "chalk" */
+  /* Regla fina */
   .rule {
     height: 1px;
     width: 100%;
@@ -85,40 +84,45 @@
     transform-origin: left;
   }
 
-  /* Panel de datos */
+  /* Panel */
   .panel {
-    background: #14161a;
+    background: #16130f;
     border: 1px solid hsl(var(--border));
   }
 
-  /* Numero de dato grande (mono tabular) */
+  /* Número/cifra grande (tabular) */
   .datum {
-    font-family: "Space Mono", monospace;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
   }
 
-  /* Input telemetria */
+  /* Detalle editorial en cursiva serif */
+  .accent-serif {
+    @apply font-serif italic;
+  }
+
+  /* Input */
   .vp-input {
     width: 100%;
-    background: #0c0d10;
+    background: #0a0908;
     border: 1px solid hsl(var(--border));
     border-radius: 2px;
-    padding: 0.7rem 0.85rem;
+    padding: 0.72rem 0.9rem;
     font-size: 0.9rem;
-    color: #f2f3f5;
+    color: #f5f0e6;
     outline: none;
     transition: border-color 0.2s ease;
   }
   .vp-input::placeholder {
-    color: rgba(155, 161, 171, 0.5);
+    color: rgba(173, 164, 146, 0.5);
   }
   .vp-input:focus {
-    border-color: #ff5a1f;
+    border-color: #c89b4b;
   }
 }
 
 @layer utilities {
-  /* Corchetes de esquina tipo HUD / lineas de campo */
+  /* Corchetes de esquina tipo marco / encuadre. */
   .corner-tl,
   .corner-tr,
   .corner-bl,
@@ -152,24 +156,40 @@
     border-bottom: 1px solid;
     border-right: 1px solid;
   }
+
+  /* Trama sutil de líneas (textura de fondo) */
+  .grain {
+    background-image: radial-gradient(
+      rgba(245, 240, 230, 0.03) 1px,
+      transparent 1px
+    );
+    background-size: 4px 4px;
+  }
+
+  /* Texto con degradado de latón */
+  .text-brass {
+    background: linear-gradient(180deg, #e9c978 0%, #c89b4b 55%, #a97f38 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 /* ===========================================================
-   Secuencia de arranque del HUD (focal). CSS puro: se reproduce
-   al renderizar (sin depender de rAF) y degrada al estado final
-   visible si las animaciones estan desactivadas.
+   Secuencia de entrada (CSS puro; degrada al estado final si
+   las animaciones están desactivadas).
    =========================================================== */
-@keyframes hud-up {
+@keyframes ob-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: none;
   }
 }
-@keyframes hud-in {
+@keyframes ob-in {
   from {
     opacity: 0;
   }
@@ -177,7 +197,7 @@
     opacity: 1;
   }
 }
-@keyframes hud-frame {
+@keyframes ob-frame {
   from {
     opacity: 0;
     transform: scale(0.985);
@@ -187,37 +207,15 @@
     transform: none;
   }
 }
-@keyframes cross-x {
-  from {
-    transform: translateY(-50%) scaleX(0);
-  }
-  to {
-    transform: translateY(-50%) scaleX(1);
-  }
-}
-@keyframes cross-y {
-  from {
-    transform: translateX(-50%) scaleY(0);
-  }
-  to {
-    transform: translateX(-50%) scaleY(1);
-  }
-}
 
 .b-up {
-  animation: hud-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: ob-up 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .b-in {
-  animation: hud-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: ob-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .b-frame {
-  animation: hud-frame 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.b-crossx {
-  animation: cross-x 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
-}
-.b-crossy {
-  animation: cross-y 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+  animation: ob-frame 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

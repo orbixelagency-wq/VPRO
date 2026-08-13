@@ -10,31 +10,31 @@ export default {
     },
     extend: {
       colors: {
-        // Performance-lab palette (derivada del logo: negro + fuego)
-        carbon: "#0A0A0C",
+        // Oblivion — barbería premium: onyx cálido + latón/oro + crema
+        carbon: "#0C0B0A", // fondo (onyx cálido)
         graphite: {
-          DEFAULT: "#14161A",
-          2: "#1C1F25",
+          DEFAULT: "#16130F", // paneles
+          2: "#201B14", // paneles elevados
         },
-        chalk: "#F2F3F5",
-        ash: "#9BA1AB",
-        steel: "#6E7B8C", // etiquetas de medicion (frio)
+        chalk: "#F5F0E6", // texto crema
+        ash: "#ADA492", // texto atenuado (taupe cálido)
+        steel: "#8C8065", // etiquetas / meta (latón apagado)
         ember: {
-          DEFAULT: "#FF5A1F", // energia / esfuerzo (calido)
-          2: "#FF7A45",
+          DEFAULT: "#C89B4B", // acento principal (latón/oro)
+          2: "#DDB768", // hover / brillo
         },
-        gold: "#F5B301", // acento raro (el balon)
-        line: "rgba(242,243,245,0.10)",
-        // semanticos para shadcn
+        gold: "#E9C978", // realce claro
+        line: "rgba(245,240,230,0.10)",
+        // semánticos para shadcn
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         border: "hsl(var(--border))",
         ring: "hsl(var(--ring))",
       },
       fontFamily: {
-        display: ['"Saira Condensed"', "Inter", "sans-serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ['"Space Mono"', "ui-monospace", "monospace"],
+        display: ['"Anton"', '"Oswald"', "Impact", "sans-serif"],
+        serif: ['"Cormorant Garamond"', "Georgia", "serif"],
+        sans: ['"Inter"', "system-ui", "sans-serif"],
       },
       letterSpacing: {
         widest2: "0.32em",
@@ -44,13 +44,13 @@ export default {
           from: { transform: "scaleX(0)" },
           to: { transform: "scaleX(1)" },
         },
-        blink: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.2" },
+        shimmer: {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
         },
       },
       animation: {
-        blink: "blink 1.4s steps(1) infinite",
+        shimmer: "shimmer 6s linear infinite",
       },
     },
   },

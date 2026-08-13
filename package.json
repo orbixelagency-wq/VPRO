@@ -1,9 +1,9 @@
 {
-  "name": "vpro-training",
+  "name": "oblivion-barbers",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Web corporativa y sistema de reservas de V Pro Training - tecnificacion y alto rendimiento de futbol en Girona y Olot.",
+  "description": "Web de Oblivion Barbers & Care - barberia y estetica masculina en Menorca (Es Castell, Mahon, Ciutadella).",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

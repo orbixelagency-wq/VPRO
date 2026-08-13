@@ -1,11 +1,10 @@
 import { Navbar } from "@/components/Navbar"
-import { VideoHero } from "@/components/ui/video-hero"
-import { Manifesto } from "@/components/sections/Manifesto"
-import { Programa } from "@/components/sections/Programa"
-import { Sedes } from "@/components/sections/Sedes"
-import { Method } from "@/components/sections/Method"
-import { Talento } from "@/components/sections/Talento"
-import { Contact } from "@/components/sections/Contact"
+import { Hero } from "@/components/Hero"
+import { Filosofia } from "@/components/sections/Filosofia"
+import { Servicios } from "@/components/sections/Servicios"
+import { Experiencia } from "@/components/sections/Experiencia"
+import { Locales } from "@/components/sections/Locales"
+import { Reservas } from "@/components/sections/Reservas"
 import { Footer } from "@/components/sections/Footer"
 
 const scrollTo = (id: string) =>
@@ -16,15 +15,14 @@ export default function App() {
     <div className="relative min-h-screen bg-carbon text-chalk">
       <Navbar />
 
-      <VideoHero onContacto={() => scrollTo("contacto")} />
+      <Hero onReservar={() => scrollTo("reservas")} onLocales={() => scrollTo("locales")} />
 
       <main className="relative z-10 bg-carbon">
-        <Manifesto />
-        <Programa />
-        <Sedes />
-        <Method />
-        <Talento />
-        <Contact />
+        <Filosofia />
+        <Servicios />
+        <Experiencia />
+        <Locales />
+        <Reservas />
       </main>
 
       <Footer />
