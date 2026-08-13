@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/Navbar"
-import { Hero } from "@/components/Hero"
+import { Component as OblivionHero } from "@/components/ui/oblivion-hero-scroll"
 import { Filosofia } from "@/components/sections/Filosofia"
 import { Servicios } from "@/components/sections/Servicios"
 import { Experiencia } from "@/components/sections/Experiencia"
@@ -15,7 +15,10 @@ export default function App() {
     <div className="relative min-h-screen bg-carbon text-chalk">
       <Navbar />
 
-      <Hero onReservar={() => scrollTo("reservas")} onLocales={() => scrollTo("locales")} />
+      <OblivionHero
+        onReservar={() => scrollTo("reservas")}
+        onLocales={() => scrollTo("locales")}
+      />
 
       <main className="relative z-10 bg-carbon">
         <Filosofia />

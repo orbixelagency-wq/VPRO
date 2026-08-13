@@ -218,6 +218,161 @@
   animation: ob-frame 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* ===========================================================
+   Hero cinematográfico dirigido por scroll (oblivion-hero-scroll)
+   =========================================================== */
+.oh-root {
+  position: relative;
+  height: 320vh; /* recorrido de scroll para las 3 escenas */
+}
+.oh-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: #0c0b0a;
+}
+.oh-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+/* Veladura: viñeta + halo cálido inferior */
+.oh-veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(200, 155, 75, 0.16), transparent 55%),
+    radial-gradient(100% 100% at 50% 50%, transparent 55%, rgba(12, 11, 10, 0.85) 100%),
+    linear-gradient(to top, rgba(12, 11, 10, 0.9), transparent 40%);
+}
+.oh-fallback-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(200, 155, 75, 0.18), transparent 60%),
+    #0c0b0a;
+}
+
+.oh-side {
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  pointer-events: none;
+}
+.oh-side-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, #c89b4b, transparent);
+}
+.oh-side-text {
+  writing-mode: vertical-rl;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #8c8065;
+}
+@media (max-width: 640px) {
+  .oh-side {
+    display: none;
+  }
+}
+
+.oh-content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 1.5rem;
+  pointer-events: none;
+}
+.oh-scene {
+  position: absolute;
+  width: min(1180px, 100%);
+  padding: 0 1.5rem;
+  text-align: center;
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.oh-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #c89b4b;
+}
+.oh-title {
+  margin-top: 1rem;
+  font-family: "Anton", sans-serif;
+  text-transform: uppercase;
+  line-height: 0.86;
+  color: #f5f0e6;
+  font-size: clamp(3.6rem, 16vw, 14rem);
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 60px rgba(200, 155, 75, 0.25);
+}
+.oh-char {
+  display: inline-block;
+}
+.oh-sub {
+  margin: 1.4rem auto 0;
+  max-width: 42rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  color: #ada492;
+}
+.oh-cta {
+  margin-top: 2.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.oh-progress {
+  position: absolute;
+  bottom: 1.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #8c8065;
+}
+.oh-progress-track {
+  position: relative;
+  display: block;
+  width: 120px;
+  height: 2px;
+  background: rgba(245, 240, 230, 0.14);
+}
+.oh-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  background: #c89b4b;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -226,5 +381,15 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+  /* Hero estático legible: solo la primera escena, sin recorrido largo */
+  .oh-root {
+    height: 100vh;
+  }
+  .oh-scene {
+    opacity: 1 !important;
+  }
+  .oh-scene:not(:first-child) {
+    display: none;
   }
 }
