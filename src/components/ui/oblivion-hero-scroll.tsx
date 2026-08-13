@@ -13,14 +13,13 @@ gsap.registerPlugin(ScrollTrigger)
 /**
  * Hero cinematográfico de Oblivion con transiciones dirigidas por scroll.
  *
- * Técnica adaptada de un hero "scroll-driven" (Three.js + GSAP ScrollTrigger)
- * a la identidad de la barbería: fondo oscuro con partículas doradas tipo
- * brasas / polvo de luz, niebla cálida y un ligero bloom. Al hacer scroll la
- * cámara avanza por el campo de partículas y las escenas de texto se funden
- * (OBLIVION → BARBERS → & CARE). El ratón añade un parallax sutil.
+ * Fondo Three.js: campo de partículas azul/blanco (polvo de luz) sobre negro,
+ * niebla fría y bloom sutil. Al hacer scroll, GSAP ScrollTrigger dirige un
+ * dolly de cámara mientras las escenas de texto se funden y sus letras se
+ * revelan (OBLIVION → BARBERS → & CARE). El ratón añade parallax.
  *
- * Es robusto: si WebGL no está disponible o el usuario prefiere movimiento
- * reducido, se degrada a un hero estático perfectamente legible.
+ * Degradación robusta: sin WebGL o con "movimiento reducido" muestra un hero
+ * estático perfectamente legible.
  */
 
 interface Scene {
@@ -70,7 +69,8 @@ interface OblivionHeroScrollProps {
 export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) => {
   const rootRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const hlineRef = useRef<HTMLSpanElement>(null)
 
   const progressRef = useRef(0)
   const mouseRef = useRef({ x: 0, y: 0 })
@@ -110,10 +110,10 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 2))
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 0.7
+    renderer.toneMappingExposure = 0.75
 
     const scene = new THREE.Scene()
-    scene.fog = new THREE.FogExp2(0x0c0b0a, 0.0016)
+    scene.fog = new THREE.FogExp2(0x08090c, 0.0016)
     refs.scene = scene
 
     const camera = new THREE.PerspectiveCamera(
@@ -125,11 +125,11 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
     camera.position.set(0, CAMERA_Y[0], CAMERA_Z[0])
     refs.camera = camera
 
-    // Campo de brasas / polvo de luz, en dos capas de profundidad.
-    const goldTones: [number, number, number][] = [
-      [0.82, 0.62, 0.29],
-      [0.91, 0.79, 0.47],
-      [0.7, 0.42, 0.2],
+    // Paleta fría: azul eléctrico, azul cielo y blanco.
+    const coolTones: [number, number, number][] = [
+      [0.18, 0.42, 1.0], // azul eléctrico
+      [0.56, 0.71, 1.0], // azul cielo
+      [0.9, 0.94, 1.0], // blanco azulado
     ]
 
     const buildLayer = (count: number, spread: number, base: number) => {
@@ -144,8 +144,8 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
         positions[i * 3] = (Math.random() - 0.5) * spread
         positions[i * 3 + 1] = (Math.random() - 0.5) * spread * 0.6
         positions[i * 3 + 2] = base - Math.random() * spread
-        const [h, s, l] = goldTones[Math.floor(Math.random() * goldTones.length)]
-        c.setRGB(h, s, l)
+        const [r, g, bl] = coolTones[Math.floor(Math.random() * coolTones.length)]
+        c.setRGB(r, g, bl)
         colors[i * 3] = c.r
         colors[i * 3 + 1] = c.g
         colors[i * 3 + 2] = c.b
@@ -170,13 +170,13 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
           void main() {
             vColor = color;
             vec3 pos = position;
-            // deriva ascendente tipo brasa + vaivén lateral
-            pos.y += mod(time * (2.0 + seed * 3.0) + seed * 200.0, 300.0) - 150.0;
-            pos.x += sin(time * 0.3 + seed * 6.2831) * 3.0;
+            // deriva lenta + vaivén (polvo de luz)
+            pos.y += mod(time * (1.4 + seed * 2.2) + seed * 200.0, 300.0) - 150.0;
+            pos.x += sin(time * 0.28 + seed * 6.2831) * 3.0;
             vec4 mv = modelViewMatrix * vec4(pos, 1.0);
             gl_PointSize = size * (320.0 / -mv.z);
             gl_Position = projectionMatrix * mv;
-            vTwinkle = 0.55 + 0.45 * sin(time * 1.6 + seed * 25.0);
+            vTwinkle = 0.55 + 0.45 * sin(time * 1.5 + seed * 25.0);
           }
         `,
         fragmentShader: `
@@ -202,7 +202,7 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
     buildLayer(particlesPerLayer, 600, 60)
     buildLayer(Math.floor(particlesPerLayer * 0.6), 1100, -100)
 
-    // Post-proceso: bloom sutil para el brillo de las brasas (opcional).
+    // Bloom sutil para el brillo (opcional).
     try {
       const composer = new EffectComposer(renderer)
       composer.addPass(new RenderPass(scene, camera))
@@ -210,9 +210,9 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
         composer.addPass(
           new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.6,
+            0.7,
             0.5,
-            0.2
+            0.18
           )
         )
       }
@@ -232,17 +232,17 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
       })
 
       if (refs.camera) {
-        const ease = 0.06
+        const ease = 0.055
         smoothCam.current.z += (refs.targetZ - smoothCam.current.z) * ease
         smoothCam.current.y += (refs.targetY - smoothCam.current.y) * ease
         const floatX = Math.sin(t * 0.15) * 2
         const floatY = Math.cos(t * 0.2) * 1.2
-        // parallax de ratón
         const mx = mouseRef.current.x * 12
         const my = mouseRef.current.y * 8
         refs.camera.position.x += (mx + floatX - refs.camera.position.x) * ease
         refs.camera.position.y = smoothCam.current.y + floatY - my
         refs.camera.position.z = smoothCam.current.z
+        refs.camera.rotation.z = mouseRef.current.x * 0.02
         refs.camera.lookAt(0, refs.camera.position.y * 0.3, -400)
       }
 
@@ -280,7 +280,7 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
     }
   }, [])
 
-  // ---- Scroll: ScrollTrigger dirige la cámara y las escenas ----
+  // ---- Scroll: ScrollTrigger dirige la cámara, las escenas y la línea ----
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
@@ -291,12 +291,16 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
       const seg = Math.min(SCENES.length - 1, Math.floor(p * SCENES.length))
       setActiveScene(seg)
 
-      // interpolación continua de la posición objetivo de cámara
       const f = p * (CAMERA_Z.length - 1)
       const i = Math.min(CAMERA_Z.length - 2, Math.floor(f))
       const local = f - i
       threeRefs.current.targetZ = CAMERA_Z[i] + (CAMERA_Z[i + 1] - CAMERA_Z[i]) * local
       threeRefs.current.targetY = CAMERA_Y[i] + (CAMERA_Y[i + 1] - CAMERA_Y[i]) * local
+
+      if (hlineRef.current) {
+        hlineRef.current.style.transform = `scaleX(${0.2 + p * 0.8})`
+        hlineRef.current.style.opacity = String(0.35 + p * 0.4)
+      }
     }
 
     if (prefersReduced) {
@@ -308,32 +312,39 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
       trigger: root,
       start: "top top",
       end: "bottom bottom",
-      scrub: true,
+      scrub: 1,
       onUpdate: (self) => applyProgress(self.progress),
     })
-    // posición inicial
     applyProgress(0)
     ScrollTrigger.refresh()
 
     return () => st.kill()
   }, [prefersReduced])
 
-  // ---- Animación de entrada del título ----
+  // ---- Revelado de la escena activa (letras + subtítulo) ----
   useEffect(() => {
-    if (prefersReduced || !titleRef.current) return
-    const chars = titleRef.current.querySelectorAll(".oh-char")
+    if (prefersReduced || !contentRef.current) return
+    const el = contentRef.current.querySelector<HTMLElement>(
+      `[data-scene="${activeScene}"]`
+    )
+    if (!el) return
+    const chars = el.querySelectorAll(".oh-char")
+    const lines = el.querySelectorAll(".oh-subline")
     const tl = gsap.timeline()
-    tl.from(chars, {
-      yPercent: 120,
-      opacity: 0,
-      duration: 1.1,
-      stagger: 0.04,
-      ease: "power4.out",
-    })
+    tl.fromTo(
+      chars,
+      { yPercent: 115, opacity: 0 },
+      { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.035, ease: "power4.out" }
+    ).fromTo(
+      lines,
+      { y: 22, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: "power3.out" },
+      "-=0.5"
+    )
     return () => {
       tl.kill()
     }
-  }, [prefersReduced])
+  }, [activeScene, prefersReduced])
 
   const splitTitle = (text: string) =>
     text.split("").map((ch, i) => (
@@ -346,9 +357,11 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
     <section ref={rootRef} id="inicio" className="oh-root">
       <div className="oh-sticky">
         <canvas ref={canvasRef} className="oh-canvas" />
-        {/* Veladuras atmosféricas y viñeta */}
         <div className="oh-veil" />
         {!webglOk && <div className="oh-fallback-bg" />}
+
+        {/* Línea horizontal que se dibuja con el scroll */}
+        <span ref={hlineRef} className="oh-hline" style={{ transform: "scaleX(0.2)" }} />
 
         {/* Menú lateral vertical */}
         <div className="oh-side">
@@ -356,37 +369,43 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
           <span className="oh-side-text">MENORCA</span>
         </div>
 
-        {/* Escenas de contenido (crossfade) */}
-        <div className="oh-content">
-          {SCENES.map((s, i) => (
-            <div
-              key={s.title}
-              className="oh-scene"
-              style={{ opacity: activeScene === i ? 1 : 0 }}
-              aria-hidden={activeScene !== i}
-            >
-              <p className="oh-eyebrow">
-                {i === 0 ? "Oblivion Barbers & Care" : `0${i + 1} — ${s.title}`}
-              </p>
-              <h1 ref={i === 0 ? titleRef : undefined} className="oh-title">
-                {i === 0 ? splitTitle(s.title) : s.title}
-              </h1>
-              <p className="oh-sub">
-                <span>{s.line1}</span>
-                <span>{s.line2}</span>
-              </p>
-              {i === SCENES.length - 1 && (
-                <div className="oh-cta">
-                  <Button size="lg" onClick={onReservar}>
-                    Reservar cita
-                  </Button>
-                  <Button size="lg" variant="outline" onClick={onLocales}>
-                    <MapPin className="h-4 w-4" /> Ver locales
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
+        {/* Escenas de contenido (crossfade + profundidad) */}
+        <div ref={contentRef} className="oh-content">
+          {SCENES.map((s, i) => {
+            const active = activeScene === i
+            const offset = (i - activeScene) * 40
+            return (
+              <div
+                key={s.title}
+                data-scene={i}
+                className="oh-scene"
+                style={{
+                  opacity: active ? 1 : 0,
+                  transform: `translateY(${active ? 0 : offset}px)`,
+                }}
+                aria-hidden={!active}
+              >
+                <p className="oh-eyebrow">
+                  {i === 0 ? "Oblivion Barbers & Care" : `0${i + 1} — ${s.title}`}
+                </p>
+                <h1 className="oh-title">{splitTitle(s.title)}</h1>
+                <p className="oh-sub">
+                  <span className="oh-subline">{s.line1}</span>
+                  <span className="oh-subline">{s.line2}</span>
+                </p>
+                {i === SCENES.length - 1 && (
+                  <div className="oh-cta">
+                    <Button size="lg" onClick={onReservar}>
+                      Reservar cita
+                    </Button>
+                    <Button size="lg" variant="outline" onClick={onLocales}>
+                      <MapPin className="h-4 w-4" /> Ver locales
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {/* Indicador de progreso */}

@@ -1,7 +1,8 @@
 import { Reveal, CornerFrame } from "@/components/telemetry"
 import { SectionHeading } from "@/components/SectionHeading"
 import { Button } from "@/components/ui/button"
-import { ArrowUpRight, Instagram, Facebook, Clock, Star } from "lucide-react"
+import { useBooking } from "@/components/booking/BookingProvider"
+import { ArrowUpRight, Instagram, Facebook, Clock, Star, CalendarCheck } from "lucide-react"
 
 const PLATAFORMAS = [
   {
@@ -26,6 +27,7 @@ const PLATAFORMAS = [
 ]
 
 export function Reservas() {
+  const { openBooking } = useBooking()
   return (
     <section id="reservas" className="relative border-t border-line py-24 sm:py-32">
       <div className="container">
@@ -34,8 +36,29 @@ export function Reservas() {
           index="04"
           title="Pide tu"
           highlight="cita"
-          description="Gestionamos las citas online. Reserva por la plataforma oficial Yeasy o, si lo prefieres, a través de Fresha en Mahón y Villacarlos."
+          description="Reserva online en segundos con nuestro sistema propio. También puedes usar la plataforma Yeasy o Fresha (Mahón / Villacarlos)."
         />
+
+        <Reveal>
+          <div className="mt-10 flex flex-col items-start justify-between gap-5 border border-ember/40 bg-ember/5 p-7 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center border border-ember/50 text-ember">
+                <CalendarCheck className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 className="font-display text-xl uppercase tracking-[0.02em] text-chalk">
+                  Reserva ahora
+                </h3>
+                <p className="text-sm text-ash">
+                  Elige local, servicio, barbero y hora. Sin llamadas.
+                </p>
+              </div>
+            </div>
+            <Button size="lg" onClick={() => openBooking()}>
+              Reservar cita
+            </Button>
+          </div>
+        </Reveal>
 
         <div className="mt-14 grid gap-px border border-line bg-line lg:grid-cols-3">
           {PLATAFORMAS.map((p, i) => (
@@ -121,9 +144,9 @@ export function Reservas() {
               Tu próxima visita
               <span className="text-brass"> empieza aquí</span>
             </h3>
-            <a href="https://www.yeasy.es/" target="_blank" rel="noreferrer">
-              <Button size="lg">Reservar en Yeasy</Button>
-            </a>
+            <Button size="lg" onClick={() => openBooking()}>
+              Reservar cita
+            </Button>
           </div>
         </Reveal>
       </div>

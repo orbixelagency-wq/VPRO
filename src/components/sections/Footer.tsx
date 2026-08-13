@@ -82,7 +82,16 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 font-sans text-[0.62rem] uppercase tracking-[0.16em] text-steel sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} Oblivion Barbers &amp; Care</p>
-          <p>Es Castell · Mahón · Ciutadella — Menorca</p>
+          <div className="flex items-center gap-5">
+            <a
+              href="#central"
+              className="transition-colors hover:text-ember"
+              title="Acceso del equipo"
+            >
+              Central del equipo
+            </a>
+            <p>Es Castell · Mahón · Ciutadella — Menorca</p>
+          </div>
         </div>
       </div>
     </footer>

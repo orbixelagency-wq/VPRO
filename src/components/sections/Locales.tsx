@@ -1,6 +1,7 @@
 import { Reveal, CornerFrame } from "@/components/telemetry"
 import { SectionHeading } from "@/components/SectionHeading"
 import { BrandImage } from "@/components/BrandImage"
+import { useBooking } from "@/components/booking/BookingProvider"
 import { MapPin, ArrowUpRight } from "lucide-react"
 
 const mapUrl = (q: string) =>
@@ -8,6 +9,7 @@ const mapUrl = (q: string) =>
 
 const LOCALES = [
   {
+    id: "es-castell",
     ciudad: "Es Castell",
     zona: "Villacarlos",
     direccion: "Carretera de Sant Felip, 1",
@@ -16,6 +18,7 @@ const LOCALES = [
     maps: "Oblivion Barbers Carretera de Sant Felip 1, Es Castell, Menorca",
   },
   {
+    id: "mahon",
     ciudad: "Mahón",
     zona: "Maó",
     direccion: "Avenida de Fort de l'Eau, 167",
@@ -24,6 +27,7 @@ const LOCALES = [
     maps: "Oblivion Barbers Avinguda del Fort de l'Eau 167, Maó, Menorca",
   },
   {
+    id: "ciutadella",
     ciudad: "Ciutadella",
     zona: "Apertura reciente",
     direccion: "Carrer d'Eivissa, 25",
@@ -35,6 +39,7 @@ const LOCALES = [
 ]
 
 export function Locales() {
+  const { openBooking } = useBooking()
   return (
     <section id="locales" className="relative border-t border-line bg-graphite/30 py-24 sm:py-32">
       <div className="container">
@@ -92,16 +97,12 @@ export function Locales() {
                     </span>
                   </a>
                   <p className="mt-4 text-sm leading-relaxed text-ash">{l.nota}</p>
-                  <a
-                    href="#reservas"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      document.querySelector("#reservas")?.scrollIntoView({ behavior: "smooth" })
-                    }}
+                  <button
+                    onClick={() => openBooking({ localId: l.id })}
                     className="mt-6 inline-flex items-center gap-2 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-ember transition-colors hover:text-gold"
                   >
                     Reservar aquí <ArrowUpRight className="h-3.5 w-3.5" />
-                  </a>
+                  </button>
                 </div>
               </article>
             </Reveal>

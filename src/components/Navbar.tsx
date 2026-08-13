@@ -12,9 +12,15 @@ const LINKS = [
   { href: "#reservas", label: "Reservas" },
 ]
 
-export function Navbar() {
+export function Navbar({ onReservar }: { onReservar?: () => void }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+
+  const reservar = () => {
+    setOpen(false)
+    if (onReservar) onReservar()
+    else document.querySelector("#reservas")?.scrollIntoView({ behavior: "smooth" })
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -53,7 +59,7 @@ export function Navbar() {
               <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-ember transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
             </button>
           ))}
-          <Button size="sm" onClick={() => go("#reservas")}>
+          <Button size="sm" onClick={reservar}>
             Reservar
           </Button>
         </div>

@@ -10,21 +10,21 @@ export default {
     },
     extend: {
       colors: {
-        // Oblivion — barbería premium: onyx cálido + latón/oro + crema
-        carbon: "#0C0B0A", // fondo (onyx cálido)
+        // Oblivion — barbería premium: negro + blanco + azul eléctrico
+        carbon: "#08090C", // fondo (negro frío)
         graphite: {
-          DEFAULT: "#16130F", // paneles
-          2: "#201B14", // paneles elevados
+          DEFAULT: "#0F1116", // paneles
+          2: "#161A22", // paneles elevados
         },
-        chalk: "#F5F0E6", // texto crema
-        ash: "#ADA492", // texto atenuado (taupe cálido)
-        steel: "#8C8065", // etiquetas / meta (latón apagado)
+        chalk: "#F4F6FA", // texto blanco frío
+        ash: "#9AA3B2", // texto atenuado (gris azulado)
+        steel: "#6B7486", // etiquetas / meta (gris acero)
         ember: {
-          DEFAULT: "#C89B4B", // acento principal (latón/oro)
-          2: "#DDB768", // hover / brillo
+          DEFAULT: "#2E6BFF", // acento principal (azul eléctrico)
+          2: "#5B8CFF", // hover / brillo
         },
-        gold: "#E9C978", // realce claro
-        line: "rgba(245,240,230,0.10)",
+        gold: "#8FB6FF", // realce claro (azul cielo)
+        line: "rgba(244,246,250,0.10)",
         // semánticos para shadcn
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

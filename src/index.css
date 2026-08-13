@@ -4,15 +4,15 @@
 
 /* ===========================================================
    OBLIVION BARBERS & CARE — barbería premium en Menorca
-   Onyx cálido + latón/oro (ember/gold) + crema (chalk).
+   Negro frío + azul eléctrico (ember) + blanco (chalk).
    Display: Anton · Editorial: Cormorant Garamond · Texto: Inter
    =========================================================== */
 @layer base {
   :root {
-    --background: 40 12% 4%;
-    --foreground: 42 33% 93%;
-    --border: 42 40% 92% / 0.1;
-    --ring: 40 52% 54%;
+    --background: 222 20% 4%;
+    --foreground: 220 33% 96%;
+    --border: 220 40% 96% / 0.1;
+    --ring: 221 100% 59%;
   }
 
   * {
@@ -26,8 +26,7 @@
 
   body {
     @apply bg-carbon font-sans text-chalk;
-    background-color: #0c0b0a;
-    /* clip (no hidden) para no convertir el body en scroll-container */
+    background-color: #08090c;
     overflow-x: clip;
   }
 
@@ -35,36 +34,36 @@
   h2,
   h3 {
     @apply font-display;
-    font-weight: 400; /* Anton ya es pesada */
+    font-weight: 400;
     letter-spacing: 0.01em;
   }
 
   ::selection {
-    background: #c89b4b;
-    color: #0c0b0a;
+    background: #2e6bff;
+    color: #f4f6fa;
   }
 
   ::-webkit-scrollbar {
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0c0b0a;
+    background: #08090c;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2419;
+    background: #1b2130;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #c89b4b;
+    background: #2e6bff;
   }
 
   :focus-visible {
-    outline: 2px solid #c89b4b;
+    outline: 2px solid #2e6bff;
     outline-offset: 3px;
   }
 }
 
 @layer components {
-  /* Etiqueta de sección: — CUIDADO MASCULINO */
+  /* Etiqueta de sección */
   .channel {
     @apply inline-flex items-center gap-2.5 font-sans text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-steel;
   }
@@ -72,11 +71,10 @@
     content: "";
     width: 26px;
     height: 1px;
-    background: #c89b4b;
+    background: #2e6bff;
     display: inline-block;
   }
 
-  /* Regla fina */
   .rule {
     height: 1px;
     width: 100%;
@@ -84,45 +82,40 @@
     transform-origin: left;
   }
 
-  /* Panel */
   .panel {
-    background: #16130f;
+    background: #0f1116;
     border: 1px solid hsl(var(--border));
   }
 
-  /* Número/cifra grande (tabular) */
   .datum {
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
 
-  /* Detalle editorial en cursiva serif */
   .accent-serif {
     @apply font-serif italic;
   }
 
-  /* Input */
   .vp-input {
     width: 100%;
-    background: #0a0908;
+    background: #05060a;
     border: 1px solid hsl(var(--border));
     border-radius: 2px;
     padding: 0.72rem 0.9rem;
     font-size: 0.9rem;
-    color: #f5f0e6;
+    color: #f4f6fa;
     outline: none;
     transition: border-color 0.2s ease;
   }
   .vp-input::placeholder {
-    color: rgba(173, 164, 146, 0.5);
+    color: rgba(154, 163, 178, 0.5);
   }
   .vp-input:focus {
-    border-color: #c89b4b;
+    border-color: #2e6bff;
   }
 }
 
 @layer utilities {
-  /* Corchetes de esquina tipo marco / encuadre. */
   .corner-tl,
   .corner-tr,
   .corner-bl,
@@ -157,28 +150,24 @@
     border-right: 1px solid;
   }
 
-  /* Trama sutil de líneas (textura de fondo) */
   .grain {
     background-image: radial-gradient(
-      rgba(245, 240, 230, 0.03) 1px,
+      rgba(244, 246, 250, 0.03) 1px,
       transparent 1px
     );
     background-size: 4px 4px;
   }
 
-  /* Texto con degradado de latón */
+  /* Texto con degradado azul (mantiene el nombre .text-brass usado en el código) */
   .text-brass {
-    background: linear-gradient(180deg, #e9c978 0%, #c89b4b 55%, #a97f38 100%);
+    background: linear-gradient(180deg, #8fb6ff 0%, #2e6bff 55%, #1b47c7 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 }
 
-/* ===========================================================
-   Secuencia de entrada (CSS puro; degrada al estado final si
-   las animaciones están desactivadas).
-   =========================================================== */
+/* Secuencia de entrada (CSS puro) */
 @keyframes ob-up {
   from {
     opacity: 0;
@@ -223,7 +212,7 @@
    =========================================================== */
 .oh-root {
   position: relative;
-  height: 320vh; /* recorrido de scroll para las 3 escenas */
+  height: 340vh;
 }
 .oh-sticky {
   position: sticky;
@@ -231,7 +220,7 @@
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  background: #0c0b0a;
+  background: #08090c;
 }
 .oh-canvas {
   position: absolute;
@@ -240,23 +229,39 @@
   height: 100% !important;
   display: block;
 }
-/* Veladura: viñeta + halo cálido inferior */
 .oh-veil {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(120% 90% at 50% 120%, rgba(200, 155, 75, 0.16), transparent 55%),
-    radial-gradient(100% 100% at 50% 50%, transparent 55%, rgba(12, 11, 10, 0.85) 100%),
-    linear-gradient(to top, rgba(12, 11, 10, 0.9), transparent 40%);
+    radial-gradient(120% 90% at 50% 118%, rgba(46, 107, 255, 0.2), transparent 55%),
+    radial-gradient(100% 100% at 50% 45%, transparent 52%, rgba(8, 9, 12, 0.88) 100%),
+    linear-gradient(to top, rgba(8, 9, 12, 0.92), transparent 42%);
 }
 .oh-fallback-bg {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 35%, rgba(200, 155, 75, 0.18), transparent 60%),
-    #0c0b0a;
+    radial-gradient(circle at 50% 35%, rgba(46, 107, 255, 0.22), transparent 60%),
+    #08090c;
+}
+
+/* Línea horizontal animada que cruza tras el título */
+.oh-hline {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 1px;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(46, 107, 255, 0.5),
+    transparent
+  );
+  pointer-events: none;
 }
 
 .oh-side {
@@ -273,7 +278,7 @@
 .oh-side-line {
   width: 1px;
   height: 60px;
-  background: linear-gradient(to bottom, transparent, #c89b4b, transparent);
+  background: linear-gradient(to bottom, transparent, #2e6bff, transparent);
 }
 .oh-side-text {
   writing-mode: vertical-rl;
@@ -281,7 +286,7 @@
   font-weight: 600;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: #8c8065;
+  color: #6b7486;
 }
 @media (max-width: 640px) {
   .oh-side {
@@ -302,7 +307,8 @@
   width: min(1180px, 100%);
   padding: 0 1.5rem;
   text-align: center;
-  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .oh-eyebrow {
   display: inline-flex;
@@ -312,17 +318,17 @@
   font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #c89b4b;
+  color: #5b8cff;
 }
 .oh-title {
   margin-top: 1rem;
   font-family: "Anton", sans-serif;
   text-transform: uppercase;
   line-height: 0.86;
-  color: #f5f0e6;
+  color: #f4f6fa;
   font-size: clamp(3.6rem, 16vw, 14rem);
   letter-spacing: 0.01em;
-  text-shadow: 0 0 60px rgba(200, 155, 75, 0.25);
+  text-shadow: 0 0 70px rgba(46, 107, 255, 0.35);
 }
 .oh-char {
   display: inline-block;
@@ -334,7 +340,7 @@
   flex-direction: column;
   gap: 0.2rem;
   font-size: clamp(0.95rem, 2.2vw, 1.25rem);
-  color: #ada492;
+  color: #9aa3b2;
 }
 .oh-cta {
   margin-top: 2.2rem;
@@ -357,20 +363,20 @@
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #8c8065;
+  color: #6b7486;
 }
 .oh-progress-track {
   position: relative;
   display: block;
   width: 120px;
   height: 2px;
-  background: rgba(245, 240, 230, 0.14);
+  background: rgba(244, 246, 250, 0.14);
 }
 .oh-progress-fill {
   position: absolute;
   inset: 0 auto 0 0;
   height: 100%;
-  background: #c89b4b;
+  background: #2e6bff;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -382,7 +388,6 @@
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  /* Hero estático legible: solo la primera escena, sin recorrido largo */
   .oh-root {
     height: 100vh;
   }
