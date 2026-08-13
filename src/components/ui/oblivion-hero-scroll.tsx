@@ -125,11 +125,11 @@ export const Component = ({ onReservar, onLocales }: OblivionHeroScrollProps) =>
     camera.position.set(0, CAMERA_Y[0], CAMERA_Z[0])
     refs.camera = camera
 
-    // Paleta fría: azul eléctrico, azul cielo y blanco.
+    // Paleta monocroma: blancos y grises (polvo de luz b/n).
     const coolTones: [number, number, number][] = [
-      [0.18, 0.42, 1.0], // azul eléctrico
-      [0.56, 0.71, 1.0], // azul cielo
-      [0.9, 0.94, 1.0], // blanco azulado
+      [1.0, 1.0, 1.0], // blanco
+      [0.75, 0.75, 0.75], // gris claro
+      [0.5, 0.5, 0.5], // gris medio
     ]
 
     const buildLayer = (count: number, spread: number, base: number) => {
