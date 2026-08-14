@@ -6,10 +6,13 @@ import { Servicios } from "@/components/sections/Servicios"
 import { Experiencia } from "@/components/sections/Experiencia"
 import { Locales } from "@/components/sections/Locales"
 import { Reservas } from "@/components/sections/Reservas"
+import { PhotoBand } from "@/components/sections/PhotoBand"
 import { Footer } from "@/components/sections/Footer"
 import { BookingProvider, useBooking } from "@/components/booking/BookingProvider"
 import { ChatWidget } from "@/components/chat/ChatWidget"
 import { Central } from "@/components/central/Central"
+import bandInterior from "@/assets/local-interior.jpg"
+import bandWorking from "@/assets/local-working.jpg"
 
 const scrollTo = (id: string) =>
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
@@ -24,7 +27,19 @@ function Site() {
 
       <main className="relative z-10 bg-carbon">
         <Filosofia />
+        <PhotoBand
+          img={bandInterior}
+          eyebrow="El local"
+          word="Nuestro espacio"
+          caption="Ambiente actual, pared vegetal y buena energía en pleno centro."
+        />
         <Servicios />
+        <PhotoBand
+          img={bandWorking}
+          eyebrow="El oficio"
+          word="Cada detalle"
+          caption="Manos expertas, herramientas cuidadas y tiempo para ti."
+        />
         <Experiencia />
         <Locales />
         <Reservas />

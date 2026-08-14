@@ -2,6 +2,7 @@ import { Reveal, CountUp, CornerFrame } from "@/components/telemetry"
 import { SectionHeading } from "@/components/SectionHeading"
 import { BrandImage } from "@/components/BrandImage"
 import { Coffee, Wind, Clock } from "lucide-react"
+import photoAmbiente from "@/assets/local-plants.jpg"
 
 const PASOS = [
   {
@@ -60,9 +61,10 @@ export function Experiencia() {
           <Reveal delay={120} className="bg-carbon">
             <div className="relative h-full min-h-[280px]">
               <BrandImage
-                src="/brand/ambiente.jpg"
+                src={photoAmbiente}
                 alt="Ambiente del local Oblivion"
                 label="Ambiente · Oblivion"
+                parallax
               />
               <div className="absolute inset-0 bg-gradient-to-t from-carbon/80 via-transparent to-transparent" />
               <div className="absolute inset-4 text-white/20">

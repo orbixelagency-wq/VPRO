@@ -3,6 +3,9 @@ import { SectionHeading } from "@/components/SectionHeading"
 import { BrandImage } from "@/components/BrandImage"
 import { useBooking } from "@/components/booking/BookingProvider"
 import { MapPin, ArrowUpRight } from "lucide-react"
+import photoStorefront from "@/assets/local-storefront.jpg"
+import photoInterior from "@/assets/local-interior.jpg"
+import photoWorking from "@/assets/local-working.jpg"
 
 const mapUrl = (q: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`
@@ -14,7 +17,7 @@ const LOCALES = [
     zona: "Villacarlos",
     direccion: "Carretera de Sant Felip, 1",
     nota: "El origen. Barbería y arreglo de barba con vapor de ozono.",
-    img: "/brand/local-escastell.jpg",
+    img: photoStorefront,
     maps: "Oblivion Barbers Carretera de Sant Felip 1, Es Castell, Menorca",
   },
   {
@@ -23,7 +26,7 @@ const LOCALES = [
     zona: "Maó",
     direccion: "Avenida de Fort de l'Eau, 167",
     nota: "En plena avenida, con toda la carta de servicios de la casa.",
-    img: "/brand/local-mahon.jpg",
+    img: photoInterior,
     maps: "Oblivion Barbers Avinguda del Fort de l'Eau 167, Maó, Menorca",
   },
   {
@@ -32,7 +35,7 @@ const LOCALES = [
     zona: "Apertura reciente",
     direccion: "Carrer d'Eivissa, 25",
     nota: "Nuestro local más nuevo, al oeste de la isla.",
-    img: "/brand/local-ciutadella.jpg",
+    img: photoWorking,
     maps: "Oblivion Barbers Carrer d'Eivissa 25, Ciutadella de Menorca",
     nuevo: true,
   },

@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 /* ===========================================================
-   OBLIVION BARBERS & CARE — barbería premium en Menorca
-   Carbón cálido + cobre/oro (ember/gold) + crema (chalk).
+   OBLIVION BARBERS & CARE — barbería minimalista en Menorca
+   Blanco & negro (negro dominante). Fotos del local en B/N.
    Display: Anton · Editorial: Cormorant Garamond · Texto: Inter
    =========================================================== */
 @layer base {
   :root {
-    --background: 30 20% 5%;
-    --foreground: 36 30% 92%;
-    --border: 36 30% 92% / 0.1;
-    --ring: 33 63% 48%;
+    --background: 0 0% 3%;
+    --foreground: 0 0% 95%;
+    --border: 0 0% 100% / 0.1;
+    --ring: 0 0% 100%;
   }
 
   * {
@@ -26,7 +26,7 @@
 
   body {
     @apply bg-carbon font-sans text-chalk;
-    background-color: #100c08;
+    background-color: #080808;
     overflow-x: clip;
   }
 
@@ -39,25 +39,25 @@
   }
 
   ::selection {
-    background: #c6852f;
-    color: #100c08;
+    background: #ffffff;
+    color: #080808;
   }
 
   ::-webkit-scrollbar {
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #100c08;
+    background: #080808;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2c2013;
+    background: #222;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #c6852f;
+    background: #fff;
   }
 
   :focus-visible {
-    outline: 2px solid #c6852f;
+    outline: 2px solid #ffffff;
     outline-offset: 3px;
   }
 }
@@ -70,7 +70,7 @@
     content: "";
     width: 26px;
     height: 1px;
-    background: #c6852f;
+    background: #ffffff;
     display: inline-block;
   }
 
@@ -82,7 +82,7 @@
   }
 
   .panel {
-    background: #1a130d;
+    background: #101010;
     border: 1px solid hsl(var(--border));
   }
 
@@ -97,20 +97,20 @@
 
   .vp-input {
     width: 100%;
-    background: #0b0805;
+    background: #040404;
     border: 1px solid hsl(var(--border));
     border-radius: 2px;
     padding: 0.72rem 0.9rem;
     font-size: 0.9rem;
-    color: #f4eee3;
+    color: #f2f2f2;
     outline: none;
     transition: border-color 0.2s ease;
   }
   .vp-input::placeholder {
-    color: rgba(178, 168, 150, 0.5);
+    color: rgba(154, 154, 154, 0.5);
   }
   .vp-input:focus {
-    border-color: #c6852f;
+    border-color: #ffffff;
   }
 }
 
@@ -124,97 +124,41 @@
     height: 14px;
     border-color: currentColor;
   }
-  .corner-tl {
-    top: 0;
-    left: 0;
-    border-top: 1px solid;
-    border-left: 1px solid;
-  }
-  .corner-tr {
-    top: 0;
-    right: 0;
-    border-top: 1px solid;
-    border-right: 1px solid;
-  }
-  .corner-bl {
-    bottom: 0;
-    left: 0;
-    border-bottom: 1px solid;
-    border-left: 1px solid;
-  }
-  .corner-br {
-    bottom: 0;
-    right: 0;
-    border-bottom: 1px solid;
-    border-right: 1px solid;
-  }
+  .corner-tl { top: 0; left: 0; border-top: 1px solid; border-left: 1px solid; }
+  .corner-tr { top: 0; right: 0; border-top: 1px solid; border-right: 1px solid; }
+  .corner-bl { bottom: 0; left: 0; border-bottom: 1px solid; border-left: 1px solid; }
+  .corner-br { bottom: 0; right: 0; border-bottom: 1px solid; border-right: 1px solid; }
 
   .grain {
-    background-image: radial-gradient(
-      rgba(244, 238, 227, 0.03) 1px,
-      transparent 1px
-    );
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 4px 4px;
   }
 
+  /* Texto con degradado blanco→gris (nombre .text-brass conservado) */
   .text-brass {
-    background: linear-gradient(180deg, #e7c481 0%, #c6852f 55%, #9a6320 100%);
+    background: linear-gradient(180deg, #ffffff 0%, #cfcfcf 55%, #8a8a8a 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* Imagen desaturada garantizada (por si alguna foto llega en color) */
+  .bw {
+    filter: grayscale(1) contrast(1.05);
   }
 }
 
 /* Secuencia de entrada (CSS puro) */
 @keyframes ob-up {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes ob-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-@keyframes ob-frame {
-  from {
-    opacity: 0;
-    transform: scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes ob-kenburns {
-  from {
-    transform: scale(1.02);
-  }
-  to {
-    transform: scale(1.12);
-  }
-}
-
-.b-up {
-  animation: ob-up 850ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.b-in {
-  animation: ob-in 950ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.b-frame {
-  animation: ob-frame 950ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.kenburns {
-  animation: ob-kenburns 18s ease-in-out infinite alternate;
-}
+.b-up { animation: ob-up 850ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.b-in { animation: ob-in 950ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 @media (prefers-reduced-motion: reduce) {
   *,

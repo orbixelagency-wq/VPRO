@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { CalendarDays, ArrowRight, MapPin } from "lucide-react"
+import logoImg from "@/assets/logo.png"
 import b1 from "@/assets/barber-1.jpg"
 import b2 from "@/assets/barber-2.jpg"
 import b3 from "@/assets/barber-3.jpg"
@@ -119,12 +120,12 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
         <div className="grid min-h-[100svh] place-items-center px-6 text-center">
           <div>
             <p className="channel justify-center">Barbería &amp; cuidado masculino — Menorca</p>
-            <h1 className="mt-5 font-display text-[clamp(3rem,12vw,9rem)] uppercase leading-[0.85] text-chalk">
-              Oblivion
-            </h1>
-            <p className="accent-serif mt-1 text-[clamp(1.4rem,4vw,2.6rem)] text-brass">
-              Barbers &amp; Care
-            </p>
+            <img
+              src={logoImg}
+              alt="Oblivion Barbers & Care"
+              className="mx-auto mt-6 h-[clamp(8rem,26vw,16rem)] w-auto"
+              draggable={false}
+            />
             <div className="mt-8 flex justify-center gap-3">
               <Button size="lg" onClick={onReservar}>
                 <CalendarDays className="h-4 w-4" /> Reservar cita
@@ -159,31 +160,31 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
           className="absolute inset-0 z-20 grid place-items-center px-6 text-center"
           style={{ willChange: "opacity, transform, filter" }}
         >
-          {/* Haz de luz */}
+          {/* Haz de luz (blanco) */}
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(58% 46% at 50% 40%, rgba(231,196,129,0.18), rgba(198,133,47,0.06) 40%, transparent 68%)",
+                "radial-gradient(58% 46% at 50% 38%, rgba(255,255,255,0.14), rgba(255,255,255,0.05) 40%, transparent 68%)",
             }}
           />
           <div
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "conic-gradient(from 180deg at 50% -8%, transparent 42%, rgba(231,196,129,0.12) 50%, transparent 58%)",
+                "conic-gradient(from 180deg at 50% -8%, transparent 42%, rgba(255,255,255,0.10) 50%, transparent 58%)",
             }}
           />
           <div className="grain absolute inset-0 opacity-50" aria-hidden />
 
           <div className="relative">
             <p className="channel justify-center">Barbería &amp; cuidado masculino — Menorca</p>
-            <h1 className="mt-5 font-display text-[clamp(3.4rem,15vw,12rem)] uppercase leading-[0.82] text-chalk">
-              Oblivion
-            </h1>
-            <p className="accent-serif -mt-1 text-[clamp(1.5rem,5vw,3.4rem)] text-brass">
-              Barbers &amp; Care
-            </p>
+            <img
+              src={logoImg}
+              alt="Oblivion Barbers & Care"
+              className="mx-auto mt-6 h-[clamp(9rem,32vw,20rem)] w-auto"
+              draggable={false}
+            />
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button size="lg" onClick={onReservar}>
                 <CalendarDays className="h-4 w-4" /> Reservar cita
@@ -282,7 +283,7 @@ function TeamCard({ b, index }: { b: Barber; index?: number }) {
           <img
             src={b.img}
             alt={`${b.name} — ${b.role}`}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-cover grayscale transition-transform duration-700 group-hover:scale-105"
             draggable={false}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-carbon/85 via-transparent to-transparent" />
