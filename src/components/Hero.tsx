@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { CalendarDays, ArrowRight, MapPin } from "lucide-react"
 import logoImg from "@/assets/logo.png"
+import heroPhoto from "@/assets/local-working.jpg"
 import b1 from "@/assets/barber-1.jpg"
 import b2 from "@/assets/barber-2.jpg"
 import b3 from "@/assets/barber-3.jpg"
@@ -51,6 +52,7 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
   const leftRef = useRef<HTMLDivElement>(null)
   const rightRef = useRef<HTMLDivElement>(null)
   const fillRef = useRef<HTMLSpanElement>(null)
+  const photoRef = useRef<HTMLImageElement>(null)
 
   const [reduced, setReduced] = useState(false)
 
@@ -67,12 +69,13 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
       const total = wrap.offsetHeight - window.innerHeight
       const p = clamp01(-wrap.getBoundingClientRect().top / (total || 1))
 
-      // Acto 1 — foco/intro: visible y luego se despeja "de golpe".
-      const introOut = smooth(0.12, 0.24, p)
+      // Acto 1 — foto del hero: se acerca y oscurece al bajar.
+      const introOut = smooth(0.1, 0.24, p)
       if (introRef.current) {
         introRef.current.style.opacity = String(1 - introOut)
-        introRef.current.style.transform = `translateY(${-introOut * 40}px) scale(${1 + introOut * 0.06})`
-        introRef.current.style.filter = `blur(${introOut * 6}px)`
+      }
+      if (photoRef.current) {
+        photoRef.current.style.transform = `scale(${1.08 + smooth(0, 0.28, p) * 0.22}) translateY(${smooth(0, 0.28, p) * -4}%)`
       }
 
       // Acto 2 — equipo: aparece.
@@ -157,35 +160,41 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
         {/* ===== Acto 1: foco / intro ===== */}
         <div
           ref={introRef}
-          className="absolute inset-0 z-20 grid place-items-center px-6 text-center"
-          style={{ willChange: "opacity, transform, filter" }}
+          className="absolute inset-0 z-20 overflow-hidden"
+          style={{ willChange: "opacity" }}
         >
-          {/* Haz de luz (blanco) */}
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(58% 46% at 50% 38%, rgba(255,255,255,0.14), rgba(255,255,255,0.05) 40%, transparent 68%)",
-            }}
+          {/* Foto del hero (blanco y negro) */}
+          <img
+            ref={photoRef}
+            src={heroPhoto}
+            alt="Barbero de Oblivion trabajando"
+            className="absolute inset-0 h-full w-full object-cover grayscale"
+            style={{ transform: "scale(1.08)", willChange: "transform" }}
+            draggable={false}
           />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "conic-gradient(from 180deg at 50% -8%, transparent 42%, rgba(255,255,255,0.10) 50%, transparent 58%)",
-            }}
-          />
-          <div className="grain absolute inset-0 opacity-50" aria-hidden />
+          {/* Veladuras cinematográficas */}
+          <div className="absolute inset-0 bg-gradient-to-t from-carbon via-carbon/45 to-carbon/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-carbon/85 via-transparent to-transparent" />
+          <div className="grain absolute inset-0 opacity-40" aria-hidden />
 
-          <div className="relative">
-            <p className="channel justify-center">Barbería &amp; cuidado masculino — Menorca</p>
+          {/* Contenido, abajo-izquierda */}
+          <div className="container relative flex h-full flex-col justify-end pb-24">
             <img
               src={logoImg}
               alt="Oblivion Barbers & Care"
-              className="mx-auto mt-6 h-[clamp(9rem,32vw,20rem)] w-auto"
+              className="h-[clamp(4.5rem,10vw,7.5rem)] w-auto self-start"
               draggable={false}
             />
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.4rem,6.5vw,5.5rem)] uppercase leading-[0.9] text-chalk">
+              Barbería &amp; cuidado
+              <br />
+              masculino en Menorca
+            </h1>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-ash">
+              Cortes de tendencia, barba con vapor de ozono y estética masculina.
+              Tres locales en la isla.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" onClick={onReservar}>
                 <CalendarDays className="h-4 w-4" /> Reservar cita
               </Button>

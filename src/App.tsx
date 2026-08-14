@@ -11,6 +11,7 @@ import { Footer } from "@/components/sections/Footer"
 import { BookingProvider, useBooking } from "@/components/booking/BookingProvider"
 import { ChatWidget } from "@/components/chat/ChatWidget"
 import { Central } from "@/components/central/Central"
+import { useSmoothScroll } from "@/lib/useSmoothScroll"
 import bandInterior from "@/assets/local-interior.jpg"
 import bandWorking from "@/assets/local-working.jpg"
 
@@ -19,6 +20,7 @@ const scrollTo = (id: string) =>
 
 function Site() {
   const { openBooking } = useBooking()
+  useSmoothScroll()
   return (
     <div className="relative min-h-screen bg-carbon text-chalk">
       <Navbar onReservar={() => openBooking()} />
