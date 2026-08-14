@@ -1,11 +1,11 @@
-<title>Oblivion Barbers — Demo</title>
-<meta name="description" content="Demo: barbería con recepcionista telefónico de IA integrado en la web.">
+<title>Oblivion Ciutadella — Demo</title>
+<meta name="description" content="Demo: barbería con recepcionista de voz por IA. Llama y reserva hablando.">
 <style>
   :root{
     color-scheme: dark;
     --ground:#17120D; --ground-2:#1F1811; --surface:#241C14; --line:#3A2E22;
     --ink:#F0E7D8; --ink-soft:#B7A88F; --ink-mute:#8A7A63;
-    --brass:#D8A43A; --brass-hi:#F0C662; --pole:#B8462F; --ok:#6FB58C;
+    --brass:#D8A43A; --brass-hi:#F0C662; --pole:#B8462F; --ok:#6FB58C; --bad:#e5776f;
     --font-display:"Helvetica Neue",Arial,system-ui,sans-serif;
     --font-body:Georgia,"Times New Roman",serif;
     --font-ui:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
@@ -19,141 +19,142 @@
       radial-gradient(760px 480px at 6% 108%,rgba(184,70,47,.09),transparent 55%),
       var(--ground);}
   .wrap{max-width:1080px;margin-inline:auto;padding-inline:clamp(20px,5vw,44px);}
-  h1,h2,h3,.eyebrow,.brand,.step-n,.svc b,.dayname{font-family:var(--font-display);}
-  h1{font-size:clamp(2.6rem,8vw,5rem);line-height:.98;font-weight:800;letter-spacing:-.02em;
-    text-wrap:balance;margin:0;}
+  h1,h2,h3,.eyebrow,.brand,.svc b,.dayname{font-family:var(--font-display);}
+  h1{font-size:clamp(2.4rem,7.5vw,4.6rem);line-height:.98;font-weight:800;letter-spacing:-.02em;text-wrap:balance;margin:0;}
   h2{font-size:clamp(1.5rem,3.4vw,2.3rem);font-weight:800;letter-spacing:-.015em;margin:0 0 .3em;text-wrap:balance;}
   p{margin:0 0 1rem;}
   .eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.28em;color:var(--brass);font-weight:700;}
   .lead{font-size:clamp(1.1rem,1.9vw,1.3rem);color:var(--ink-soft);max-width:42ch;}
   .muted{color:var(--ink-mute);}
 
-  /* poste barbero */
   .pole{position:fixed;top:0;left:0;width:8px;height:100%;z-index:6;opacity:.5;
     background:repeating-linear-gradient(45deg,var(--pole) 0 14px,#ece5d8 14px 28px,#2b6f8e 28px 42px,#ece5d8 42px 56px);}
   @media (max-width:720px){.pole{display:none;}}
 
   header{position:sticky;top:0;z-index:5;backdrop-filter:blur(8px);
     background:linear-gradient(var(--ground),rgba(23,18,13,.55));border-bottom:1px solid var(--line);}
-  .bar{display:flex;align-items:center;justify-content:space-between;padding-block:14px;}
-  .brand{font-weight:800;font-size:1.2rem;letter-spacing:.02em;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding-block:14px;gap:12px;}
+  .brand{font-weight:800;font-size:1.15rem;letter-spacing:.02em;}
   .brand span{color:var(--brass);}
-  .callbtn{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;cursor:pointer;
-    border:none;border-radius:999px;padding:11px 20px;font-size:.95rem;
-    background:linear-gradient(180deg,var(--brass-hi),var(--brass));color:#20180C;
-    box-shadow:0 12px 28px -12px var(--brass);display:inline-flex;align-items:center;gap:8px;}
+  .callbtn{font-family:var(--font-display);font-weight:700;cursor:pointer;border:none;border-radius:999px;
+    padding:11px 20px;font-size:.95rem;background:linear-gradient(180deg,var(--brass-hi),var(--brass));
+    color:#20180C;box-shadow:0 12px 28px -12px var(--brass);display:inline-flex;align-items:center;gap:8px;}
   .callbtn:hover{filter:brightness(1.05);}
   .callbtn:focus-visible{outline:3px solid var(--brass-hi);outline-offset:2px;}
 
-  /* hero */
-  .hero{padding-block:clamp(56px,10vw,120px) clamp(40px,7vw,80px);}
+  .hero{padding-block:clamp(52px,9vw,110px) clamp(38px,6vw,72px);}
   .hero .eyebrow{margin-bottom:14px;display:block;}
   .hero .lead{margin-top:1.1em;}
   .hero-cta{margin-top:2em;display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
   .hero-cta .callbtn{font-size:1.05rem;padding:15px 28px;}
-  .hint{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.06em;color:var(--ink-mute);text-transform:uppercase;}
+  .hint{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.05em;color:var(--ink-mute);text-transform:uppercase;}
 
-  /* servicios */
-  section{padding-block:clamp(38px,6vw,68px);border-top:1px solid var(--line);}
-  .svcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:26px;}
-  .svc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;}
-  .svc b{display:block;font-size:1.05rem;font-weight:700;margin-bottom:6px;}
-  .svc .price{color:var(--brass-hi);font-family:var(--font-ui);font-size:.95rem;}
-  .svc .dur{color:var(--ink-mute);font-size:.85rem;}
+  section{padding-block:clamp(38px,6vw,66px);border-top:1px solid var(--line);}
+  .svcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:24px;}
+  .svc{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:16px 18px;
+    display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .svc b{display:block;font-size:1rem;font-weight:700;}
+  .svc .dur{color:var(--ink-mute);font-size:.82rem;font-family:var(--font-ui);}
+  .svc .price{color:var(--brass-hi);font-family:var(--font-ui);font-size:.95rem;white-space:nowrap;}
+
+  .agenda{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:520px;}
+  .agenda h3{font-family:var(--font-display);font-weight:700;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+  .agenda ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+  .agenda .vacio{color:var(--ink-mute);font-style:italic;}
+  .agenda li{display:flex;gap:12px;font-family:var(--font-ui);font-size:.88rem;color:var(--ink-soft);
+    padding:9px 11px;background:var(--ground-2);border-radius:8px;align-items:center;}
+  .agenda li .t{color:var(--brass-hi);font-variant-numeric:tabular-nums;}
+  .agenda li.nueva{border:1px solid var(--brass);animation:pop .5s ease;}
+  .agenda li .cal{margin-left:auto;font-size:.7rem;color:var(--ok);}
+  @keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
 
   footer{padding-block:34px;border-top:1px solid var(--line);text-align:center;color:var(--ink-mute);
-    font-family:var(--font-ui);font-size:.74rem;letter-spacing:.06em;}
+    font-family:var(--font-ui);font-size:.72rem;letter-spacing:.05em;}
 
-  /* ---------- MODAL DE LLAMADA ---------- */
+  /* ---------- LLAMADA ---------- */
   .overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
-    background:rgba(8,6,4,.72);backdrop-filter:blur(6px);padding:16px;}
+    background:rgba(8,6,4,.74);backdrop-filter:blur(6px);padding:16px;}
   .overlay.on{display:flex;}
-  .phone{width:min(390px,100%);height:min(760px,92vh);background:linear-gradient(180deg,#221a12,#15100b);
+  .phone{width:min(390px,100%);height:min(780px,94vh);background:linear-gradient(180deg,#221a12,#15100b);
     border:1px solid var(--line);border-radius:34px;box-shadow:0 40px 90px -30px #000;
     display:flex;flex-direction:column;overflow:hidden;position:relative;}
-  .notch{height:26px;display:flex;align-items:center;justify-content:center;}
+  .notch{height:26px;display:flex;align-items:center;justify-content:center;flex:none;}
   .notch::after{content:"";width:120px;height:6px;border-radius:99px;background:#000;opacity:.6;}
 
-  /* pantalla de llamada entrante */
-  .ringing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:30px;text-align:center;}
-  .avatar{width:104px;height:104px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  .ringing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:30px;text-align:center;}
+  .avatar{width:108px;height:108px;border-radius:50%;display:flex;align-items:center;justify-content:center;
     font-size:3rem;background:radial-gradient(circle at 40% 35%,#3a2c1a,#241a10);border:1px solid var(--line);
     box-shadow:0 0 0 0 rgba(216,164,58,.5);animation:ring 1.6s ease-out infinite;}
   @keyframes ring{70%{box-shadow:0 0 0 26px rgba(216,164,58,0);}100%{box-shadow:0 0 0 0 rgba(216,164,58,0);}}
-  .ringing .name{font-family:var(--font-display);font-weight:800;font-size:1.5rem;}
-  .ringing .status{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);}
-  .ring-actions{display:flex;gap:60px;margin-top:24px;}
+  .ringing .name{font-family:var(--font-display);font-weight:800;font-size:1.45rem;}
+  .ringing .sub{color:var(--ink-mute);font-size:.9rem;}
+  .ringing .status{font-family:var(--font-ui);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-top:6px;}
+  .ring-actions{display:flex;gap:60px;margin-top:26px;}
   .rbtn{width:66px;height:66px;border-radius:50%;border:none;cursor:pointer;font-size:1.5rem;color:#fff;}
   .rbtn.acc{background:#2ec26b;} .rbtn.dec{background:#e5484d;}
   .rbtn:focus-visible{outline:3px solid #fff;outline-offset:2px;}
   .rlabel{font-family:var(--font-ui);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-top:8px;}
   .ring-actions .col{display:flex;flex-direction:column;align-items:center;}
 
-  /* pantalla en llamada */
   .incall{flex:1;display:none;flex-direction:column;min-height:0;}
   .incall.on{display:flex;}
-  .callbar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);}
+  .callbar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);flex:none;}
   .callbar .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);}
   .callbar .who{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);flex:1;}
   .callbar .timer{font-family:var(--font-ui);font-size:.8rem;color:var(--ink-mute);font-variant-numeric:tabular-nums;}
-  .mute{background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:8px;
-    font-size:.72rem;padding:5px 9px;cursor:pointer;font-family:var(--font-ui);}
-  .mute:focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
 
-  .thread{flex:1;overflow-y:auto;padding:16px 16px 4px;display:flex;flex-direction:column;gap:10px;}
-  .bubble{max-width:82%;padding:10px 13px;border-radius:15px;font-size:.98rem;line-height:1.45;}
-  .bubble.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px;}
-  .bubble.cli{align-self:flex-end;background:linear-gradient(180deg,#3a2c15,#2e2311);border:1px solid #4a3a22;
-    border-bottom-right-radius:5px;color:var(--ink);font-style:italic;}
-  .typing{align-self:flex-start;display:inline-flex;gap:4px;padding:12px 14px;background:var(--surface);
-    border:1px solid var(--line);border-radius:15px;border-bottom-left-radius:5px;}
-  .typing i{width:6px;height:6px;border-radius:50%;background:var(--ink-mute);animation:blink 1.2s infinite;}
-  .typing i:nth-child(2){animation-delay:.2s;} .typing i:nth-child(3){animation-delay:.4s;}
-  @keyframes blink{0%,60%,100%{opacity:.25;}30%{opacity:1;}}
+  /* zona central estilo llamada de audio */
+  .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:22px;min-height:0;}
+  .orb{width:150px;height:150px;border-radius:50%;position:relative;flex:none;
+    background:radial-gradient(circle at 42% 38%,#4a3a20,#221910);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:3.6rem;}
+  .orb.speaking::before,.orb.speaking::after{content:"";position:absolute;inset:-6px;border-radius:50%;
+    border:2px solid rgba(216,164,58,.55);animation:pulse2 1.5s ease-out infinite;}
+  .orb.speaking::after{animation-delay:.6s;}
+  @keyframes pulse2{0%{transform:scale(1);opacity:.7;}100%{transform:scale(1.35);opacity:0;}}
+  .orb.listening{box-shadow:0 0 0 3px rgba(111,181,140,.5),0 0 40px -6px rgba(111,181,140,.6);}
+  .caption{min-height:3.2em;text-align:center;font-size:1.12rem;max-width:300px;color:var(--ink);}
+  .caption .lbl{display:block;font-family:var(--font-ui);font-size:.62rem;letter-spacing:.16em;
+    text-transform:uppercase;margin-bottom:6px;}
+  .caption.bot .lbl{color:var(--brass);} .caption.cli .lbl{color:var(--ok);}
+  .caption.cli{font-style:italic;color:var(--ink-soft);}
+  .state-line{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);min-height:1.2em;}
 
-  .replies{padding:8px 14px 6px;display:flex;flex-wrap:wrap;gap:8px;}
+  .controls{padding:10px 16px 8px;display:flex;flex-direction:column;gap:10px;flex:none;}
+  .mic{width:100%;border:none;border-radius:14px;padding:15px;cursor:pointer;font-family:var(--font-display);
+    font-weight:700;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;
+    background:linear-gradient(180deg,#2e8f65,#236f4f);color:#fff;}
+  .mic.rec{background:linear-gradient(180deg,#e0574f,#b83f38);animation:micpulse 1.2s infinite;}
+  .mic:focus-visible{outline:3px solid var(--brass-hi);outline-offset:2px;}
+  @keyframes micpulse{50%{filter:brightness(1.18);}}
+  .replies{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
   .chip{background:none;border:1px solid var(--brass);color:var(--brass-hi);border-radius:999px;
     padding:8px 14px;font-size:.9rem;cursor:pointer;font-family:var(--font-body);}
   .chip:hover{background:rgba(216,164,58,.12);}
   .chip:focus-visible{outline:2px solid var(--brass-hi);outline-offset:2px;}
-  .composer{display:flex;gap:8px;padding:10px 14px 16px;border-top:1px solid var(--line);}
-  .composer input{flex:1;background:var(--ground-2);border:1px solid var(--line);border-radius:999px;
-    color:var(--ink);padding:11px 15px;font-family:var(--font-body);font-size:.95rem;}
-  .composer input:focus-visible{outline:2px solid var(--brass);outline-offset:1px;}
-  .composer .send{background:var(--brass);border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;
-    color:#20180C;font-size:1.1rem;flex:none;}
-  .hangup{margin:0 14px 16px;background:#e5484d;border:none;color:#fff;border-radius:12px;padding:12px;
-    font-family:var(--font-display);font-weight:700;cursor:pointer;display:none;}
-  .hangup.on{display:block;}
+  .altnote{font-family:var(--font-ui);font-size:.66rem;color:var(--ink-mute);text-align:center;letter-spacing:.04em;}
+  .hangup{margin:6px 16px 16px;background:#e5484d;border:none;color:#fff;border-radius:12px;padding:13px;
+    font-family:var(--font-display);font-weight:700;cursor:pointer;flex:none;}
 
   @media (prefers-reduced-motion:reduce){
-    .avatar,.typing i,.dot{animation:none;}
+    .avatar,.orb.speaking::before,.orb.speaking::after,.mic.rec{animation:none;}
   }
-  /* mini agenda que se actualiza */
-  .agenda{margin-top:26px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;}
-  .agenda h3{font-family:var(--font-display);font-weight:700;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
-  .agenda ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
-  .agenda li{display:flex;gap:12px;font-family:var(--font-ui);font-size:.88rem;color:var(--ink-soft);
-    padding:8px 10px;background:var(--ground-2);border-radius:8px;}
-  .agenda li .t{color:var(--brass-hi);font-variant-numeric:tabular-nums;}
-  .agenda li.nueva{border:1px solid var(--brass);animation:pop .5s ease;}
-  @keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
 </style>
 
 <div class="pole" aria-hidden="true"></div>
 
 <header>
   <div class="wrap bar">
-    <div class="brand">OBLIVION<span>.</span></div>
+    <div class="brand">OBLIVION<span>·</span>CIUTADELLA</div>
     <button class="callbtn" id="btnTop">📞 Pedir cita</button>
   </div>
 </header>
 
 <main class="wrap">
   <section class="hero" style="border-top:none">
-    <span class="eyebrow">Barbería &amp; Care · Girona</span>
+    <span class="eyebrow">Barbería · Ciutadella de Menorca</span>
     <h1>Corte, barba<br>y buen gusto.</h1>
-    <p class="lead">Reserva en 30 segundos. Llama y te atiende nuestro recepcionista —
+    <p class="lead">Llama y reserva hablando. Te atiende nuestro recepcionista —
       a cualquier hora, aunque estemos con las tijeras en la mano.</p>
     <div class="hero-cta">
       <button class="callbtn" id="btnHero">📞 Llamar y pedir cita</button>
@@ -170,8 +171,8 @@
   <section>
     <span class="eyebrow">En directo</span>
     <h2>La agenda de hoy</h2>
-    <p class="muted">Cuando reservas por teléfono, la cita cae aquí al instante. Pruébalo:
-      pulsa «Llamar y pedir cita» y mira cómo aparece.</p>
+    <p class="muted">Cuando reservas por teléfono, la cita cae aquí al instante —
+      y en el Google Calendar del negocio. Pruébalo: pulsa «Llamar» y habla.</p>
     <div class="agenda">
       <h3>💈 Hoy en Oblivion</h3>
       <ul id="agendaHoy"></ul>
@@ -179,17 +180,17 @@
   </section>
 </main>
 
-<footer>Demo de orbixel studio · marca de ejemplo «Oblivion Barbers» · la llamada está simulada en el navegador</footer>
+<footer>Demo de orbixel studio · Oblivion Ciutadella · la llamada está simulada en el navegador</footer>
 
-<!-- ================= MODAL DE LLAMADA ================= -->
+<!-- ================= LLAMADA ================= -->
 <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Llamada a la barbería">
   <div class="phone">
     <div class="notch"></div>
 
-    <!-- entrante -->
     <div class="ringing" id="ringing">
       <div class="avatar">💈</div>
-      <div class="name">Oblivion Barbers</div>
+      <div class="name">Oblivion Ciutadella</div>
+      <div class="sub">Calle Eivissa 25</div>
       <div class="status" id="ringStatus">Llamando…</div>
       <div class="ring-actions">
         <div class="col"><button class="rbtn dec" id="btnDecline" aria-label="Colgar">✕</button><span class="rlabel">Colgar</span></div>
@@ -197,19 +198,22 @@
       </div>
     </div>
 
-    <!-- en llamada -->
     <div class="incall" id="incall">
       <div class="callbar">
-        <span class="dot"></span>
-        <span class="who">Oblivion Barbers</span>
+        <span class="dot"></span><span class="who">Oblivion Ciutadella</span>
         <span class="timer" id="timer">00:00</span>
-        <button class="mute" id="btnMute" aria-pressed="false">🔊 Voz</button>
       </div>
-      <div class="thread" id="thread"></div>
-      <div class="replies" id="replies"></div>
-      <div class="composer" id="composer">
-        <input id="input" type="text" placeholder="Escribe tu respuesta…" autocomplete="off" aria-label="Tu respuesta">
-        <button class="send" id="btnSend" aria-label="Enviar">➤</button>
+
+      <div class="stage">
+        <div class="orb" id="orb">💈</div>
+        <div class="caption" id="caption"></div>
+        <div class="state-line" id="stateLine"></div>
+      </div>
+
+      <div class="controls">
+        <button class="mic" id="btnMic">🎙️ Pulsa y habla</button>
+        <div class="replies" id="replies"></div>
+        <div class="altnote" id="altnote"></div>
       </div>
       <button class="hangup" id="btnHangup">Colgar</button>
     </div>
@@ -220,265 +224,296 @@
 (function(){
   "use strict";
 
-  // ---------- Catálogo (mismos datos que el motor del backend) ----------
+  // ===== Servicios reales de Oblivion Ciutadella (Yeasy) =====
   const SERVICIOS = [
-    {id:"corte",       nombre:"Corte de pelo",             dur:30, precio:15},
-    {id:"corte_barba", nombre:"Corte + barba",             dur:45, precio:22},
-    {id:"barba",       nombre:"Arreglo de barba",          dur:20, precio:10},
-    {id:"afeitado",    nombre:"Afeitado clásico a navaja", dur:30, precio:18},
-    {id:"corte_nino",  nombre:"Corte infantil",            dur:20, precio:12},
+    {id:"corte_hombre",  nombre:"Corte hombre",             dur:30, precio:20},
+    {id:"corte_tattoo",  nombre:"Corte + hairtattoo",       dur:40, precio:23},
+    {id:"corte_barba",   nombre:"Corte y barba",            dur:50, precio:29},
+    {id:"corte_nino",    nombre:"Corte niño degradado",     dur:30, precio:15},
+    {id:"arreglo_barba", nombre:"Arreglo de barba",         dur:15, precio:13},
+    {id:"rapado",        nombre:"Rapado",                   dur:20, precio:14},
+    {id:"cejas",         nombre:"Arreglo de cejas (cera)",  dur:15, precio:8},
+    {id:"depilacion",    nombre:"Depilación por zonas",     dur:15, precio:5},
+    {id:"barba_premium", nombre:"Arreglo de barba OBL PREMIUM", dur:30, precio:25},
+    {id:"corte_premium", nombre:"Corte OBL PREMIUM",        dur:45, precio:30},
+    {id:"cb_premium",    nombre:"Corte y barba OBL PREMIUM", dur:60, precio:42},
+    {id:"facial_premium",nombre:"Limpieza facial OBL PREMIUM", dur:20, precio:17},
+    {id:"decoloracion",  nombre:"Decoloración",             dur:120, precio:null},
+    {id:"mechas",        nombre:"Mechas",                   dur:90,  precio:null},
   ];
-  const byId = id => SERVICIOS.find(s=>s.id===id);
-  // Horario: 0 dom … 6 sáb. Tramos [apertura,cierre] en minutos.
-  const HORARIO = {1:[[600,840],[960,1200]],2:[[600,840],[960,1200]],3:[[600,840],[960,1200]],
-                   4:[[600,840],[960,1200]],5:[[600,1200]],6:[[600,840]],0:[]};
-  const PASO=15, ANTELACION=30;
+  const byId=id=>SERVICIOS.find(s=>s.id===id);
+  const precioTxt=s=>s.precio==null?"variable":s.precio+" €";
 
-  const hhmm = m => String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")
-  const habla = m => {const h=Math.floor(m/60),mm=m%60;const per=h<14?"de la mañana":(h<20?"de la tarde":"");
-    const hh12=h>12?h-12:h; return `las ${hh12}${mm?" y "+(mm===30?"media":mm):""} ${per}`.trim();};
-
-  // ---------- Agenda en el navegador (la "fuente de la verdad" de la demo) ----------
-  const hoy = new Date();
-  const fechaISO = d => d.toISOString().slice(0,10);
-  const sumaDias = (d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
-  // citas: {fecha:'YYYY-MM-DD', ini, fin, titulo}
-  const citas = [];
-  function seed(diasDesdeHoy, ini, dur, titulo){
-    const d=sumaDias(hoy,diasDesdeHoy); citas.push({fecha:fechaISO(d),ini,fin:ini+dur,titulo});
-  }
-  // Sembramos algo de ocupación realista para hoy y próximos días.
-  seed(0,10*60,30,"Corte — Marc"); seed(0,11*60,45,"Corte+barba — Pau"); seed(0,17*60,30,"Corte — Nil");
-  seed(1,10*60,30,"Corte — Aleix"); seed(1,18*60,45,"Corte+barba — Èric");
-  seed(2,12*60,20,"Barba — Guy");
-
-  function citasDia(fISO){return citas.filter(c=>c.fecha===fISO);}
-  function huecos(dObj, dur){
-    const fISO=fechaISO(dObj), tramos=HORARIO[dObj.getDay()]||[], ocup=citasDia(fISO), libres=[];
-    const esHoy = fISO===fechaISO(hoy);
-    const ahoraMin = hoy.getHours()*60+hoy.getMinutes();
-    for(const [ap,ci] of tramos){
-      for(let i=ap;i+dur<=ci;i+=PASO){
-        if(esHoy && i < ahoraMin+ANTELACION) continue;
-        const choca=ocup.some(o=>i<o.fin && i+dur>o.ini);
-        if(!choca) libres.push(i);
-      }
-    }
-    return libres;
-  }
-  function proximoDiaConHueco(desdeObj,dur){
-    for(let k=1;k<=8;k++){const d=sumaDias(desdeObj,k);if((HORARIO[d.getDay()]||[]).length===0)continue;
-      const h=huecos(d,dur); if(h.length) return {d,h};}
-    return null;
-  }
-
-  // ---------- Interpretar lo que dice el cliente ----------
-  const SINON={corte:["corte","cortar","cortarme","pelo","rapar","rapar"],
-    corte_barba:["corte y barba","pelo y barba","completo","todo"],
-    barba:["barba","perfilar","recortar"],afeitado:["afeitado","afeitar","navaja","apurado"],
-    corte_nino:["niño","nino","infantil","crío","crio","peque","hijo"]};
+  const SINON={
+    corte_barba:["corte y barba","pelo y barba","corte más barba","corte mas barba"],
+    cb_premium:["corte y barba premium","premium corte y barba"],
+    corte_premium:["corte premium","premium"],
+    corte_tattoo:["hairtattoo","tattoo","dibujo","diseño"],
+    corte_nino:["niño","nino","hijo","peque","crío","crio","infantil"],
+    arreglo_barba:["barba","perfilar","recortar la barba","arreglo de barba"],
+    barba_premium:["barba premium"],
+    rapado:["rapado","rapar","al cero","al uno","máquina"],
+    cejas:["cejas"],depilacion:["depilación","depilacion","depilar","cera"],
+    facial_premium:["facial","limpieza facial","limpieza"],
+    decoloracion:["decoloración","decoloracion","decolorar"],mechas:["mechas"],
+    corte_hombre:["corte","cortar","cortarme","pelo","corte de pelo","corte hombre"],
+  };
   function detectaServicio(t){
     t=(t||"").toLowerCase();
-    if(/(pelo|corte|cortar).*(barba)|(barba).*(pelo|corte|cortar)/.test(t)) return byId("corte_barba");
-    for(const s of SERVICIOS){const k=SINON[s.id]||[s.nombre.toLowerCase()];
-      if(k.some(w=>t.includes(w))) return s;}
+    if(/(pelo|corte|cortar).*(barba)|(barba).*(pelo|corte|cortar)/.test(t)&&!/premium/.test(t)) return byId("corte_barba");
+    // prioriza premium y compuestos antes que "corte" a secas
+    const orden=["cb_premium","corte_premium","barba_premium","facial_premium","corte_tattoo",
+      "corte_nino","corte_barba","arreglo_barba","rapado","cejas","depilacion","decoloracion","mechas","corte_hombre"];
+    for(const id of orden){const k=SINON[id]||[];if(k.some(w=>t.includes(w)))return byId(id);}
     return null;
   }
+
+  // ===== Fechas =====
+  const hoy=new Date();
+  const fechaISO=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10);};
+  const sumaDias=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
   const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
   function detectaDia(t){
     t=(t||"").toLowerCase();
-    if(t.includes("hoy")) return new Date(hoy);
-    if(t.includes("mañana")||t.includes("manana")) return sumaDias(hoy,1);
     if(t.includes("pasado")) return sumaDias(hoy,2);
-    for(let i=0;i<7;i++){ if(t.includes(DIAS[i])){
-      for(let k=0;k<8;k++){const d=sumaDias(hoy,k); if(d.getDay()===i && k>0) return d;} }}
+    if(t.includes("mañana")||t.includes("manana")) return sumaDias(hoy,1);
+    if(t.includes("hoy")) return new Date(hoy);
+    for(let i=0;i<7;i++) if(t.includes(DIAS[i])){
+      for(let k=1;k<=7;k++){const d=sumaDias(hoy,k);if(d.getDay()===i)return d;}}
+    const m=t.match(/\bel?\s*(\d{1,2})\b/); if(m){const d=new Date(hoy);d.setDate(+m[1]);if(d>=hoy)return d;}
     return null;
   }
   function nombreDia(d){
-    const k=Math.round((d-new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate()))/86400000);
-    if(k===0) return "hoy"; if(k===1) return "mañana";
-    return "el "+DIAS[d.getDay()];
+    const base=new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate());
+    const k=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-base)/86400000);
+    if(k===0)return "hoy"; if(k===1)return "mañana"; if(k===2)return "pasado mañana";
+    return "el "+DIAS[d.getDay()]+" "+d.getDate();
   }
 
-  // ---------- Voz opcional (TTS del navegador) ----------
-  let ttsOn=true;
-  function speak(t){ if(!ttsOn||!("speechSynthesis"in window))return;
-    try{ const u=new SpeechSynthesisUtterance(t.replace(/[💈✂️]/g,"")); u.lang="es-ES"; u.rate=1.05;
-      const v=speechSynthesis.getVoices().find(v=>/es/i.test(v.lang)); if(v)u.voice=v;
-      speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
-
-  // ---------- Render de la pantalla ----------
-  const $=s=>document.querySelector(s);
-  const thread=$("#thread"), replies=$("#replies"), composer=$("#composer"),
-        inputEl=$("#input"), hangup=$("#btnHangup");
-
-  function scroll(){thread.scrollTop=thread.scrollHeight;}
-  function addBubble(txt,who){const b=document.createElement("div");b.className="bubble "+who;
-    b.textContent=txt;thread.appendChild(b);scroll();return b;}
-  function typing(cb,delay=850){const t=document.createElement("div");t.className="typing";
-    t.innerHTML="<i></i><i></i><i></i>";thread.appendChild(t);scroll();
-    setTimeout(()=>{t.remove();cb();},delay);}
-  function botSay(txt,after){ typing(()=>{addBubble(txt,"bot");speak(txt); if(after)after();}); }
-  function setChips(opts){ replies.innerHTML="";
-    opts.forEach(o=>{const c=document.createElement("button");c.className="chip";c.textContent=o.label;
-      c.onclick=()=>choose(o);replies.appendChild(c);}); }
-  function clearChips(){replies.innerHTML="";}
-
-  // ---------- Máquina de la conversación ----------
-  const S={paso:"inicio",servicio:null,fecha:null,hora:null,cliente:null};
-
-  function choose(o){ // clic en chip
-    if(o.raw){ handleText(o.raw); return; }
-    if(o.tipo==="servicio"){ pickServicio(o.value); }
-    else if(o.tipo==="dia"){ pickDia(o.value); }
-    else if(o.tipo==="hora"){ pickHora(o.value); }
-    else if(o.tipo==="nombre"){ pickNombre(o.value); }
+  // ===== Horas =====
+  const NUM={una:1,uno:1,un:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
+  const hhmm=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+  function detectaHora(t){
+    t=(t||"").toLowerCase(); let h=null,min=0;
+    let md=t.match(/\b(\d{1,2})[:.h]\s*(\d{2})\b/); if(md){h=+md[1];min=+md[2];}
+    if(h==null){md=t.match(/\b(\d{1,2})\b/);if(md)h=+md[1];}
+    if(h==null){for(const w in NUM){if(new RegExp("\\b"+w+"\\b").test(t)){h=NUM[w];break;}}}
+    if(h==null) return null;
+    if(/y media/.test(t))min=30; else if(/y cuarto/.test(t))min=15;
+    else if(/menos cuarto/.test(t)){h=h-1;min=45;}
+    const tarde=/(tarde|noche)/.test(t), manana=/(mañana|manana)/.test(t);
+    if(h<=9 && !manana) h+=12;         // "a las 5" → 17h
+    if(tarde && h<12) h+=12;
+    if(manana && h>12) h-=12;
+    if(h<0||h>23) return null;
+    return h*60+min;
   }
-  function callerEcho(txt){addBubble(txt,"cli");}
+  const NUMTXT=["","una","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","once","doce"];
+  function habla(m){
+    let h=Math.floor(m/60),mm=m%60; const per=h<14?"de la mañana":(h<21?"de la tarde":"de la noche");
+    const h12=h>12?h-12:(h===0?12:h);
+    let s="las "+NUMTXT[h12]; if(mm===30)s+=" y media"; else if(mm===15)s+=" y cuarto"; else if(mm)s+=" "+mm;
+    return s+" "+per;
+  }
+  const ABRE=600, CIERRA=1200; // 10:00–20:00
 
-  function pickServicio(id){ S.servicio=byId(id); callerEcho("Quiero "+S.servicio.nombre.toLowerCase());
-    clearChips(); askDia(); }
-  function askDia(){ S.paso="dia";
-    botSay(`Perfecto, ${S.servicio.nombre.toLowerCase()} (${S.servicio.dur} min). ¿Qué día te viene bien?`,()=>{
-      setChips([{tipo:"dia",label:"Hoy",value:0},{tipo:"dia",label:"Mañana",value:1},
-        {tipo:"dia",label:proxSabadoLabel(),value:"sab"},{tipo:"dia",label:"El lunes",value:"lun"}]);});
-  }
-  function proxSabadoLabel(){return "El sábado";}
-  function pickDia(v){
-    let d; if(v===0)d=new Date(hoy); else if(v===1)d=sumaDias(hoy,1);
-    else if(v==="sab"){for(let k=1;k<=7;k++){const x=sumaDias(hoy,k);if(x.getDay()===6){d=x;break;}}}
-    else if(v==="lun"){for(let k=1;k<=7;k++){const x=sumaDias(hoy,k);if(x.getDay()===1){d=x;break;}}}
-    else d=v;
-    callerEcho(nombreDia(d).charAt(0).toUpperCase()+nombreDia(d).slice(1));
-    resolverDia(d);
-  }
-  function resolverDia(d){ S.fecha=d; clearChips();
-    const tramos=HORARIO[d.getDay()]||[];
-    if(tramos.length===0){ // cerrado → alternativa
-      const alt=proximoDiaConHueco(d,S.servicio.dur);
-      botSay(`Uy, ${nombreDia(d)} cerramos. Lo más cercano que tengo es ${nombreDia(alt.d)} a ${habla(alt.h[0])}. ¿Te lo reservo?`,()=>{
-        S.fecha=alt.d; S.paso="confirmarHora"; S.hora=alt.h[0];
-        setChips([{tipo:"hora",label:"Sí, resérvalo",value:alt.h[0]},{raw:"otro día",label:"Mejor otro día"}]);});
-      return;
-    }
-    const h=huecos(d,S.servicio.dur);
-    if(h.length===0){ const alt=proximoDiaConHueco(d,S.servicio.dur);
-      botSay(`${nombreDia(d).charAt(0).toUpperCase()+nombreDia(d).slice(1)} lo tengo completo. Te puedo dar ${nombreDia(alt.d)} a ${habla(alt.h[0])}. ¿Te va?`,()=>{
-        S.fecha=alt.d; S.hora=alt.h[0];
-        setChips([{tipo:"hora",label:"Vale",value:alt.h[0]},{raw:"otro día",label:"Otro día"}]);});
-      return;
-    }
-    // Ofrecer 1 de mañana + 2 de tarde (o lo que haya)
-    const man=h.filter(m=>m<840), tar=h.filter(m=>m>=960);
-    const oferta=[]; if(man[0]!=null)oferta.push(man[0]); tar.slice(0,2).forEach(x=>oferta.push(x));
-    if(oferta.length<3){h.forEach(x=>{if(!oferta.includes(x)&&oferta.length<3)oferta.push(x);});}
-    S.paso="hora";
-    const texto = oferta.map(m=>habla(m)).join(", o ");
-    botSay(`Genial. ${nombreDia(d).charAt(0).toUpperCase()+nombreDia(d).slice(1)} tengo ${texto}. ¿Cuál prefieres?`,()=>{
-      setChips(oferta.map(m=>({tipo:"hora",label:hhmm(m),value:m})));});
-  }
-  function pickHora(m){ S.hora=m; callerEcho("A "+habla(m)); clearChips(); askNombre(); }
-  function askNombre(){ S.paso="nombre";
-    botSay("Muy bien. ¿A nombre de quién te la pongo?",()=>{
-      setChips([{tipo:"nombre",label:"Javier",value:"Javier Ruiz"},
-        {tipo:"nombre",label:"Marc",value:"Marc Solà"}]); inputEl.focus();});
-  }
-  function pickNombre(n){ S.cliente=n; callerEcho("Soy "+n); clearChips(); reservar(); }
-
-  function reservar(){
-    S.paso="fin";
-    const fISO=fechaISO(S.fecha);
-    // re-comprobar que sigue libre (anti doble reserva)
-    const choca=citasDia(fISO).some(c=>S.hora<c.fin && S.hora+S.servicio.dur>c.ini);
-    if(choca){ botSay("Vaya, justo me han cogido esa hora. Te doy la siguiente que tenga…",()=>resolverDia(S.fecha)); return; }
-    citas.push({fecha:fISO,ini:S.hora,fin:S.hora+S.servicio.dur,titulo:`${S.servicio.nombre} — ${S.cliente}`,nueva:true});
-    botSay(`¡Hecho, ${S.cliente.split(" ")[0]}! Te confirmo: ${S.servicio.nombre.toLowerCase()} ${nombreDia(S.fecha)} a ${habla(S.hora)}, son ${S.servicio.precio} €. Te esperamos. ¡Gracias!`,()=>{
-      composer.style.display="none"; hangup.classList.add("on"); hangup.textContent="Colgar ✓ cita reservada";
-      renderAgenda();
-    });
-  }
-
-  // Texto libre → interpretar según el paso actual
-  function handleText(raw){
-    raw=raw.trim(); if(!raw)return; callerEcho(raw);
-    if(/otro d[ií]a/i.test(raw)){ clearChips(); askDia(); return; }
-    if(S.paso==="inicio"||S.paso==="servicio"){
-      const s=detectaServicio(raw);
-      if(s){S.servicio=s; clearChips(); askDia(); return;}
-      botSay("¿Qué te quieres hacer: corte, corte y barba, solo barba o afeitado?",()=>servicioChips());
-      return;
-    }
-    if(S.paso==="dia"){
-      const d=detectaDia(raw);
-      if(d){resolverDia(d);return;}
-      botSay("¿Para qué día? Dime «hoy», «mañana» o un día de la semana.");
-      return;
-    }
-    if(S.paso==="hora"||S.paso==="confirmarHora"){
-      // intenta casar por dígitos
-      const md=raw.match(/(\d{1,2})[:h\. ]?(\d{2})?/);
-      if(md){const H=+md[1], M=md[2]?+md[2]:(/media/i.test(raw)?30:0);
-        let min=(H<9?H+12:H)*60+M; // "6" tarde
-        const h=huecos(S.fecha,S.servicio.dur);
-        const cerca=h.find(x=>Math.abs(x-min)<=15);
-        if(cerca!=null){pickHora(cerca);return;}}
-      botSay("Esa no la tengo libre. Elige una de las que te digo, porfa.",()=>resolverDia(S.fecha));
-      return;
-    }
-    if(S.paso==="nombre"){ pickNombre(raw); return; }
-  }
-  function servicioChips(){ setChips(SERVICIOS.map(s=>({tipo:"servicio",label:s.nombre,value:s.id}))); }
-
-  // ---------- Arranque de la llamada ----------
-  function abrir(){ $("#overlay").classList.add("on"); $("#ringing").style.display="flex";
-    $("#incall").classList.remove("on"); $("#ringStatus").textContent="Llamando…";
-    setTimeout(()=>{$("#ringStatus").textContent="Oblivion Barbers · Girona";},900);
-    // primera vez cargamos voces
-    if("speechSynthesis"in window){speechSynthesis.getVoices();}
-  }
-  function contestar(){
-    $("#ringing").style.display="none"; $("#incall").classList.add("on");
-    thread.innerHTML=""; clearChips(); composer.style.display="flex"; hangup.classList.remove("on");
-    Object.assign(S,{paso:"inicio",servicio:null,fecha:null,hora:null,cliente:null});
-    iniciarTimer();
-    botSay("Barbería Oblivion, ¿en qué puedo ayudarte?",()=>{
-      S.paso="servicio";
-      setChips([{tipo:"servicio",label:"Cortarme el pelo",value:"corte"},
-        {tipo:"servicio",label:"Corte y barba",value:"corte_barba"},
-        {tipo:"servicio",label:"Afeitado",value:"afeitado"},
-        {tipo:"servicio",label:"Corte para mi hijo",value:"corte_nino"}]);});
-  }
-  function colgar(){ $("#overlay").classList.remove("on"); pararTimer();
-    if("speechSynthesis"in window)speechSynthesis.cancel(); }
-
-  let t0,timerInt;
-  function iniciarTimer(){t0=Date.now();timerInt=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);
-    $("#timer").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");},500);}
-  function pararTimer(){clearInterval(timerInt);}
-
-  // ---------- Agenda de hoy en la página ----------
+  // ===== Agenda (en el navegador; vacía = primera llamada) =====
+  const citas=[];
+  function citasHoy(){const f=fechaISO(hoy);return citas.filter(c=>c.fecha===f);}
   function renderAgenda(){
-    const ul=$("#agendaHoy"); ul.innerHTML="";
-    const hoyISO=fechaISO(hoy);
-    citasDia(hoyISO).sort((a,b)=>a.ini-b.ini).forEach(c=>{
-      const li=document.createElement("li"); if(c.nueva)li.className="nueva";
-      li.innerHTML=`<span class="t">${hhmm(c.ini)}</span><span>${c.titulo}</span>`;
+    const ul=document.getElementById("agendaHoy"); ul.innerHTML="";
+    const list=citasHoy().sort((a,b)=>a.ini-b.ini);
+    if(!list.length){ul.innerHTML='<li class="vacio">Sin citas todavía — sé el primero en llamar.</li>';return;}
+    list.forEach(c=>{const li=document.createElement("li");if(c.nueva)li.className="nueva";
+      li.innerHTML=`<span class="t">${hhmm(c.ini)}</span><span>${c.titulo}</span>`+
+        (c.enCalendar?'<span class="cal">✓ Calendar</span>':"");
       ul.appendChild(li);});
   }
 
-  // ---------- Lista de servicios ----------
-  $("#svcList").innerHTML=SERVICIOS.map(s=>
-    `<div class="svc"><b>${s.nombre}</b><span class="price">${s.precio} €</span> · <span class="dur">${s.dur} min</span></div>`).join("");
+  // ===== Google Calendar (best-effort, vía conector del visor) =====
+  async function guardarEnCalendar(serv,fISO,ini){
+    try{
+      const mcp=await (window.claude&&window.claude.use?window.claude.use("mcp"):Promise.resolve(null));
+      if(!mcp) return {ok:false,soft:true};
+      const r=await mcp.callTool("Google Calendar","create_event",{
+        calendarId:"orbixel.agency@gmail.com",
+        summary:`✂️ ${serv.nombre} — ${S.nombre}`,
+        description:`Reserva de DEMO por llamada de voz.\nServicio: ${serv.nombre} (${serv.dur} min · ${precioTxt(serv)})\nNegocio: Oblivion Ciutadella`,
+        location:"Oblivion Ciutadella · Calle Eivissa 25, Ciutadella de Menorca",
+        startTime:`${fISO}T${hhmm(ini)}:00`,
+        endTime:`${fISO}T${hhmm(ini+serv.dur)}:00`,
+        timeZone:"Europe/Madrid"
+      });
+      return {ok:true,r};
+    }catch(e){ return {ok:false,code:e&&e.code}; }
+  }
+
+  // ===== Voz =====
+  const orb=document.getElementById("orb"), cap=document.getElementById("caption"),
+        stateLine=document.getElementById("stateLine"), micBtn=document.getElementById("btnMic"),
+        replies=document.getElementById("replies"), altnote=document.getElementById("altnote");
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const puedeEscuchar=!!SR; let rec=null, escuchando=false;
+
+  function setCaption(txt,who){cap.className="caption "+who;
+    cap.innerHTML=`<span class="lbl">${who==="bot"?"Recepcionista":"Tú"}</span>`+txt;}
+  function speak(txt,after){
+    orb.classList.add("speaking"); orb.classList.remove("listening"); stateLine.textContent="Hablando…";
+    let done=false; const fin=()=>{if(done)return;done=true;orb.classList.remove("speaking");stateLine.textContent="";if(after)after();};
+    if("speechSynthesis"in window){
+      try{const u=new SpeechSynthesisUtterance(txt.replace(/[💈✂️]/g,""));u.lang="es-ES";u.rate=1.04;
+        const v=speechSynthesis.getVoices().find(v=>/es[-_]?ES/i.test(v.lang))||speechSynthesis.getVoices().find(v=>/^es/i.test(v.lang));
+        if(v)u.voice=v; u.onend=fin; u.onerror=fin; speechSynthesis.cancel(); speechSynthesis.speak(u);
+        setTimeout(fin,Math.max(2600,txt.length*95)); // red de seguridad
+      }catch(e){setTimeout(fin,1400);}
+    } else setTimeout(fin,Math.max(1600,txt.length*45));
+  }
+  function botDice(txt,after){ setCaption(txt,"bot"); speak(txt,after); }
+
+  function escuchar(){
+    if(!puedeEscuchar){ stateLine.textContent="Toca una opción 👇"; return; }
+    if(escuchando)return;
+    try{
+      rec=new SR(); rec.lang="es-ES"; rec.interimResults=true; rec.maxAlternatives=1; rec.continuous=false;
+      escuchando=true; orb.classList.add("listening"); micBtn.classList.add("rec");
+      micBtn.textContent="● Escuchando… (toca para parar)"; stateLine.textContent="Te escucho…";
+      let finalTxt="";
+      rec.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){
+        const r=e.results[i]; if(r.isFinal)finalTxt+=r[0].transcript; else interim+=r[0].transcript;}
+        setCaption((finalTxt||interim||"…"),"cli");};
+      rec.onerror=()=>{};
+      rec.onend=()=>{escuchando=false;orb.classList.remove("listening");micBtn.classList.remove("rec");
+        micBtn.textContent="🎙️ Pulsa y habla";
+        const t=finalTxt.trim(); if(t) procesa(t); else stateLine.textContent=puedeEscuchar?"No te he oído. Toca y repite, o pulsa una opción.":"";
+      };
+      rec.start();
+    }catch(e){escuchando=false;stateLine.textContent="Toca una opción 👇";}
+  }
+  function pararEscucha(){ if(rec&&escuchando){try{rec.stop();}catch(e){}} }
+
+  // ===== Conversación =====
+  const S={paso:"inicio",serv:null,fecha:null,hora:null,nombre:null};
+  function setChips(arr){replies.innerHTML="";arr.forEach(o=>{const b=document.createElement("button");
+    b.className="chip";b.textContent=o.label;b.onclick=()=>{o.fn();};replies.appendChild(b);});}
+  function clearChips(){replies.innerHTML="";}
+
+  function pedirServicio(){
+    S.paso="servicio";
+    botDice("Barbería Oblivion Ciutadella, ¿en qué puedo ayudarte?",()=>{
+      altnote.textContent=puedeEscuchar?"Habla o toca una opción":"Tu navegador no oye la voz — toca una opción";
+      setChips([
+        {label:"Cortarme el pelo",fn:()=>elegServ("corte_hombre","Quiero cortarme el pelo")},
+        {label:"Corte y barba",fn:()=>elegServ("corte_barba","Corte y barba")},
+        {label:"Corte OBL Premium",fn:()=>elegServ("corte_premium","El corte premium")},
+        {label:"Arreglo de barba",fn:()=>elegServ("arreglo_barba","Arreglarme la barba")},
+      ]);
+      if(puedeEscuchar) escuchar();
+    });
+  }
+  function elegServ(id,eco){ S.serv=byId(id); setCaption(eco,"cli"); clearChips(); pedirDia(); }
+  function pedirDia(){
+    S.paso="dia";
+    botDice(`Perfecto, ${S.serv.nombre.toLowerCase()}. ¿Qué día te viene bien?`,()=>{
+      setChips([
+        {label:"Hoy",fn:()=>elegDia(new Date(hoy))},
+        {label:"Mañana",fn:()=>elegDia(sumaDias(hoy,1))},
+        {label:"El sábado",fn:()=>elegDia(prox(6))},
+        {label:"El lunes",fn:()=>elegDia(prox(1))},
+      ]);
+      if(puedeEscuchar) escuchar();
+    });
+  }
+  function prox(dow){for(let k=1;k<=7;k++){const d=sumaDias(hoy,k);if(d.getDay()===dow)return d;}return sumaDias(hoy,1);}
+  function elegDia(d){ S.fecha=d; setCaption(nombreDia(d).charAt(0).toUpperCase()+nombreDia(d).slice(1),"cli"); clearChips(); pedirHora(); }
+  function pedirHora(){
+    S.paso="hora";
+    botDice("Muy bien, lo tengo libre. ¿A qué hora? Abrimos de diez a ocho.",()=>{
+      setChips([
+        {label:"10:30",fn:()=>elegHora(630)},{label:"12:00",fn:()=>elegHora(720)},
+        {label:"17:00",fn:()=>elegHora(1020)},{label:"18:30",fn:()=>elegHora(1110)},
+      ]);
+      if(puedeEscuchar) escuchar();
+    });
+  }
+  function elegHora(m){
+    if(m<ABRE||m+S.serv.dur>CIERRA){
+      botDice(`Uy, a esa hora está cerrado. Abrimos de diez a ocho. ¿Otra hora?`,()=>{if(puedeEscuchar)escuchar();});
+      return;
+    }
+    S.hora=m; setCaption("A "+habla(m),"cli"); clearChips(); pedirNombre();
+  }
+  function pedirNombre(){
+    S.paso="nombre";
+    botDice("Genial. ¿A nombre de quién te la pongo?",()=>{
+      setChips([{label:"Javier",fn:()=>elegNombre("Javier")},{label:"Marc",fn:()=>elegNombre("Marc")}]);
+      if(puedeEscuchar) escuchar();
+    });
+  }
+  function elegNombre(n){ S.nombre=n; setCaption("Soy "+n,"cli"); clearChips(); reservar(); }
+
+  async function reservar(){
+    S.paso="fin"; pararEscucha(); micBtn.style.display="none"; clearChips(); altnote.textContent="";
+    const fISO=fechaISO(S.fecha);
+    const cita={fecha:fISO,ini:S.hora,fin:S.hora+S.serv.dur,titulo:`${S.serv.nombre} — ${S.nombre}`,nueva:true};
+    if(fISO===fechaISO(hoy)){ citas.push(cita); renderAgenda(); }
+    stateLine.textContent="Guardando en la agenda…";
+    const pr=precioTxt(S.serv);
+    botDice(`¡Hecho, ${S.nombre}! Te confirmo: ${S.serv.nombre.toLowerCase()} ${nombreDia(S.fecha)} a ${habla(S.hora)}${S.serv.precio!=null?", son "+S.serv.precio+" euros":""}. Te esperamos. ¡Gracias!`,
+      async ()=>{
+        const res=await guardarEnCalendar(S.serv,fISO,S.hora);
+        if(res.ok){ cita.enCalendar=true; renderAgenda(); stateLine.textContent="✓ Guardada en Google Calendar de Orbixel"; }
+        else if(res.soft){ stateLine.textContent="✓ Cita reservada (agenda de la web)"; }
+        else { stateLine.textContent="✓ Cita reservada · conecta Google Calendar para guardarla real"; }
+      });
+    document.getElementById("btnHangup").textContent="Colgar ✓ cita reservada";
+  }
+
+  // texto libre (voz o teclado) según el paso
+  function procesa(t){
+    if(S.paso==="servicio"){const s=detectaServicio(t);
+      if(s){S.serv=s;setCaption(t,"cli");clearChips();pedirDia();return;}
+      botDice("¿Qué te hago: corte, corte y barba, arreglo de barba…?",()=>{if(puedeEscuchar)escuchar();});return;}
+    if(S.paso==="dia"){const d=detectaDia(t);
+      if(d){elegDia(d);return;}
+      botDice("¿Para qué día? Dime hoy, mañana o un día de la semana.",()=>{if(puedeEscuchar)escuchar();});return;}
+    if(S.paso==="hora"){const m=detectaHora(t);
+      if(m!=null){elegHora(m);return;}
+      botDice("¿A qué hora? Por ejemplo, a las cinco y media.",()=>{if(puedeEscuchar)escuchar();});return;}
+    if(S.paso==="nombre"){const n=t.replace(/^(soy|me llamo|para)\s+/i,"").trim().split(/\s+/)[0];
+      elegNombre(n.charAt(0).toUpperCase()+n.slice(1));return;}
+  }
+
+  // ===== Timer + apertura/cierre =====
+  let timerInt;
+  function timerOn(){const t0=Date.now();timerInt=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);
+    document.getElementById("timer").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");},500);}
+  function abrir(){ document.getElementById("overlay").classList.add("on");
+    document.getElementById("ringing").style.display="flex"; document.getElementById("incall").classList.remove("on");
+    document.getElementById("ringStatus").textContent="Llamando…";
+    setTimeout(()=>{document.getElementById("ringStatus").textContent="Menorca · +34 971 …";},900);
+    if("speechSynthesis"in window)speechSynthesis.getVoices();
+  }
+  function contestar(){
+    document.getElementById("ringing").style.display="none"; document.getElementById("incall").classList.add("on");
+    micBtn.style.display=""; Object.assign(S,{paso:"inicio",serv:null,fecha:null,hora:null,nombre:null});
+    setCaption("","bot"); timerOn(); pedirServicio();
+  }
+  function colgar(){ document.getElementById("overlay").classList.remove("on"); clearInterval(timerInt); pararEscucha();
+    if("speechSynthesis"in window)speechSynthesis.cancel(); }
+
+  // ===== Pintar página =====
+  document.getElementById("svcList").innerHTML=SERVICIOS.map(s=>
+    `<div class="svc"><div><b>${s.nombre}</b><span class="dur">${s.dur} min</span></div><span class="price">${precioTxt(s)}</span></div>`).join("");
   renderAgenda();
 
-  // ---------- Eventos ----------
-  $("#btnTop").onclick=abrir; $("#btnHero").onclick=abrir;
-  $("#btnAccept").onclick=contestar; $("#btnDecline").onclick=colgar; hangup.onclick=colgar;
-  $("#btnSend").onclick=()=>{const v=inputEl.value;inputEl.value="";handleText(v);};
-  inputEl.addEventListener("keydown",e=>{if(e.key==="Enter"){const v=inputEl.value;inputEl.value="";handleText(v);}});
-  $("#btnMute").onclick=function(){ttsOn=!ttsOn;this.textContent=ttsOn?"🔊 Voz":"🔇 Voz";
-    this.setAttribute("aria-pressed",String(!ttsOn));if(!ttsOn&&"speechSynthesis"in window)speechSynthesis.cancel();};
-  $("#overlay").addEventListener("click",e=>{if(e.target===$("#overlay"))colgar();});
+  // ===== Eventos =====
+  document.getElementById("btnTop").onclick=abrir;
+  document.getElementById("btnHero").onclick=abrir;
+  document.getElementById("btnAccept").onclick=contestar;
+  document.getElementById("btnDecline").onclick=colgar;
+  document.getElementById("btnHangup").onclick=colgar;
+  micBtn.onclick=()=>{ if(escuchando)pararEscucha(); else escuchar(); };
+  document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")colgar();});
   document.addEventListener("keydown",e=>{if(e.key==="Escape")colgar();});
 })();
 </script>
