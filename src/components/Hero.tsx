@@ -1,31 +1,54 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Play, Instagram, Facebook, CalendarDays } from "lucide-react"
-import chairImg from "@/assets/chair.png"
+import { CalendarDays, ArrowRight, MapPin } from "lucide-react"
+import b1 from "@/assets/barber-1.jpg"
+import b2 from "@/assets/barber-2.jpg"
+import b3 from "@/assets/barber-3.jpg"
+import b4 from "@/assets/barber-4.jpg"
+import b5 from "@/assets/barber-5.jpg"
 
 interface HeroProps {
   onReservar?: () => void
   onServicios?: () => void
 }
 
+interface Barber {
+  img: string
+  name: string
+  role: string
+  spec: string
+}
+
+/* Nombres/roles de ejemplo — edítalos con los reales del equipo. */
+const TEAM: Barber[] = [
+  { img: b1, name: "Marc", role: "Fundador · Barbero", spec: "Clásico & barba con ozono" },
+  { img: b2, name: "Toni", role: "Barbero senior", spec: "Fades & degradados" },
+  { img: b3, name: "Biel", role: "Barbero", spec: "Tijera & texturizado" },
+  { img: b4, name: "Nacho", role: "Barbero", spec: "Estilo urbano" },
+  { img: b5, name: "Àlex", role: "Barbero & barba", spec: "Afeitado a navaja" },
+]
+
+const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
+const smooth = (a: number, b: number, x: number) => clamp01((x - a) / (b - a))
+
 /**
- * Hero cinematográfico con transición de silla giratoria dirigida por scroll.
+ * Hero con transición de scroll en tres actos:
+ *  1) FOCO: un haz de luz revela la marca; al bajar, se despeja de golpe.
+ *  2) EQUIPO: aparece una inscripción a la izquierda y la dirección a la
+ *     derecha; las fotos de los barberos pasan en horizontal con su info.
+ *  3) Continúa el scroll normal hacia las siguientes secciones.
  *
- * La sección se fija a pantalla completa y, al desplazarse, la silla de
- * barbero gira (rotación 3D + escala) mientras el titular se abre en dos,
- * dejándola como protagonista. Estética oscura elegante inspirada en la
- * referencia aportada.
- *
- * La silla se toma de /public/brand/chair.png (idealmente PNG recortado);
- * mientras no exista, se dibuja una silla vectorial de marca.
+ * Degradación con prefers-reduced-motion: intro estático + equipo en fila
+ * desplazable, sin fijado.
  */
 export function Hero({ onReservar, onServicios }: HeroProps) {
   const wrapRef = useRef<HTMLElement>(null)
-  const chairRef = useRef<HTMLDivElement>(null)
-  const shadowRef = useRef<HTMLDivElement>(null)
-  const leftRef = useRef<HTMLSpanElement>(null)
-  const rightRef = useRef<HTMLSpanElement>(null)
+  const stickyRef = useRef<HTMLDivElement>(null)
   const introRef = useRef<HTMLDivElement>(null)
+  const teamRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const leftRef = useRef<HTMLDivElement>(null)
+  const rightRef = useRef<HTMLDivElement>(null)
   const fillRef = useRef<HTMLSpanElement>(null)
 
   const [reduced, setReduced] = useState(false)
@@ -41,31 +64,38 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
 
     const update = () => {
       const total = wrap.offsetHeight - window.innerHeight
-      const top = wrap.getBoundingClientRect().top
-      const p = Math.min(Math.max(-top / (total || 1), 0), 1)
+      const p = clamp01(-wrap.getBoundingClientRect().top / (total || 1))
 
-      if (chairRef.current) {
-        const rotY = p * 360
-        const scale = 0.82 + p * 0.32
-        chairRef.current.style.transform = `translate(-50%, -50%) perspective(1300px) rotateY(${rotY}deg) scale(${scale})`
+      // Acto 1 — foco/intro: visible y luego se despeja "de golpe".
+      const introOut = smooth(0.12, 0.24, p)
+      if (introRef.current) {
+        introRef.current.style.opacity = String(1 - introOut)
+        introRef.current.style.transform = `translateY(${-introOut * 40}px) scale(${1 + introOut * 0.06})`
+        introRef.current.style.filter = `blur(${introOut * 6}px)`
       }
-      if (shadowRef.current) {
-        const sx = 0.55 + 0.45 * Math.abs(Math.cos(p * Math.PI * 2))
-        shadowRef.current.style.transform = `translateX(-50%) scaleX(${sx})`
-        shadowRef.current.style.opacity = String(0.5 - p * 0.18)
+
+      // Acto 2 — equipo: aparece.
+      const teamIn = smooth(0.2, 0.3, p)
+      if (teamRef.current) {
+        teamRef.current.style.opacity = String(teamIn)
+        teamRef.current.style.pointerEvents = teamIn > 0.5 ? "auto" : "none"
       }
       if (leftRef.current) {
-        leftRef.current.style.transform = `translateX(${-p * 42}vw)`
-        leftRef.current.style.opacity = String(Math.max(0, 1 - p * 1.5))
+        leftRef.current.style.opacity = String(smooth(0.26, 0.34, p))
+        leftRef.current.style.transform = `translateX(${(1 - smooth(0.26, 0.36, p)) * -30}px)`
       }
       if (rightRef.current) {
-        rightRef.current.style.transform = `translateX(${p * 42}vw)`
-        rightRef.current.style.opacity = String(Math.max(0, 1 - p * 1.5))
+        rightRef.current.style.opacity = String(smooth(0.3, 0.4, p))
+        rightRef.current.style.transform = `translateX(${(1 - smooth(0.3, 0.4, p)) * 30}px)`
       }
-      if (introRef.current) {
-        introRef.current.style.opacity = String(Math.max(0, 1 - p * 1.8))
+
+      // Paso horizontal de las fotos.
+      if (trackRef.current && stickyRef.current) {
+        const localP = smooth(0.3, 0.96, p)
+        const max = trackRef.current.scrollWidth - stickyRef.current.clientWidth + 40
+        trackRef.current.style.transform = `translateX(${-localP * Math.max(0, max)}px)`
       }
-      if (fillRef.current) fillRef.current.style.width = `${p * 100}%`
+      if (fillRef.current) fillRef.current.style.width = `${smooth(0.3, 0.96, p) * 100}%`
     }
 
     const onScroll = () => {
@@ -82,74 +112,79 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
     }
   }, [])
 
-  return (
-    <section
-      ref={wrapRef}
-      id="inicio"
-      className="relative"
-      style={{ height: reduced ? "100svh" : "300vh" }}
-    >
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden bg-carbon p-3 sm:p-5">
-        {/* Tarjeta del hero (split oscuro tipo referencia) */}
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-[linear-gradient(90deg,#161310_0%,#161310_50%,#0d0b09_50%,#0d0b09_100%)]">
-          <div className="grain absolute inset-0 opacity-60" aria-hidden />
-          <div className="absolute inset-0 bg-[radial-gradient(75%_60%_at_50%_42%,rgba(198,133,47,0.14),transparent_60%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-carbon/70" />
-
-          {/* Titular que se abre en dos */}
-          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-            <div className="flex w-full max-w-6xl items-center justify-between px-6">
-              <span
-                ref={leftRef}
-                className="font-display text-[clamp(2rem,7vw,6.5rem)] uppercase leading-none text-chalk/90"
-                style={{ willChange: "transform, opacity" }}
-              >
-                Más que
-              </span>
-              <span
-                ref={rightRef}
-                className="font-display text-[clamp(2rem,7vw,6.5rem)] uppercase leading-none text-chalk/90"
-                style={{ willChange: "transform, opacity" }}
-              >
-                un corte
-              </span>
+  // ---- Versión "movimiento reducido": estática y accesible ----
+  if (reduced) {
+    return (
+      <section id="inicio" className="relative bg-carbon">
+        <div className="grid min-h-[100svh] place-items-center px-6 text-center">
+          <div>
+            <p className="channel justify-center">Barbería &amp; cuidado masculino — Menorca</p>
+            <h1 className="mt-5 font-display text-[clamp(3rem,12vw,9rem)] uppercase leading-[0.85] text-chalk">
+              Oblivion
+            </h1>
+            <p className="accent-serif mt-1 text-[clamp(1.4rem,4vw,2.6rem)] text-brass">
+              Barbers &amp; Care
+            </p>
+            <div className="mt-8 flex justify-center gap-3">
+              <Button size="lg" onClick={onReservar}>
+                <CalendarDays className="h-4 w-4" /> Reservar cita
+              </Button>
+              <Button size="lg" variant="outline" onClick={onServicios}>
+                Ver servicios
+              </Button>
             </div>
           </div>
+        </div>
+        <div className="container pb-20">
+          <p className="channel">El equipo</p>
+          <div className="mt-6 flex snap-x gap-5 overflow-x-auto pb-4">
+            {TEAM.map((t) => (
+              <TeamCard key={t.name} b={t} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
-          {/* Silla giratoria */}
+  return (
+    <section ref={wrapRef} id="inicio" className="relative" style={{ height: "560vh" }}>
+      <div
+        ref={stickyRef}
+        className="sticky top-0 flex h-[100svh] w-full items-center overflow-hidden bg-carbon"
+      >
+        {/* ===== Acto 1: foco / intro ===== */}
+        <div
+          ref={introRef}
+          className="absolute inset-0 z-20 grid place-items-center px-6 text-center"
+          style={{ willChange: "opacity, transform, filter" }}
+        >
+          {/* Haz de luz */}
           <div
-            ref={chairRef}
-            className="absolute left-1/2 top-1/2 z-20 h-[min(62vh,540px)] w-[min(62vh,540px)]"
+            className="pointer-events-none absolute inset-0"
             style={{
-              transform: "translate(-50%, -50%) perspective(1300px) rotateY(0deg) scale(0.82)",
-              willChange: "transform",
+              background:
+                "radial-gradient(58% 46% at 50% 40%, rgba(231,196,129,0.18), rgba(198,133,47,0.06) 40%, transparent 68%)",
             }}
-          >
-            <ChairObject />
-          </div>
-          {/* Sombra de contacto */}
-          <div
-            ref={shadowRef}
-            className="absolute left-1/2 top-[calc(50%+min(29vh,250px))] z-10 h-6 w-[min(40vh,360px)] -translate-x-1/2 rounded-[50%] bg-black blur-xl"
-            style={{ opacity: 0.5 }}
           />
-
-          {/* Eyebrow arriba */}
-          <div className="absolute left-6 top-6 z-30 sm:left-9 sm:top-8">
-            <span className="channel">Oblivion · Menorca</span>
-          </div>
-
-          {/* Intro: subtítulo + CTA (abajo izq) */}
           <div
-            ref={introRef}
-            className="absolute bottom-8 left-6 z-30 max-w-sm sm:left-9"
-            style={{ willChange: "opacity" }}
-          >
-            <p className="text-sm leading-relaxed text-ash sm:text-base">
-              Barbería &amp; cuidado masculino. Cortes de tendencia, barba con vapor
-              de ozono y bebida de cortesía.
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "conic-gradient(from 180deg at 50% -8%, transparent 42%, rgba(231,196,129,0.12) 50%, transparent 58%)",
+            }}
+          />
+          <div className="grain absolute inset-0 opacity-50" aria-hidden />
+
+          <div className="relative">
+            <p className="channel justify-center">Barbería &amp; cuidado masculino — Menorca</p>
+            <h1 className="mt-5 font-display text-[clamp(3.4rem,15vw,12rem)] uppercase leading-[0.82] text-chalk">
+              Oblivion
+            </h1>
+            <p className="accent-serif -mt-1 text-[clamp(1.5rem,5vw,3.4rem)] text-brass">
+              Barbers &amp; Care
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button size="lg" onClick={onReservar}>
                 <CalendarDays className="h-4 w-4" /> Reservar cita
               </Button>
@@ -159,128 +194,116 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
             </div>
           </div>
 
-          {/* Abajo der: vídeos + social */}
-          <div className="absolute bottom-8 right-6 z-30 hidden items-center gap-6 sm:right-9 sm:flex">
-            <button className="group inline-flex items-center gap-3 text-ash transition-colors hover:text-chalk">
-              <span className="grid h-11 w-11 place-items-center rounded-full border border-line transition-colors group-hover:border-ember">
-                <Play className="h-4 w-4 fill-current" />
-              </span>
-              <span className="font-sans text-[0.7rem] font-semibold uppercase tracking-[0.18em]">
-                Ver vídeos
-              </span>
-            </button>
-            <div className="flex items-center gap-2">
-              <a
-                href="https://www.instagram.com/"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram"
-                className="grid h-10 w-10 place-items-center border border-line text-ash transition-colors hover:border-ember hover:text-ember"
-              >
-                <Instagram className="h-4 w-4" />
-              </a>
-              <a
-                href="https://www.facebook.com/"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Facebook"
-                className="grid h-10 w-10 place-items-center border border-line text-ash transition-colors hover:border-ember hover:text-ember"
-              >
-                <Facebook className="h-4 w-4" />
-              </a>
+          <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-2 font-sans text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-steel">
+            Baja para conocer al equipo <ArrowRight className="h-3 w-3 rotate-90" />
+          </div>
+        </div>
+
+        {/* ===== Acto 2: equipo ===== */}
+        <div
+          ref={teamRef}
+          className="absolute inset-0 z-10"
+          style={{ opacity: 0, willChange: "opacity" }}
+        >
+          {/* Inscripción a la izquierda */}
+          <div
+            ref={leftRef}
+            className="pointer-events-none absolute left-6 top-1/2 z-20 hidden max-w-[220px] -translate-y-1/2 lg:block"
+            style={{ willChange: "opacity, transform" }}
+          >
+            <p className="channel">El equipo</p>
+            <h2 className="mt-4 font-display text-3xl uppercase leading-[0.95] text-chalk">
+              Manos que dan forma
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ash">
+              Barberos de Oblivion. Oficio, detalle y trato cercano en cada visita.
+            </p>
+          </div>
+
+          {/* Dirección a la derecha */}
+          <div
+            ref={rightRef}
+            className="pointer-events-none absolute right-6 top-1/2 z-20 hidden max-w-[210px] -translate-y-1/2 text-right lg:block"
+            style={{ willChange: "opacity, transform" }}
+          >
+            <p className="channel justify-end">Dónde estamos</p>
+            <ul className="mt-4 space-y-3 text-sm text-ash">
+              <li>
+                <span className="block font-medium text-chalk">Es Castell</span>
+                Ctra. de Sant Felip, 1
+              </li>
+              <li>
+                <span className="block font-medium text-chalk">Mahón</span>
+                Av. de Fort de l'Eau, 167
+              </li>
+              <li>
+                <span className="block font-medium text-chalk">Ciutadella</span>
+                Carrer d'Eivissa, 25
+              </li>
+            </ul>
+          </div>
+
+          {/* Degradados laterales (enmascaran las fotos tras los textos) */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-carbon via-carbon/85 to-transparent sm:w-36 lg:w-[27vw]" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-carbon via-carbon/85 to-transparent sm:w-36 lg:w-[27vw]" />
+
+          {/* Fotos que pasan en horizontal */}
+          <div className="absolute inset-0 flex items-center">
+            <div
+              ref={trackRef}
+              className="flex items-center gap-6 px-6 sm:gap-8 lg:pl-[30vw] lg:pr-[27vw]"
+              style={{ willChange: "transform" }}
+            >
+              {TEAM.map((t, i) => (
+                <TeamCard key={t.name} b={t} index={i} />
+              ))}
             </div>
           </div>
 
-          {/* Indicador de progreso del giro */}
-          {!reduced && (
-            <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 font-sans text-[0.58rem] font-semibold uppercase tracking-[0.24em] text-steel">
-              <span>Scroll</span>
-              <span className="relative block h-px w-24 bg-line">
-                <span
-                  ref={fillRef}
-                  className="absolute inset-y-0 left-0 bg-ember"
-                  style={{ width: "0%" }}
-                />
-              </span>
-              <span>gira la silla</span>
-            </div>
-          )}
+          {/* Progreso horizontal */}
+          <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 font-sans text-[0.58rem] font-semibold uppercase tracking-[0.24em] text-steel">
+            <span>Equipo</span>
+            <span className="relative block h-px w-28 bg-line">
+              <span ref={fillRef} className="absolute inset-y-0 left-0 bg-ember" style={{ width: "0%" }} />
+            </span>
+            <span>desliza</span>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-/** Silla real (empaquetada en el bundle); si fallara, dibuja una vectorial. */
-function ChairObject() {
-  const [failed, setFailed] = useState(false)
-  if (!failed) {
-    return (
-      <img
-        src={chairImg}
-        alt="Sillón de barbero Oblivion"
-        onError={() => setFailed(true)}
-        className="h-full w-full object-contain"
-        style={{ filter: "drop-shadow(0 30px 45px rgba(0,0,0,0.6))" }}
-      />
-    )
-  }
-  return <ChairArt />
-}
-
-/** Silla de barbero vectorial (marcador de marca hasta tener la foto real). */
-function ChairArt() {
+function TeamCard({ b, index }: { b: Barber; index?: number }) {
   return (
-    <svg
-      viewBox="0 0 260 360"
-      className="h-full w-full"
-      style={{ filter: "drop-shadow(0 26px 40px rgba(0,0,0,0.55))" }}
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id="chBody" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#241a11" />
-          <stop offset="0.55" stopColor="#17110b" />
-          <stop offset="1" stopColor="#0e0a07" />
-        </linearGradient>
-        <linearGradient id="chMetal" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#4a4238" />
-          <stop offset="0.5" stopColor="#8b7f6a" />
-          <stop offset="1" stopColor="#3a332a" />
-        </linearGradient>
-      </defs>
-
-      {/* Base */}
-      <ellipse cx="130" cy="330" rx="82" ry="16" fill="url(#chMetal)" />
-      <ellipse cx="130" cy="322" rx="46" ry="12" fill="#241a11" />
-      <rect x="118" y="250" width="24" height="74" rx="6" fill="url(#chMetal)" />
-
-      {/* Reposapiés */}
-      <rect x="86" y="300" width="88" height="16" rx="8" fill="url(#chMetal)" />
-
-      {/* Apron / mecanismo */}
-      <rect x="74" y="224" width="112" height="30" rx="8" fill="url(#chMetal)" />
-
-      {/* Asiento */}
-      <rect x="64" y="182" width="132" height="48" rx="20" fill="url(#chBody)" stroke="rgba(231,196,129,0.28)" strokeWidth="1.5" />
-
-      {/* Reposabrazos */}
-      <rect x="40" y="164" width="66" height="20" rx="10" transform="rotate(-7 73 174)" fill="url(#chMetal)" />
-      <rect x="154" y="164" width="66" height="20" rx="10" transform="rotate(7 187 174)" fill="url(#chMetal)" />
-
-      {/* Respaldo (redondo, capitoné) */}
-      <rect x="68" y="30" width="124" height="158" rx="56" fill="url(#chBody)" stroke="rgba(231,196,129,0.3)" strokeWidth="1.5" />
-      {/* Reposacabezas */}
-      <rect x="104" y="6" width="52" height="34" rx="16" fill="url(#chBody)" stroke="rgba(231,196,129,0.25)" strokeWidth="1.2" />
-
-      {/* Capitoné (botones) */}
-      {[
-        [130, 66], [104, 86], [156, 86], [118, 112], [142, 112],
-        [104, 138], [156, 138], [130, 158],
-      ].map(([cx, cy], i) => (
-        <circle key={i} cx={cx} cy={cy} r="2.6" fill="rgba(231,196,129,0.35)" />
-      ))}
-    </svg>
+    <article className="group relative w-[70vw] shrink-0 sm:w-[320px]">
+      <div className="relative overflow-hidden border border-line">
+        <div className="aspect-[3/4] overflow-hidden bg-graphite">
+          <img
+            src={b.img}
+            alt={`${b.name} — ${b.role}`}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            draggable={false}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-carbon/85 via-transparent to-transparent" />
+        </div>
+        {typeof index === "number" && (
+          <span className="absolute right-3 top-3 font-display text-lg text-chalk/70">
+            0{index + 1}
+          </span>
+        )}
+        {/* Info abajo, sobre la foto */}
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <h3 className="font-display text-2xl uppercase leading-none text-chalk">{b.name}</h3>
+          <p className="mt-1 font-sans text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-ember">
+            {b.role}
+          </p>
+          <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ash">
+            <MapPin className="h-3 w-3 text-steel" /> {b.spec}
+          </p>
+        </div>
+      </div>
+    </article>
   )
 }
 
