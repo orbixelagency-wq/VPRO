@@ -1,0 +1,484 @@
+<title>Oblivion Barbers — Demo</title>
+<meta name="description" content="Demo: barbería con recepcionista telefónico de IA integrado en la web.">
+<style>
+  :root{
+    color-scheme: dark;
+    --ground:#17120D; --ground-2:#1F1811; --surface:#241C14; --line:#3A2E22;
+    --ink:#F0E7D8; --ink-soft:#B7A88F; --ink-mute:#8A7A63;
+    --brass:#D8A43A; --brass-hi:#F0C662; --pole:#B8462F; --ok:#6FB58C;
+    --font-display:"Helvetica Neue",Arial,system-ui,sans-serif;
+    --font-body:Georgia,"Times New Roman",serif;
+    --font-ui:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1000px 560px at 80% -10%,rgba(216,164,58,.10),transparent 60%),
+      radial-gradient(760px 480px at 6% 108%,rgba(184,70,47,.09),transparent 55%),
+      var(--ground);}
+  .wrap{max-width:1080px;margin-inline:auto;padding-inline:clamp(20px,5vw,44px);}
+  h1,h2,h3,.eyebrow,.brand,.step-n,.svc b,.dayname{font-family:var(--font-display);}
+  h1{font-size:clamp(2.6rem,8vw,5rem);line-height:.98;font-weight:800;letter-spacing:-.02em;
+    text-wrap:balance;margin:0;}
+  h2{font-size:clamp(1.5rem,3.4vw,2.3rem);font-weight:800;letter-spacing:-.015em;margin:0 0 .3em;text-wrap:balance;}
+  p{margin:0 0 1rem;}
+  .eyebrow{font-size:.74rem;text-transform:uppercase;letter-spacing:.28em;color:var(--brass);font-weight:700;}
+  .lead{font-size:clamp(1.1rem,1.9vw,1.3rem);color:var(--ink-soft);max-width:42ch;}
+  .muted{color:var(--ink-mute);}
+
+  /* poste barbero */
+  .pole{position:fixed;top:0;left:0;width:8px;height:100%;z-index:6;opacity:.5;
+    background:repeating-linear-gradient(45deg,var(--pole) 0 14px,#ece5d8 14px 28px,#2b6f8e 28px 42px,#ece5d8 42px 56px);}
+  @media (max-width:720px){.pole{display:none;}}
+
+  header{position:sticky;top:0;z-index:5;backdrop-filter:blur(8px);
+    background:linear-gradient(var(--ground),rgba(23,18,13,.55));border-bottom:1px solid var(--line);}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding-block:14px;}
+  .brand{font-weight:800;font-size:1.2rem;letter-spacing:.02em;}
+  .brand span{color:var(--brass);}
+  .callbtn{font-family:var(--font-display);font-weight:700;letter-spacing:.01em;cursor:pointer;
+    border:none;border-radius:999px;padding:11px 20px;font-size:.95rem;
+    background:linear-gradient(180deg,var(--brass-hi),var(--brass));color:#20180C;
+    box-shadow:0 12px 28px -12px var(--brass);display:inline-flex;align-items:center;gap:8px;}
+  .callbtn:hover{filter:brightness(1.05);}
+  .callbtn:focus-visible{outline:3px solid var(--brass-hi);outline-offset:2px;}
+
+  /* hero */
+  .hero{padding-block:clamp(56px,10vw,120px) clamp(40px,7vw,80px);}
+  .hero .eyebrow{margin-bottom:14px;display:block;}
+  .hero .lead{margin-top:1.1em;}
+  .hero-cta{margin-top:2em;display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+  .hero-cta .callbtn{font-size:1.05rem;padding:15px 28px;}
+  .hint{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.06em;color:var(--ink-mute);text-transform:uppercase;}
+
+  /* servicios */
+  section{padding-block:clamp(38px,6vw,68px);border-top:1px solid var(--line);}
+  .svcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:26px;}
+  .svc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;}
+  .svc b{display:block;font-size:1.05rem;font-weight:700;margin-bottom:6px;}
+  .svc .price{color:var(--brass-hi);font-family:var(--font-ui);font-size:.95rem;}
+  .svc .dur{color:var(--ink-mute);font-size:.85rem;}
+
+  footer{padding-block:34px;border-top:1px solid var(--line);text-align:center;color:var(--ink-mute);
+    font-family:var(--font-ui);font-size:.74rem;letter-spacing:.06em;}
+
+  /* ---------- MODAL DE LLAMADA ---------- */
+  .overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
+    background:rgba(8,6,4,.72);backdrop-filter:blur(6px);padding:16px;}
+  .overlay.on{display:flex;}
+  .phone{width:min(390px,100%);height:min(760px,92vh);background:linear-gradient(180deg,#221a12,#15100b);
+    border:1px solid var(--line);border-radius:34px;box-shadow:0 40px 90px -30px #000;
+    display:flex;flex-direction:column;overflow:hidden;position:relative;}
+  .notch{height:26px;display:flex;align-items:center;justify-content:center;}
+  .notch::after{content:"";width:120px;height:6px;border-radius:99px;background:#000;opacity:.6;}
+
+  /* pantalla de llamada entrante */
+  .ringing{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:30px;text-align:center;}
+  .avatar{width:104px;height:104px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:3rem;background:radial-gradient(circle at 40% 35%,#3a2c1a,#241a10);border:1px solid var(--line);
+    box-shadow:0 0 0 0 rgba(216,164,58,.5);animation:ring 1.6s ease-out infinite;}
+  @keyframes ring{70%{box-shadow:0 0 0 26px rgba(216,164,58,0);}100%{box-shadow:0 0 0 0 rgba(216,164,58,0);}}
+  .ringing .name{font-family:var(--font-display);font-weight:800;font-size:1.5rem;}
+  .ringing .status{font-family:var(--font-ui);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);}
+  .ring-actions{display:flex;gap:60px;margin-top:24px;}
+  .rbtn{width:66px;height:66px;border-radius:50%;border:none;cursor:pointer;font-size:1.5rem;color:#fff;}
+  .rbtn.acc{background:#2ec26b;} .rbtn.dec{background:#e5484d;}
+  .rbtn:focus-visible{outline:3px solid #fff;outline-offset:2px;}
+  .rlabel{font-family:var(--font-ui);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-top:8px;}
+  .ring-actions .col{display:flex;flex-direction:column;align-items:center;}
+
+  /* pantalla en llamada */
+  .incall{flex:1;display:none;flex-direction:column;min-height:0;}
+  .incall.on{display:flex;}
+  .callbar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);}
+  .callbar .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);}
+  .callbar .who{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);flex:1;}
+  .callbar .timer{font-family:var(--font-ui);font-size:.8rem;color:var(--ink-mute);font-variant-numeric:tabular-nums;}
+  .mute{background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:8px;
+    font-size:.72rem;padding:5px 9px;cursor:pointer;font-family:var(--font-ui);}
+  .mute:focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+
+  .thread{flex:1;overflow-y:auto;padding:16px 16px 4px;display:flex;flex-direction:column;gap:10px;}
+  .bubble{max-width:82%;padding:10px 13px;border-radius:15px;font-size:.98rem;line-height:1.45;}
+  .bubble.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px;}
+  .bubble.cli{align-self:flex-end;background:linear-gradient(180deg,#3a2c15,#2e2311);border:1px solid #4a3a22;
+    border-bottom-right-radius:5px;color:var(--ink);font-style:italic;}
+  .typing{align-self:flex-start;display:inline-flex;gap:4px;padding:12px 14px;background:var(--surface);
+    border:1px solid var(--line);border-radius:15px;border-bottom-left-radius:5px;}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--ink-mute);animation:blink 1.2s infinite;}
+  .typing i:nth-child(2){animation-delay:.2s;} .typing i:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,60%,100%{opacity:.25;}30%{opacity:1;}}
+
+  .replies{padding:8px 14px 6px;display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{background:none;border:1px solid var(--brass);color:var(--brass-hi);border-radius:999px;
+    padding:8px 14px;font-size:.9rem;cursor:pointer;font-family:var(--font-body);}
+  .chip:hover{background:rgba(216,164,58,.12);}
+  .chip:focus-visible{outline:2px solid var(--brass-hi);outline-offset:2px;}
+  .composer{display:flex;gap:8px;padding:10px 14px 16px;border-top:1px solid var(--line);}
+  .composer input{flex:1;background:var(--ground-2);border:1px solid var(--line);border-radius:999px;
+    color:var(--ink);padding:11px 15px;font-family:var(--font-body);font-size:.95rem;}
+  .composer input:focus-visible{outline:2px solid var(--brass);outline-offset:1px;}
+  .composer .send{background:var(--brass);border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;
+    color:#20180C;font-size:1.1rem;flex:none;}
+  .hangup{margin:0 14px 16px;background:#e5484d;border:none;color:#fff;border-radius:12px;padding:12px;
+    font-family:var(--font-display);font-weight:700;cursor:pointer;display:none;}
+  .hangup.on{display:block;}
+
+  @media (prefers-reduced-motion:reduce){
+    .avatar,.typing i,.dot{animation:none;}
+  }
+  /* mini agenda que se actualiza */
+  .agenda{margin-top:26px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;}
+  .agenda h3{font-family:var(--font-display);font-weight:700;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+  .agenda ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+  .agenda li{display:flex;gap:12px;font-family:var(--font-ui);font-size:.88rem;color:var(--ink-soft);
+    padding:8px 10px;background:var(--ground-2);border-radius:8px;}
+  .agenda li .t{color:var(--brass-hi);font-variant-numeric:tabular-nums;}
+  .agenda li.nueva{border:1px solid var(--brass);animation:pop .5s ease;}
+  @keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+</style>
+
+<div class="pole" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">OBLIVION<span>.</span></div>
+    <button class="callbtn" id="btnTop">📞 Pedir cita</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" style="border-top:none">
+    <span class="eyebrow">Barbería &amp; Care · Girona</span>
+    <h1>Corte, barba<br>y buen gusto.</h1>
+    <p class="lead">Reserva en 30 segundos. Llama y te atiende nuestro recepcionista —
+      a cualquier hora, aunque estemos con las tijeras en la mano.</p>
+    <div class="hero-cta">
+      <button class="callbtn" id="btnHero">📞 Llamar y pedir cita</button>
+      <span class="hint">Demo · pulsa para simular la llamada</span>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">La carta</span>
+    <h2>Servicios</h2>
+    <div class="svcs" id="svcList"></div>
+  </section>
+
+  <section>
+    <span class="eyebrow">En directo</span>
+    <h2>La agenda de hoy</h2>
+    <p class="muted">Cuando reservas por teléfono, la cita cae aquí al instante. Pruébalo:
+      pulsa «Llamar y pedir cita» y mira cómo aparece.</p>
+    <div class="agenda">
+      <h3>💈 Hoy en Oblivion</h3>
+      <ul id="agendaHoy"></ul>
+    </div>
+  </section>
+</main>
+
+<footer>Demo de orbixel studio · marca de ejemplo «Oblivion Barbers» · la llamada está simulada en el navegador</footer>
+
+<!-- ================= MODAL DE LLAMADA ================= -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Llamada a la barbería">
+  <div class="phone">
+    <div class="notch"></div>
+
+    <!-- entrante -->
+    <div class="ringing" id="ringing">
+      <div class="avatar">💈</div>
+      <div class="name">Oblivion Barbers</div>
+      <div class="status" id="ringStatus">Llamando…</div>
+      <div class="ring-actions">
+        <div class="col"><button class="rbtn dec" id="btnDecline" aria-label="Colgar">✕</button><span class="rlabel">Colgar</span></div>
+        <div class="col"><button class="rbtn acc" id="btnAccept" aria-label="Contestar">✓</button><span class="rlabel">Entrar</span></div>
+      </div>
+    </div>
+
+    <!-- en llamada -->
+    <div class="incall" id="incall">
+      <div class="callbar">
+        <span class="dot"></span>
+        <span class="who">Oblivion Barbers</span>
+        <span class="timer" id="timer">00:00</span>
+        <button class="mute" id="btnMute" aria-pressed="false">🔊 Voz</button>
+      </div>
+      <div class="thread" id="thread"></div>
+      <div class="replies" id="replies"></div>
+      <div class="composer" id="composer">
+        <input id="input" type="text" placeholder="Escribe tu respuesta…" autocomplete="off" aria-label="Tu respuesta">
+        <button class="send" id="btnSend" aria-label="Enviar">➤</button>
+      </div>
+      <button class="hangup" id="btnHangup">Colgar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Catálogo (mismos datos que el motor del backend) ----------
+  const SERVICIOS = [
+    {id:"corte",       nombre:"Corte de pelo",             dur:30, precio:15},
+    {id:"corte_barba", nombre:"Corte + barba",             dur:45, precio:22},
+    {id:"barba",       nombre:"Arreglo de barba",          dur:20, precio:10},
+    {id:"afeitado",    nombre:"Afeitado clásico a navaja", dur:30, precio:18},
+    {id:"corte_nino",  nombre:"Corte infantil",            dur:20, precio:12},
+  ];
+  const byId = id => SERVICIOS.find(s=>s.id===id);
+  // Horario: 0 dom … 6 sáb. Tramos [apertura,cierre] en minutos.
+  const HORARIO = {1:[[600,840],[960,1200]],2:[[600,840],[960,1200]],3:[[600,840],[960,1200]],
+                   4:[[600,840],[960,1200]],5:[[600,1200]],6:[[600,840]],0:[]};
+  const PASO=15, ANTELACION=30;
+
+  const hhmm = m => String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")
+  const habla = m => {const h=Math.floor(m/60),mm=m%60;const per=h<14?"de la mañana":(h<20?"de la tarde":"");
+    const hh12=h>12?h-12:h; return `las ${hh12}${mm?" y "+(mm===30?"media":mm):""} ${per}`.trim();};
+
+  // ---------- Agenda en el navegador (la "fuente de la verdad" de la demo) ----------
+  const hoy = new Date();
+  const fechaISO = d => d.toISOString().slice(0,10);
+  const sumaDias = (d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+  // citas: {fecha:'YYYY-MM-DD', ini, fin, titulo}
+  const citas = [];
+  function seed(diasDesdeHoy, ini, dur, titulo){
+    const d=sumaDias(hoy,diasDesdeHoy); citas.push({fecha:fechaISO(d),ini,fin:ini+dur,titulo});
+  }
+  // Sembramos algo de ocupación realista para hoy y próximos días.
+  seed(0,10*60,30,"Corte — Marc"); seed(0,11*60,45,"Corte+barba — Pau"); seed(0,17*60,30,"Corte — Nil");
+  seed(1,10*60,30,"Corte — Aleix"); seed(1,18*60,45,"Corte+barba — Èric");
+  seed(2,12*60,20,"Barba — Guy");
+
+  function citasDia(fISO){return citas.filter(c=>c.fecha===fISO);}
+  function huecos(dObj, dur){
+    const fISO=fechaISO(dObj), tramos=HORARIO[dObj.getDay()]||[], ocup=citasDia(fISO), libres=[];
+    const esHoy = fISO===fechaISO(hoy);
+    const ahoraMin = hoy.getHours()*60+hoy.getMinutes();
+    for(const [ap,ci] of tramos){
+      for(let i=ap;i+dur<=ci;i+=PASO){
+        if(esHoy && i < ahoraMin+ANTELACION) continue;
+        const choca=ocup.some(o=>i<o.fin && i+dur>o.ini);
+        if(!choca) libres.push(i);
+      }
+    }
+    return libres;
+  }
+  function proximoDiaConHueco(desdeObj,dur){
+    for(let k=1;k<=8;k++){const d=sumaDias(desdeObj,k);if((HORARIO[d.getDay()]||[]).length===0)continue;
+      const h=huecos(d,dur); if(h.length) return {d,h};}
+    return null;
+  }
+
+  // ---------- Interpretar lo que dice el cliente ----------
+  const SINON={corte:["corte","cortar","cortarme","pelo","rapar","rapar"],
+    corte_barba:["corte y barba","pelo y barba","completo","todo"],
+    barba:["barba","perfilar","recortar"],afeitado:["afeitado","afeitar","navaja","apurado"],
+    corte_nino:["niño","nino","infantil","crío","crio","peque","hijo"]};
+  function detectaServicio(t){
+    t=(t||"").toLowerCase();
+    if(/(pelo|corte|cortar).*(barba)|(barba).*(pelo|corte|cortar)/.test(t)) return byId("corte_barba");
+    for(const s of SERVICIOS){const k=SINON[s.id]||[s.nombre.toLowerCase()];
+      if(k.some(w=>t.includes(w))) return s;}
+    return null;
+  }
+  const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+  function detectaDia(t){
+    t=(t||"").toLowerCase();
+    if(t.includes("hoy")) return new Date(hoy);
+    if(t.includes("mañana")||t.includes("manana")) return sumaDias(hoy,1);
+    if(t.includes("pasado")) return sumaDias(hoy,2);
+    for(let i=0;i<7;i++){ if(t.includes(DIAS[i])){
+      for(let k=0;k<8;k++){const d=sumaDias(hoy,k); if(d.getDay()===i && k>0) return d;} }}
+    return null;
+  }
+  function nombreDia(d){
+    const k=Math.round((d-new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate()))/86400000);
+    if(k===0) return "hoy"; if(k===1) return "mañana";
+    return "el "+DIAS[d.getDay()];
+  }
+
+  // ---------- Voz opcional (TTS del navegador) ----------
+  let ttsOn=true;
+  function speak(t){ if(!ttsOn||!("speechSynthesis"in window))return;
+    try{ const u=new SpeechSynthesisUtterance(t.replace(/[💈✂️]/g,"")); u.lang="es-ES"; u.rate=1.05;
+      const v=speechSynthesis.getVoices().find(v=>/es/i.test(v.lang)); if(v)u.voice=v;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+
+  // ---------- Render de la pantalla ----------
+  const $=s=>document.querySelector(s);
+  const thread=$("#thread"), replies=$("#replies"), composer=$("#composer"),
+        inputEl=$("#input"), hangup=$("#btnHangup");
+
+  function scroll(){thread.scrollTop=thread.scrollHeight;}
+  function addBubble(txt,who){const b=document.createElement("div");b.className="bubble "+who;
+    b.textContent=txt;thread.appendChild(b);scroll();return b;}
+  function typing(cb,delay=850){const t=document.createElement("div");t.className="typing";
+    t.innerHTML="<i></i><i></i><i></i>";thread.appendChild(t);scroll();
+    setTimeout(()=>{t.remove();cb();},delay);}
+  function botSay(txt,after){ typing(()=>{addBubble(txt,"bot");speak(txt); if(after)after();}); }
+  function setChips(opts){ replies.innerHTML="";
+    opts.forEach(o=>{const c=document.createElement("button");c.className="chip";c.textContent=o.label;
+      c.onclick=()=>choose(o);replies.appendChild(c);}); }
+  function clearChips(){replies.innerHTML="";}
+
+  // ---------- Máquina de la conversación ----------
+  const S={paso:"inicio",servicio:null,fecha:null,hora:null,cliente:null};
+
+  function choose(o){ // clic en chip
+    if(o.raw){ handleText(o.raw); return; }
+    if(o.tipo==="servicio"){ pickServicio(o.value); }
+    else if(o.tipo==="dia"){ pickDia(o.value); }
+    else if(o.tipo==="hora"){ pickHora(o.value); }
+    else if(o.tipo==="nombre"){ pickNombre(o.value); }
+  }
+  function callerEcho(txt){addBubble(txt,"cli");}
+
+  function pickServicio(id){ S.servicio=byId(id); callerEcho("Quiero "+S.servicio.nombre.toLowerCase());
+    clearChips(); askDia(); }
+  function askDia(){ S.paso="dia";
+    botSay(`Perfecto, ${S.servicio.nombre.toLowerCase()} (${S.servicio.dur} min). ¿Qué día te viene bien?`,()=>{
+      setChips([{tipo:"dia",label:"Hoy",value:0},{tipo:"dia",label:"Mañana",value:1},
+        {tipo:"dia",label:proxSabadoLabel(),value:"sab"},{tipo:"dia",label:"El lunes",value:"lun"}]);});
+  }
+  function proxSabadoLabel(){return "El sábado";}
+  function pickDia(v){
+    let d; if(v===0)d=new Date(hoy); else if(v===1)d=sumaDias(hoy,1);
+    else if(v==="sab"){for(let k=1;k<=7;k++){const x=sumaDias(hoy,k);if(x.getDay()===6){d=x;break;}}}
+    else if(v==="lun"){for(let k=1;k<=7;k++){const x=sumaDias(hoy,k);if(x.getDay()===1){d=x;break;}}}
+    else d=v;
+    callerEcho(nombreDia(d).charAt(0).toUpperCase()+nombreDia(d).slice(1));
+    resolverDia(d);
+  }
+  function resolverDia(d){ S.fecha=d; clearChips();
+    const tramos=HORARIO[d.getDay()]||[];
+    if(tramos.length===0){ // cerrado → alternativa
+      const alt=proximoDiaConHueco(d,S.servicio.dur);
+      botSay(`Uy, ${nombreDia(d)} cerramos. Lo más cercano que tengo es ${nombreDia(alt.d)} a ${habla(alt.h[0])}. ¿Te lo reservo?`,()=>{
+        S.fecha=alt.d; S.paso="confirmarHora"; S.hora=alt.h[0];
+        setChips([{tipo:"hora",label:"Sí, resérvalo",value:alt.h[0]},{raw:"otro día",label:"Mejor otro día"}]);});
+      return;
+    }
+    const h=huecos(d,S.servicio.dur);
+    if(h.length===0){ const alt=proximoDiaConHueco(d,S.servicio.dur);
+      botSay(`${nombreDia(d).charAt(0).toUpperCase()+nombreDia(d).slice(1)} lo tengo completo. Te puedo dar ${nombreDia(alt.d)} a ${habla(alt.h[0])}. ¿Te va?`,()=>{
+        S.fecha=alt.d; S.hora=alt.h[0];
+        setChips([{tipo:"hora",label:"Vale",value:alt.h[0]},{raw:"otro día",label:"Otro día"}]);});
+      return;
+    }
+    // Ofrecer 1 de mañana + 2 de tarde (o lo que haya)
+    const man=h.filter(m=>m<840), tar=h.filter(m=>m>=960);
+    const oferta=[]; if(man[0]!=null)oferta.push(man[0]); tar.slice(0,2).forEach(x=>oferta.push(x));
+    if(oferta.length<3){h.forEach(x=>{if(!oferta.includes(x)&&oferta.length<3)oferta.push(x);});}
+    S.paso="hora";
+    const texto = oferta.map(m=>habla(m)).join(", o ");
+    botSay(`Genial. ${nombreDia(d).charAt(0).toUpperCase()+nombreDia(d).slice(1)} tengo ${texto}. ¿Cuál prefieres?`,()=>{
+      setChips(oferta.map(m=>({tipo:"hora",label:hhmm(m),value:m})));});
+  }
+  function pickHora(m){ S.hora=m; callerEcho("A "+habla(m)); clearChips(); askNombre(); }
+  function askNombre(){ S.paso="nombre";
+    botSay("Muy bien. ¿A nombre de quién te la pongo?",()=>{
+      setChips([{tipo:"nombre",label:"Javier",value:"Javier Ruiz"},
+        {tipo:"nombre",label:"Marc",value:"Marc Solà"}]); inputEl.focus();});
+  }
+  function pickNombre(n){ S.cliente=n; callerEcho("Soy "+n); clearChips(); reservar(); }
+
+  function reservar(){
+    S.paso="fin";
+    const fISO=fechaISO(S.fecha);
+    // re-comprobar que sigue libre (anti doble reserva)
+    const choca=citasDia(fISO).some(c=>S.hora<c.fin && S.hora+S.servicio.dur>c.ini);
+    if(choca){ botSay("Vaya, justo me han cogido esa hora. Te doy la siguiente que tenga…",()=>resolverDia(S.fecha)); return; }
+    citas.push({fecha:fISO,ini:S.hora,fin:S.hora+S.servicio.dur,titulo:`${S.servicio.nombre} — ${S.cliente}`,nueva:true});
+    botSay(`¡Hecho, ${S.cliente.split(" ")[0]}! Te confirmo: ${S.servicio.nombre.toLowerCase()} ${nombreDia(S.fecha)} a ${habla(S.hora)}, son ${S.servicio.precio} €. Te esperamos. ¡Gracias!`,()=>{
+      composer.style.display="none"; hangup.classList.add("on"); hangup.textContent="Colgar ✓ cita reservada";
+      renderAgenda();
+    });
+  }
+
+  // Texto libre → interpretar según el paso actual
+  function handleText(raw){
+    raw=raw.trim(); if(!raw)return; callerEcho(raw);
+    if(/otro d[ií]a/i.test(raw)){ clearChips(); askDia(); return; }
+    if(S.paso==="inicio"||S.paso==="servicio"){
+      const s=detectaServicio(raw);
+      if(s){S.servicio=s; clearChips(); askDia(); return;}
+      botSay("¿Qué te quieres hacer: corte, corte y barba, solo barba o afeitado?",()=>servicioChips());
+      return;
+    }
+    if(S.paso==="dia"){
+      const d=detectaDia(raw);
+      if(d){resolverDia(d);return;}
+      botSay("¿Para qué día? Dime «hoy», «mañana» o un día de la semana.");
+      return;
+    }
+    if(S.paso==="hora"||S.paso==="confirmarHora"){
+      // intenta casar por dígitos
+      const md=raw.match(/(\d{1,2})[:h\. ]?(\d{2})?/);
+      if(md){const H=+md[1], M=md[2]?+md[2]:(/media/i.test(raw)?30:0);
+        let min=(H<9?H+12:H)*60+M; // "6" tarde
+        const h=huecos(S.fecha,S.servicio.dur);
+        const cerca=h.find(x=>Math.abs(x-min)<=15);
+        if(cerca!=null){pickHora(cerca);return;}}
+      botSay("Esa no la tengo libre. Elige una de las que te digo, porfa.",()=>resolverDia(S.fecha));
+      return;
+    }
+    if(S.paso==="nombre"){ pickNombre(raw); return; }
+  }
+  function servicioChips(){ setChips(SERVICIOS.map(s=>({tipo:"servicio",label:s.nombre,value:s.id}))); }
+
+  // ---------- Arranque de la llamada ----------
+  function abrir(){ $("#overlay").classList.add("on"); $("#ringing").style.display="flex";
+    $("#incall").classList.remove("on"); $("#ringStatus").textContent="Llamando…";
+    setTimeout(()=>{$("#ringStatus").textContent="Oblivion Barbers · Girona";},900);
+    // primera vez cargamos voces
+    if("speechSynthesis"in window){speechSynthesis.getVoices();}
+  }
+  function contestar(){
+    $("#ringing").style.display="none"; $("#incall").classList.add("on");
+    thread.innerHTML=""; clearChips(); composer.style.display="flex"; hangup.classList.remove("on");
+    Object.assign(S,{paso:"inicio",servicio:null,fecha:null,hora:null,cliente:null});
+    iniciarTimer();
+    botSay("Barbería Oblivion, ¿en qué puedo ayudarte?",()=>{
+      S.paso="servicio";
+      setChips([{tipo:"servicio",label:"Cortarme el pelo",value:"corte"},
+        {tipo:"servicio",label:"Corte y barba",value:"corte_barba"},
+        {tipo:"servicio",label:"Afeitado",value:"afeitado"},
+        {tipo:"servicio",label:"Corte para mi hijo",value:"corte_nino"}]);});
+  }
+  function colgar(){ $("#overlay").classList.remove("on"); pararTimer();
+    if("speechSynthesis"in window)speechSynthesis.cancel(); }
+
+  let t0,timerInt;
+  function iniciarTimer(){t0=Date.now();timerInt=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);
+    $("#timer").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");},500);}
+  function pararTimer(){clearInterval(timerInt);}
+
+  // ---------- Agenda de hoy en la página ----------
+  function renderAgenda(){
+    const ul=$("#agendaHoy"); ul.innerHTML="";
+    const hoyISO=fechaISO(hoy);
+    citasDia(hoyISO).sort((a,b)=>a.ini-b.ini).forEach(c=>{
+      const li=document.createElement("li"); if(c.nueva)li.className="nueva";
+      li.innerHTML=`<span class="t">${hhmm(c.ini)}</span><span>${c.titulo}</span>`;
+      ul.appendChild(li);});
+  }
+
+  // ---------- Lista de servicios ----------
+  $("#svcList").innerHTML=SERVICIOS.map(s=>
+    `<div class="svc"><b>${s.nombre}</b><span class="price">${s.precio} €</span> · <span class="dur">${s.dur} min</span></div>`).join("");
+  renderAgenda();
+
+  // ---------- Eventos ----------
+  $("#btnTop").onclick=abrir; $("#btnHero").onclick=abrir;
+  $("#btnAccept").onclick=contestar; $("#btnDecline").onclick=colgar; hangup.onclick=colgar;
+  $("#btnSend").onclick=()=>{const v=inputEl.value;inputEl.value="";handleText(v);};
+  inputEl.addEventListener("keydown",e=>{if(e.key==="Enter"){const v=inputEl.value;inputEl.value="";handleText(v);}});
+  $("#btnMute").onclick=function(){ttsOn=!ttsOn;this.textContent=ttsOn?"🔊 Voz":"🔇 Voz";
+    this.setAttribute("aria-pressed",String(!ttsOn));if(!ttsOn&&"speechSynthesis"in window)speechSynthesis.cancel();};
+  $("#overlay").addEventListener("click",e=>{if(e.target===$("#overlay"))colgar();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")colgar();});
+})();
+</script>
