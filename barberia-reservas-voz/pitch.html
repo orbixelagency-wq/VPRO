@@ -1,0 +1,293 @@
+<title>Barbería que atiende sola</title>
+<meta name="description" content="Pitch: recepcionista telefónico con IA que da cita por teléfono, 24/7.">
+<style>
+  /* Diseño comprometido con un único mundo visual: barbería de noche —
+     espresso, latón y ámbar. Se pinta todo explícitamente para que aguante
+     sobre cualquier fondo del visor. */
+  :root{
+    color-scheme: dark;
+    --ground:   #17120D;
+    --ground-2: #1F1811;
+    --surface:  #241C14;
+    --line:     #3A2E22;
+    --ink:      #F0E7D8;
+    --ink-soft: #B7A88F;
+    --ink-mute: #8A7A63;
+    --brass:    #D8A43A;
+    --brass-hi: #F0C662;
+    --pole:     #B8462F; /* rojo de poste de barbero */
+    --ok:       #6FB58C;
+    --maxw: 1080px;
+    --font-display: "Helvetica Neue", Arial, system-ui, sans-serif;
+    --font-body: Georgia, "Times New Roman", serif;
+    --font-ui: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{ box-sizing: border-box; }
+  html{ -webkit-text-size-adjust: 100%; }
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 600px at 78% -8%, rgba(216,164,58,.10), transparent 60%),
+      radial-gradient(800px 500px at 10% 110%, rgba(184,70,47,.08), transparent 55%),
+      var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{ max-width: var(--maxw); margin-inline:auto; padding-inline: clamp(20px,5vw,44px); }
+
+  /* ---- tipografía ---- */
+  h1,h2,h3,.eyebrow,.brand,.stat b,.step-n{ font-family: var(--font-display); }
+  h1{ font-size: clamp(2.5rem, 7vw, 4.6rem); line-height:1.02; font-weight:800;
+      letter-spacing:-.02em; text-wrap: balance; margin:0; }
+  h2{ font-size: clamp(1.6rem,3.6vw,2.5rem); font-weight:800; letter-spacing:-.015em;
+      text-wrap: balance; margin:0 0 .2em; }
+  h3{ font-size:1.06rem; font-weight:700; letter-spacing:.01em; margin:0 0 .35em; }
+  p{ margin:0 0 1rem; }
+  .lead{ font-size: clamp(1.1rem,1.9vw,1.32rem); color: var(--ink-soft); max-width: 40ch; }
+  .eyebrow{ font-size:.74rem; text-transform:uppercase; letter-spacing:.28em;
+      color: var(--brass); font-weight:700; }
+  .muted{ color: var(--ink-mute); }
+
+  /* ---- barra superior ---- */
+  header{ position:sticky; top:0; z-index:5; backdrop-filter: blur(8px);
+      background: linear-gradient(var(--ground), rgba(23,18,13,.6));
+      border-bottom:1px solid var(--line); }
+  .bar{ display:flex; align-items:center; justify-content:space-between;
+      padding-block:14px; }
+  .brand{ font-weight:800; letter-spacing:.02em; font-size:1.15rem; }
+  .brand span{ color: var(--brass); }
+  .bar .tag{ font-family:var(--font-ui); font-size:.7rem; text-transform:uppercase;
+      letter-spacing:.18em; color:var(--ink-mute); }
+
+  /* ---- poste de barbero (raíl decorativo) ---- */
+  .pole{ position:fixed; top:0; left:0; width:8px; height:100%;
+      background: repeating-linear-gradient(45deg,
+        var(--pole) 0 14px, #ece5d8 14px 28px, #2b6f8e 28px 42px, #ece5d8 42px 56px);
+      opacity:.5; z-index:6; }
+  @media (max-width:720px){ .pole{ display:none; } }
+
+  /* ---- hero ---- */
+  .hero{ padding-block: clamp(52px,9vw,104px) clamp(36px,6vw,64px); }
+  .hero-grid{ display:grid; grid-template-columns: 1.15fr .85fr; gap: clamp(28px,5vw,56px);
+      align-items:center; }
+  @media (max-width:860px){ .hero-grid{ grid-template-columns:1fr; } }
+  .hero h1{ margin-top:.35em; }
+  .hero .lead{ margin-top:1.1em; }
+  .kicker-am{ color:var(--brass-hi); }
+
+  /* llamada / waveform */
+  .callcard{ background: linear-gradient(180deg,var(--surface),var(--ground-2));
+      border:1px solid var(--line); border-radius:18px; padding:22px;
+      box-shadow: 0 24px 60px -30px rgba(0,0,0,.8); }
+  .call-head{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .dot-live{ width:9px; height:9px; border-radius:50%; background:var(--ok);
+      box-shadow:0 0 0 0 rgba(111,181,140,.6); animation: pulse 2s infinite; }
+  @keyframes pulse{ 70%{ box-shadow:0 0 0 8px rgba(111,181,140,0);} 100%{box-shadow:0 0 0 0 rgba(111,181,140,0);} }
+  .call-head .who{ font-family:var(--font-ui); font-size:.72rem; letter-spacing:.14em;
+      text-transform:uppercase; color:var(--ink-soft); }
+  .wave{ display:flex; align-items:flex-end; gap:3px; height:44px; margin-top:2px; }
+  .wave i{ flex:1; background: linear-gradient(var(--brass-hi),var(--brass));
+      border-radius:2px; height:30%; animation: eq 1.1s ease-in-out infinite; }
+  @keyframes eq{ 0%,100%{ height:22%; } 50%{ height:96%; } }
+  @media (prefers-reduced-motion: reduce){ .wave i{ animation:none; height:55%; } .dot-live{animation:none;} }
+
+  /* transcript */
+  .msg{ margin-top:14px; }
+  .msg .lbl{ font-family:var(--font-ui); font-size:.66rem; letter-spacing:.16em;
+      text-transform:uppercase; color:var(--ink-mute); display:block; margin-bottom:3px; }
+  .msg .txt{ font-size:1.02rem; }
+  .msg.bot .txt{ color: var(--ink); }
+  .msg.cli .txt{ color: var(--ink-soft); font-style:italic; }
+  .msg.sys{ font-family:var(--font-ui); font-size:.76rem; color:var(--brass);
+      border-left:2px solid var(--brass); padding-left:10px; margin-left:2px; }
+
+  /* ---- secciones ---- */
+  section{ padding-block: clamp(40px,7vw,76px); border-top:1px solid var(--line); }
+  .sec-head{ max-width: 52ch; margin-bottom: clamp(26px,4vw,44px); }
+
+  .steps{ display:grid; grid-template-columns: repeat(3,1fr); gap:18px; }
+  @media (max-width:800px){ .steps{ grid-template-columns:1fr; } }
+  .step{ background: var(--surface); border:1px solid var(--line); border-radius:14px;
+      padding:24px 22px; }
+  .step-n{ font-size:.8rem; letter-spacing:.2em; color:var(--brass); font-weight:700;
+      display:block; margin-bottom:14px; }
+
+  /* diagrama agenda central */
+  .hub{ display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+      gap: clamp(14px,3vw,34px); }
+  @media (max-width:760px){ .hub{ grid-template-columns:1fr; text-align:center; } }
+  .sources{ display:flex; flex-direction:column; gap:12px; }
+  .src{ background:var(--ground-2); border:1px solid var(--line); border-radius:12px;
+      padding:14px 16px; display:flex; align-items:center; gap:12px; }
+  .src b{ font-family:var(--font-display); font-weight:700; }
+  .src .em{ font-size:1.3rem; }
+  .center-node{ background: linear-gradient(180deg,rgba(216,164,58,.16),rgba(216,164,58,.05));
+      border:1px solid var(--brass); border-radius:16px; padding:22px 20px; text-align:center;
+      box-shadow: 0 0 40px -18px var(--brass); }
+  .center-node .em{ font-size:1.8rem; }
+  .center-node b{ font-family:var(--font-display); display:block; font-size:1.05rem; margin-top:6px; }
+  .arrows{ text-align:center; color:var(--brass); font-size:1.4rem; }
+  @media (max-width:760px){ .arrows{ transform:rotate(90deg); } }
+
+  /* costes / cifras */
+  .stats{ display:grid; grid-template-columns: repeat(3,1fr); gap:18px; }
+  @media (max-width:800px){ .stats{ grid-template-columns:1fr; } }
+  .stat{ border:1px solid var(--line); border-radius:14px; padding:22px; background:var(--surface); }
+  .stat b{ display:block; font-size:2.2rem; color:var(--brass-hi); font-weight:800;
+      letter-spacing:-.01em; font-variant-numeric: tabular-nums; }
+  .stat span{ color:var(--ink-soft); font-size:.98rem; }
+
+  ul.check{ list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+  ul.check li{ padding-left:26px; position:relative; color:var(--ink-soft); }
+  ul.check li::before{ content:"✓"; position:absolute; left:0; color:var(--brass);
+      font-family:var(--font-display); font-weight:800; }
+
+  /* CTA */
+  .cta{ text-align:center; }
+  .cta h2{ margin-bottom:.3em; }
+  .btn{ display:inline-block; margin-top:18px; font-family:var(--font-display);
+      font-weight:700; letter-spacing:.02em; font-size:1.02rem;
+      background: linear-gradient(180deg,var(--brass-hi),var(--brass));
+      color:#20180C; text-decoration:none; padding:14px 30px; border-radius:999px;
+      box-shadow: 0 14px 34px -14px var(--brass); }
+  footer{ padding-block:34px; border-top:1px solid var(--line); text-align:center;
+      color:var(--ink-mute); font-family:var(--font-ui); font-size:.74rem;
+      letter-spacing:.06em; }
+  .demo-note{ font-family:var(--font-ui); font-size:.72rem; letter-spacing:.08em;
+      color:var(--ink-mute); text-transform:uppercase; }
+</style>
+
+<div class="pole" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">orbixel<span>.</span> studio</div>
+    <div class="tag">Propuesta · Recepción con IA</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero" style="border-top:none">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Barbería que atiende sola</span>
+        <h1>El teléfono <span class="kicker-am">nunca</span> vuelve a sonar sin respuesta.</h1>
+        <p class="lead">Un recepcionista con inteligencia artificial coge la llamada,
+          entiende al cliente y le da cita en tu agenda. A cualquier hora, aunque
+          estéis con las tijeras en la mano.</p>
+      </div>
+
+      <div class="callcard" aria-label="Ejemplo de llamada">
+        <div class="call-head">
+          <span class="dot-live" aria-hidden="true"></span>
+          <span class="who">Llamada en curso · Oblivion Barbers</span>
+        </div>
+        <div class="wave" aria-hidden="true">
+          <i style="animation-delay:0s"></i><i style="animation-delay:.1s"></i>
+          <i style="animation-delay:.22s"></i><i style="animation-delay:.34s"></i>
+          <i style="animation-delay:.15s"></i><i style="animation-delay:.28s"></i>
+          <i style="animation-delay:.05s"></i><i style="animation-delay:.19s"></i>
+          <i style="animation-delay:.32s"></i><i style="animation-delay:.12s"></i>
+          <i style="animation-delay:.24s"></i><i style="animation-delay:.36s"></i>
+          <i style="animation-delay:.08s"></i><i style="animation-delay:.2s"></i>
+        </div>
+
+        <div class="msg bot"><span class="lbl">Barbería</span>
+          <span class="txt">Barbería Oblivion, ¿en qué puedo ayudarte?</span></div>
+        <div class="msg cli"><span class="lbl">Cliente</span>
+          <span class="txt">Hola, quería cortarme el pelo y la barba el lunes.</span></div>
+        <div class="msg sys">entiende → «Corte + barba» · 45 min · comprueba agenda real</div>
+        <div class="msg bot"><span class="lbl">Barbería</span>
+          <span class="txt">El lunes tengo por la tarde a las 16:00 o a las 18:30. ¿Qué te viene mejor?</span></div>
+        <div class="msg cli"><span class="lbl">Cliente</span>
+          <span class="txt">A las seis y media. Soy Javier.</span></div>
+        <div class="msg sys">crea la cita ✓ lunes 18:30 — Javier Ruiz</div>
+        <div class="msg bot"><span class="lbl">Barbería</span>
+          <span class="txt">Hecho, Javier. Corte + barba el lunes a las seis y media. ¡Te esperamos!</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Por qué importa</span>
+      <h2>Cada llamada perdida es un cliente que llama a otra barbería.</h2>
+      <p class="muted">Mientras cortas, no coges el teléfono. Fuera de horario, nadie
+        responde. El recepcionista con IA está siempre disponible y no se cansa,
+        no se pone de mal humor y no comete errores con la agenda.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="step-n">Escucha</span>
+        <h3>Habla como una persona</h3>
+        <p class="muted">El cliente pide cita con sus palabras: «mañana por la tarde»,
+          «pelo y barba». La IA lo entiende sin menús ni «pulse 1».</p></div>
+      <div class="step"><span class="step-n">Comprueba</span>
+        <h3>Mira huecos de verdad</h3>
+        <p class="muted">Consulta tu agenda en tiempo real y ofrece solo horas libres.
+          Nunca da una cita que choque con otra.</p></div>
+      <div class="step"><span class="step-n">Reserva</span>
+        <h3>Lo apunta al instante</h3>
+        <p class="muted">La cita aparece en tu calendario con nombre y servicio.
+          Tú solo la ves en el móvil, como siempre.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Una sola agenda</span>
+      <h2>Teléfono, web y mostrador. La misma agenda para todos.</h2>
+      <p class="muted">Todo escribe en el mismo sitio, así que nunca hay dobles
+        reservas. Y tú no tienes que aprender ninguna app nueva.</p>
+    </div>
+    <div class="hub">
+      <div class="sources">
+        <div class="src"><span class="em">📞</span><div><b>Teléfono</b><br><span class="muted">llamadas 24/7</span></div></div>
+        <div class="src"><span class="em">💻</span><div><b>Web</b><br><span class="muted">reservas online</span></div></div>
+        <div class="src"><span class="em">💈</span><div><b>Mostrador</b><br><span class="muted">citas a mano</span></div></div>
+      </div>
+      <div class="arrows" aria-hidden="true">→</div>
+      <div class="center-node">
+        <span class="em">📅</span>
+        <b>Agenda central</b>
+        <span class="muted">Google Calendar · la ves en tu móvil</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Cuentas claras</span>
+      <h2>Se paga solo con las citas que hoy se pierden.</h2>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>24/7</b><span>Disponible siempre, también de noche y en festivos.</span></div>
+      <div class="stat"><b>~0,40&nbsp;€</b><span>Coste aproximado de una llamada de reserva de 3 minutos.</span></div>
+      <div class="stat"><b>0</b><span>Llamadas perdidas por estar ocupado cortando.</span></div>
+    </div>
+    <div style="margin-top:26px">
+      <ul class="check">
+        <li>Confirmaciones y recordatorios por SMS o WhatsApp (opcional).</li>
+        <li>Varios barberos o sillas en paralelo.</li>
+        <li>Cancelaciones y cambios también por llamada.</li>
+        <li>Se adapta a tus servicios, precios y horario reales.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta">
+    <span class="eyebrow">El siguiente paso</span>
+    <h2>Lo montamos con tu barbería.</h2>
+    <p class="muted" style="max-width:46ch;margin-inline:auto">Empezamos con una demo
+      conectada a tu agenda real. Cuando la veas funcionar, le enchufamos el número
+      de teléfono y a atender.</p>
+    <a class="btn" href="#">Quiero verlo funcionando</a>
+    <p class="demo-note" style="margin-top:22px">Página de propuesta · marca de ejemplo «Oblivion Barbers» · orbixel studio</p>
+  </section>
+
+</main>
+
+<footer>orbixel studio · recepción telefónica con IA para negocios de cita previa</footer>
