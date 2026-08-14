@@ -32,6 +32,7 @@ function Site() {
       <main className="relative z-10 bg-carbon">
         <PhotoBand
           img={bandPlants}
+          img2={bandInterior}
           eyebrow="Bienvenido"
           word="El espacio"
           caption="Ambiente actual, pared vegetal y buena energía en pleno centro."
@@ -39,6 +40,7 @@ function Site() {
         <Filosofia />
         <PhotoBand
           img={bandInterior}
+          img2={bandWorking}
           eyebrow="La casa"
           word="El ritual"
           caption="Un lugar para desconectar mientras te cuidas."
@@ -46,6 +48,7 @@ function Site() {
         <Servicios />
         <PhotoBand
           img={bandWorking}
+          img2={bandStorefront}
           eyebrow="El oficio"
           word="Cada detalle"
           caption="Manos expertas, herramientas cuidadas y tiempo para ti."
@@ -53,6 +56,7 @@ function Site() {
         <Experiencia />
         <PhotoBand
           img={bandStorefront}
+          img2={bandPlants}
           eyebrow="Menorca"
           word="Cerca de ti"
           caption="Tres locales en la isla: Es Castell, Mahón y Ciutadella."
