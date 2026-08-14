@@ -14,6 +14,8 @@ import { Central } from "@/components/central/Central"
 import { useSmoothScroll } from "@/lib/useSmoothScroll"
 import bandInterior from "@/assets/local-interior.jpg"
 import bandWorking from "@/assets/local-working.jpg"
+import bandPlants from "@/assets/local-plants.jpg"
+import bandStorefront from "@/assets/local-storefront.jpg"
 
 const scrollTo = (id: string) =>
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
@@ -28,12 +30,18 @@ function Site() {
       <Hero onReservar={() => openBooking()} onServicios={() => scrollTo("servicios")} />
 
       <main className="relative z-10 bg-carbon">
+        <PhotoBand
+          img={bandPlants}
+          eyebrow="Bienvenido"
+          word="El espacio"
+          caption="Ambiente actual, pared vegetal y buena energía en pleno centro."
+        />
         <Filosofia />
         <PhotoBand
           img={bandInterior}
-          eyebrow="El local"
-          word="Nuestro espacio"
-          caption="Ambiente actual, pared vegetal y buena energía en pleno centro."
+          eyebrow="La casa"
+          word="El ritual"
+          caption="Un lugar para desconectar mientras te cuidas."
         />
         <Servicios />
         <PhotoBand
@@ -43,6 +51,12 @@ function Site() {
           caption="Manos expertas, herramientas cuidadas y tiempo para ti."
         />
         <Experiencia />
+        <PhotoBand
+          img={bandStorefront}
+          eyebrow="Menorca"
+          word="Cerca de ti"
+          caption="Tres locales en la isla: Es Castell, Mahón y Ciutadella."
+        />
         <Locales />
         <Reservas />
       </main>
