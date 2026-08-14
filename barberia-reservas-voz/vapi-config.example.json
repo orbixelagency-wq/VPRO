@@ -1,0 +1,47 @@
+{
+  "_comentario": "Configuración de EJEMPLO para un asistente de voz (formato tipo Vapi/Retell). Muestra cómo se enchufa Claude como cerebro + las herramientas del motor de reservas + la voz. Rellenar las claves marcadas con <...>.",
+
+  "name": "Recepcionista Oblivion Barbers",
+  "firstMessage": "Barbería Oblivion, ¿en qué puedo ayudarte?",
+
+  "transcriber": {
+    "provider": "deepgram",
+    "model": "nova-2",
+    "language": "es"
+  },
+
+  "model": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5",
+    "temperature": 0.4,
+    "systemPromptRef": "./guion-agente.md",
+    "tools": [
+      {
+        "type": "function",
+        "function": { "name": "comprobar_disponibilidad" },
+        "server": { "url": "https://<tu-servidor>/api/comprobar_disponibilidad" }
+      },
+      {
+        "type": "function",
+        "function": { "name": "proponer_alternativas" },
+        "server": { "url": "https://<tu-servidor>/api/proponer_alternativas" }
+      },
+      {
+        "type": "function",
+        "function": { "name": "crear_reserva" },
+        "server": { "url": "https://<tu-servidor>/api/crear_reserva" }
+      }
+    ]
+  },
+
+  "voice": {
+    "provider": "elevenlabs",
+    "voiceId": "<voz-en-español>",
+    "stability": 0.5,
+    "similarityBoost": 0.75
+  },
+
+  "endCallPhrases": ["adiós", "hasta luego", "gracias, hasta el"],
+  "silenceTimeoutSeconds": 20,
+  "maxDurationSeconds": 600
+}
