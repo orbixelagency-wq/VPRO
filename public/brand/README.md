@@ -11,10 +11,12 @@ Deja aquí los archivos con **exactamente estos nombres** y aparecerán solos:
 - `logo.png` — isotipo/logo de Oblivion (idealmente cuadrado, fondo
   transparente). Se usa en la barra superior y el pie.
 
-## Hero (portada)
+## Hero (portada) — silla giratoria
 
-- `hero.jpg` — retrato de barbería (barbero trabajando / cliente). Horizontal,
-  min. 1600×1000 px. Se muestra velado detrás del texto gigante.
+- `chair.png` — foto de la **silla de barbero recortada** (fondo transparente,
+  PNG). Es el objeto que gira con el scroll en el hero. Idealmente vista frontal,
+  min. 1000×1000 px. Mientras no exista, se dibuja una silla vectorial de marca.
+- `hero.jpg` — (opcional) imagen de ambiente si se quiere de fondo.
 
 ## Experiencia
 
