@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { asset } from "@/lib/asset"
 import { Play, Instagram, Facebook, CalendarDays } from "lucide-react"
+import chairImg from "@/assets/chair.png"
 
 interface HeroProps {
   onReservar?: () => void
@@ -211,13 +211,13 @@ export function Hero({ onReservar, onServicios }: HeroProps) {
   )
 }
 
-/** Usa la foto /brand/chair.png si existe; si no, dibuja una silla vectorial. */
+/** Silla real (empaquetada en el bundle); si fallara, dibuja una vectorial. */
 function ChairObject() {
   const [failed, setFailed] = useState(false)
   if (!failed) {
     return (
       <img
-        src={asset("/brand/chair.png")}
+        src={chairImg}
         alt="Sillón de barbero Oblivion"
         onError={() => setFailed(true)}
         className="h-full w-full object-contain"

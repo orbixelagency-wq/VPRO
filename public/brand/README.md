@@ -13,9 +13,9 @@ Deja aquí los archivos con **exactamente estos nombres** y aparecerán solos:
 
 ## Hero (portada) — silla giratoria
 
-- `chair.png` — foto de la **silla de barbero recortada** (fondo transparente,
-  PNG). Es el objeto que gira con el scroll en el hero. Idealmente vista frontal,
-  min. 1000×1000 px. Mientras no exista, se dibuja una silla vectorial de marca.
+- La **silla de barbero** que gira con el scroll está en `src/assets/chair.png`
+  (PNG recortado, empaquetada en el bundle). Para cambiarla, sustituye ese
+  archivo por otro PNG con fondo transparente y recompila.
 - `hero.jpg` — (opcional) imagen de ambiente si se quiere de fondo.
 
 ## Experiencia
