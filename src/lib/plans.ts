@@ -1,18 +1,10 @@
 /* ===========================================================
-   Planes del "trabajador de IA" de Orbixel + pasarela de pago.
+   Planes del "trabajador de IA" de Orbixel + checkout Shopify.
 
-   PAGO REAL (sin backend): usamos Stripe Payment Links. Cada plan
-   tiene un enlace de pago por periodo (mensual / anual). Para
-   activarlos, crea los Payment Links en tu panel de Stripe
-   (Productos → precio recurrente → "Payment link") y pega las URLs
-   aquí abajo, o defínelas como variables de entorno en el build:
-
-     VITE_PAY_ASISTENTE_MENSUAL, VITE_PAY_ASISTENTE_ANUAL,
-     VITE_PAY_OPERATIVO_MENSUAL, VITE_PAY_OPERATIVO_ANUAL,
-     VITE_PAY_UNLIMITED_MENSUAL, VITE_PAY_UNLIMITED_ANUAL
-
-   Mientras un enlace esté vacío, el botón del plan lleva al
-   formulario de contacto con el plan preseleccionado.
+   El pago se procesa en el checkout seguro de Shopify (orbixel.es).
+   Cada plan/periodo apunta a una variante real del catálogo; el
+   botón lleva al checkout de esa variante. No hay claves ni secretos
+   en el frontend: sólo el dominio (público) y los IDs de variante.
    =========================================================== */
 
 export type Billing = "mensual" | "anual"
@@ -22,31 +14,19 @@ export interface Plan {
   name: string
   role: string
   tagline: string
-  /** Precio mensual base (EUR). El anual aplica ~2 meses gratis. */
+  /** Precio mensual base (EUR). El anual muestra ~2 meses gratis. */
   monthly: number
   featured?: boolean
   cta: string
   features: string[]
   /** Lo que suma respecto al plan anterior (encabeza la lista). */
   inherits?: string
-  links: Record<Billing, string>
+  /** IDs numéricos de variante de Shopify por periodo. */
+  variants: Record<Billing, string>
 }
 
-const env = import.meta.env as Record<string, string | undefined>
-
-/* ---- Checkout embebido (Stripe Payment Element) --------------------
-   Para cobrar dentro de la propia web necesitas dos cosas:
-   1) VITE_STRIPE_PUBLISHABLE_KEY — clave publicable (pk_live_… / pk_test_…)
-   2) VITE_CHECKOUT_ENDPOINT — URL de una función serverless (incluida en
-      /api/create-subscription.js) que crea la suscripción con tu clave
-      SECRETA de Stripe y devuelve el client_secret.
-   La clave secreta NUNCA va en el frontend: por eso hace falta esa
-   pequeña función (Vercel, Netlify o Cloudflare Workers).
-   Si falta cualquiera de las dos, el checkout entra en "modo demo"
-   (simulación, sin cobro real) para poder mostrar y probar el flujo. */
-export const STRIPE_PK = env.VITE_STRIPE_PUBLISHABLE_KEY
-export const CHECKOUT_ENDPOINT = env.VITE_CHECKOUT_ENDPOINT
-export const PAYMENTS_LIVE = Boolean(STRIPE_PK && CHECKOUT_ENDPOINT)
+/** Dominio de la tienda Shopify (checkout). */
+export const SHOPIFY_DOMAIN = "orbixel.es"
 
 export const PLANS: Plan[] = [
   {
@@ -63,10 +43,7 @@ export const PLANS: Plan[] = [
       "Base de conocimiento de tu negocio",
       "Informe de actividad mensual",
     ],
-    links: {
-      mensual: env.VITE_PAY_ASISTENTE_MENSUAL ?? "",
-      anual: env.VITE_PAY_ASISTENTE_ANUAL ?? "",
-    },
+    variants: { mensual: "54613899018577", anual: "54613899051345" },
   },
   {
     id: "operativo",
@@ -86,10 +63,7 @@ export const PLANS: Plan[] = [
       "Panel de analíticas en tiempo real",
       "Soporte prioritario",
     ],
-    links: {
-      mensual: env.VITE_PAY_OPERATIVO_MENSUAL ?? "",
-      anual: env.VITE_PAY_OPERATIVO_ANUAL ?? "",
-    },
+    variants: { mensual: "54613902983505", anual: "54613903016273" },
   },
   {
     id: "unlimited",
@@ -107,10 +81,7 @@ export const PLANS: Plan[] = [
       "Gestor de cuenta dedicado",
       "SLA y soporte 24/7",
     ],
-    links: {
-      mensual: env.VITE_PAY_UNLIMITED_MENSUAL ?? "",
-      anual: env.VITE_PAY_UNLIMITED_ANUAL ?? "",
-    },
+    variants: { mensual: "54613904949585", anual: "54613904982353" },
   },
 ]
 
@@ -120,7 +91,8 @@ export function priceFor(plan: Plan, billing: Billing): number {
   return plan.monthly
 }
 
-/** Enlace de checkout de Stripe si está configurado. */
+/** URL de checkout de Shopify para la variante del plan/periodo. */
 export function checkoutUrl(plan: Plan, billing: Billing): string {
-  return plan.links[billing] || ""
+  const variant = plan.variants[billing]
+  return `https://${SHOPIFY_DOMAIN}/cart/${variant}:1`
 }
