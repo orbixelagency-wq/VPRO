@@ -1,9 +1,9 @@
 {
-  "name": "vpro-training",
+  "name": "orbixel-web",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Web corporativa y sistema de reservas de V Pro Training - tecnificacion y alto rendimiento de futbol en Girona y Olot.",
+  "description": "Web corporativa de Orbixel - agencia de inteligencia artificial: auditoria de negocio e implementacion de IA (automatizaciones, WhatsApp, web e integraciones).",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -11,20 +11,20 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "@fontsource/space-mono": "^5.3.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "gsap": "^3.12.5",
     "lucide-react": "^0.454.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.5.4",
-    "three": "^0.169.0"
+    "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
-    "@types/three": "^0.169.0",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",

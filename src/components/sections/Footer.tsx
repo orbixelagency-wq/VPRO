@@ -1,55 +1,71 @@
 import { Logo } from "@/components/Logo"
-import { Instagram, Youtube, Mail } from "lucide-react"
+
+const NAV = [
+  { href: "#modelo", label: "Modelo" },
+  { href: "#servicios", label: "Servicios" },
+  { href: "#valor", label: "Por qué Orbixel" },
+  { href: "#proceso", label: "Proceso" },
+]
+
+const go = (href: string) =>
+  document.querySelector(href)?.scrollIntoView({ behavior: "smooth" })
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-line bg-carbon">
-      <div className="container py-16">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
-          <div>
+    <footer className="border-t border-line bg-paper">
+      <div className="container py-14">
+        <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-xs">
             <Logo />
-            <p className="mt-5 max-w-xs text-sm leading-relaxed text-ash">
-              Centro de tecnificación y alto rendimiento de fútbol. Cada detalle suma.
+            <p className="mt-4 text-sm text-mute">
+              Agencia de inteligencia artificial. Auditamos tu negocio y lo
+              potenciamos con IA — de la eficiencia a las ventas.
             </p>
           </div>
 
-          <div>
-            <p className="channel">Sedes</p>
-            <ul className="mt-4 space-y-2 text-sm text-ash">
-              <li>
-                Girona{" "}
-                <span className="datum text-[0.62rem] text-steel">41.98° N · 2.82° E</span>
-              </li>
-              <li>
-                Olot <span className="datum text-[0.62rem] text-steel">42.18° N · 2.49° E</span>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p className="channel">Contacto</p>
-            <div className="mt-4 flex gap-3">
-              {[
-                { icon: Instagram, label: "Instagram" },
-                { icon: Youtube, label: "YouTube" },
-                { icon: Mail, label: "Email" },
-              ].map((s) => (
-                <a
-                  key={s.label}
-                  href="#contacto"
-                  aria-label={s.label}
-                  className="grid h-10 w-10 place-items-center border border-line text-ash transition-colors hover:border-ember hover:text-ember"
+          <div className="flex flex-wrap gap-12">
+            <nav className="flex flex-col gap-3">
+              <span className="datum text-[0.62rem] uppercase tracking-[0.18em] text-mute">
+                Navegar
+              </span>
+              {NAV.map((n) => (
+                <button
+                  key={n.href}
+                  onClick={() => go(n.href)}
+                  className="text-left text-sm text-ink transition-colors hover:text-orbit"
                 >
-                  <s.icon className="h-5 w-5" />
-                </a>
+                  {n.label}
+                </button>
               ))}
+            </nav>
+
+            <div className="flex flex-col gap-3">
+              <span className="datum text-[0.62rem] uppercase tracking-[0.18em] text-mute">
+                Contacto
+              </span>
+              <a
+                href="mailto:orbixel.agency@gmail.com"
+                className="text-sm text-ink transition-colors hover:text-orbit"
+              >
+                orbixel.agency@gmail.com
+              </a>
+              <button
+                onClick={() => go("#contacto")}
+                className="text-left text-sm text-ink transition-colors hover:text-orbit"
+              >
+                Solicitar auditoría
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} V Pro Total Training</p>
-          <p>Girona · Olot — Alto rendimiento de fútbol</p>
+        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-line pt-6 text-xs text-mute sm:flex-row sm:items-center">
+          <span className="datum uppercase tracking-[0.14em]">
+            © {new Date().getFullYear()} Orbixel · Agencia de IA
+          </span>
+          <span className="datum uppercase tracking-[0.14em]">
+            Auditoría + Implementación
+          </span>
         </div>
       </div>
     </footer>

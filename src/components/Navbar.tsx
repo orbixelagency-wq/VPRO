@@ -5,11 +5,10 @@ import { cn } from "@/lib/utils"
 import { Menu, X } from "lucide-react"
 
 const LINKS = [
-  { href: "#manifiesto", label: "Manifiesto" },
-  { href: "#programa", label: "Programa" },
-  { href: "#sedes", label: "Sedes" },
-  { href: "#metodo", label: "Método" },
-  { href: "#talento", label: "Talento" },
+  { href: "#modelo", label: "Modelo" },
+  { href: "#servicios", label: "Servicios" },
+  { href: "#valor", label: "Por qué Orbixel" },
+  { href: "#proceso", label: "Proceso" },
 ]
 
 export function Navbar() {
@@ -17,7 +16,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    const onScroll = () => setScrolled(window.scrollY > 24)
     window.addEventListener("scroll", onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener("scroll", onScroll)
@@ -33,33 +32,35 @@ export function Navbar() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
         scrolled
-          ? "border-b border-line bg-carbon/80 backdrop-blur-md"
+          ? "border-b border-line bg-paper/80 backdrop-blur-md"
           : "border-b border-transparent"
       )}
     >
       <nav className="container flex h-16 items-center justify-between">
-        <button onClick={() => go("#inicio")} aria-label="V Pro Total Training — inicio">
+        <button onClick={() => go("#inicio")} aria-label="Orbixel — inicio">
           <Logo />
         </button>
 
-        <div className="hidden items-center gap-8 lg:flex">
+        <div className="hidden items-center gap-8 md:flex">
           {LINKS.map((l) => (
             <button
               key={l.href}
               onClick={() => go(l.href)}
-              className="group relative font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ash transition-colors hover:text-chalk"
+              className="text-sm text-mute transition-colors hover:text-ink"
             >
               {l.label}
-              <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-ember transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100" />
             </button>
           ))}
+        </div>
+
+        <div className="hidden items-center gap-3 md:flex">
           <Button size="sm" onClick={() => go("#contacto")}>
-            Contacto
+            Solicitar auditoría
           </Button>
         </div>
 
         <button
-          className="text-chalk lg:hidden"
+          className="text-ink md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Menú"
         >
@@ -68,19 +69,19 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div className="border-t border-line bg-carbon/95 px-6 py-5 lg:hidden">
+        <div className="border-t border-line bg-paper/95 px-6 py-5 backdrop-blur md:hidden">
           <div className="flex flex-col gap-4">
             {LINKS.map((l) => (
               <button
                 key={l.href}
                 onClick={() => go(l.href)}
-                className="text-left font-mono text-xs uppercase tracking-[0.18em] text-ash"
+                className="text-left text-sm text-mute"
               >
                 {l.label}
               </button>
             ))}
             <Button size="sm" onClick={() => go("#contacto")}>
-              Contacto
+              Solicitar auditoría
             </Button>
           </div>
         </div>
