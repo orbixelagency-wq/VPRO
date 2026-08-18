@@ -3,6 +3,7 @@ import { Hero } from "@/components/sections/Hero"
 import { Modelo } from "@/components/sections/Modelo"
 import { Servicios } from "@/components/sections/Servicios"
 import { Valor } from "@/components/sections/Valor"
+import { Planes } from "@/components/sections/Planes"
 import { Proceso } from "@/components/sections/Proceso"
 import { Contacto } from "@/components/sections/Contacto"
 import { Footer } from "@/components/sections/Footer"
@@ -16,6 +17,7 @@ export default function App() {
         <Modelo />
         <Servicios />
         <Valor />
+        <Planes />
         <Proceso />
         <Contacto />
       </main>

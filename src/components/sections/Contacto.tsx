@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Reveal } from "@/components/Reveal"
 import { Button } from "@/components/ui/button"
 import { OrbitMark } from "@/components/Logo"
@@ -6,6 +6,20 @@ import { ArrowUpRight, Check } from "lucide-react"
 
 export function Contacto() {
   const [sent, setSent] = useState(false)
+  const [mensaje, setMensaje] = useState("")
+
+  // Preselección de plan desde la sección de Planes.
+  useEffect(() => {
+    const onSelectPlan = (e: Event) => {
+      const { name, billing } = (e as CustomEvent).detail ?? {}
+      if (name)
+        setMensaje(
+          `Quiero contratar el plan ${name} (facturación ${billing}). Cuéntame los siguientes pasos.`
+        )
+    }
+    window.addEventListener("orbixel:selectPlan", onSelectPlan)
+    return () => window.removeEventListener("orbixel:selectPlan", onSelectPlan)
+  }, [])
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -83,6 +97,8 @@ export function Contacto() {
                       <textarea
                         name="mensaje"
                         rows={3}
+                        value={mensaje}
+                        onChange={(e) => setMensaje(e.target.value)}
                         placeholder="Atención al cliente, ventas, procesos manuales…"
                         className="field resize-none border-line-dark bg-white/[0.02] text-paper placeholder:text-paper/40"
                       />

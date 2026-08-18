@@ -21,7 +21,23 @@ de contraste.
 ## Secciones
 
 Hero · Modelo (Fase 1 Auditoría → Fase 2 Aplicación) · Servicios · Propuesta de
-valor · Proceso · Contacto.
+valor · Planes (trabajador de IA) · Proceso · Contacto.
+
+## Planes y pagos (Stripe)
+
+La sección **Planes** ofrece un "trabajador de IA" en tres niveles (Asistente,
+Operativo, Unlimited) con toggle mensual/anual. El cobro usa **Stripe Payment
+Links** (sin backend, apto para hosting estático):
+
+1. En tu panel de Stripe crea un producto con precio recurrente por plan y genera
+   su _Payment link_ (uno por periodo: mensual y anual).
+2. Pega las URLs en `src/lib/plans.ts` (campo `links`) o defínelas como variables
+   de entorno en el build: `VITE_PAY_ASISTENTE_MENSUAL`, `VITE_PAY_ASISTENTE_ANUAL`,
+   `VITE_PAY_OPERATIVO_MENSUAL`, `VITE_PAY_OPERATIVO_ANUAL`,
+   `VITE_PAY_UNLIMITED_MENSUAL`, `VITE_PAY_UNLIMITED_ANUAL`.
+
+Mientras un enlace esté vacío, el botón del plan lleva al formulario de contacto
+con el plan preseleccionado, así la sección funciona desde el primer día.
 
 ## Stack
 
