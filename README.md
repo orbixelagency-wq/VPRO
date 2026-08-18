@@ -23,30 +23,23 @@ de contraste.
 Hero · Modelo (Fase 1 Auditoría → Fase 2 Aplicación) · Servicios · Propuesta de
 valor · Planes (trabajador de IA) · Proceso · Contacto.
 
-## Planes y checkout embebido (Stripe)
+## Planes y pagos (Shopify)
 
 La sección **Planes** ofrece un "trabajador de IA" en tres niveles (Asistente,
 Operativo, Unlimited) con toggle mensual/anual. Al elegir un plan se abre un
-**checkout embebido en la propia web** (Stripe Payment Element, sin salir a otra
-página).
+resumen con nuestro diseño y, al confirmar, el pago se completa en el
+**checkout seguro de Shopify** (`orbixel.es`).
 
-Como GitHub Pages sólo sirve ficheros estáticos, el cobro real necesita **una
-pequeña función serverless** (la clave secreta de Stripe nunca va en el
-frontend). Incluida en `api/create-subscription.js` — despliégala en Vercel,
-Netlify o Cloudflare Workers.
+- Cada plan/periodo apunta a una **variante real** del catálogo de Shopify. El
+  botón enlaza al checkout de esa variante: `https://orbixel.es/cart/<id>:1`.
+- La configuración (dominio + IDs de variante) vive en `src/lib/plans.ts`. No
+  hay claves ni secretos en el frontend — Shopify procesa el pago.
+- Productos creados (pago único): **Asistente** (49€ / 490€), **Operativo**
+  (149€ / 1490€), **Unlimited** (349€ / 3490€). Editables desde el panel de
+  Shopify.
 
-Para activar el pago real:
-
-1. Despliega `api/create-subscription.js` y configura en su servidor
-   `STRIPE_SECRET_KEY`, los `PRICE_*` (ids de precio recurrente de Stripe) y
-   `ALLOWED_ORIGIN`.
-2. En el build del frontend define `VITE_STRIPE_PUBLISHABLE_KEY` y
-   `VITE_CHECKOUT_ENDPOINT` (ver `.env.example`).
-
-Sin esas variables, el checkout funciona en **modo demo** (simulación con tarjeta
-de prueba, claramente etiquetada, sin cobro) para poder mostrar el flujo. Como
-alternativa sin backend, `src/lib/plans.ts` también admite **Stripe Payment
-Links** por plan (`VITE_PAY_*`).
+Para pasar a **cobro recurrente**, instala la app gratuita *Shopify
+Subscriptions* y añade un plan de venta a estos productos.
 
 ## Animaciones y scroll
 

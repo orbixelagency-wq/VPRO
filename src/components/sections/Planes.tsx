@@ -53,7 +53,7 @@ export function Planes() {
         <Reveal className="mt-10 flex flex-col items-center gap-4 text-center">
           <p className="datum flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[0.68rem] uppercase tracking-[0.14em] text-mute">
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-orbit" /> Pago seguro con Stripe
+              <ShieldCheck className="h-3.5 w-3.5 text-orbit" /> Pago seguro con Shopify
             </span>
             <span aria-hidden>·</span>
             <span>Cancela cuando quieras</span>
