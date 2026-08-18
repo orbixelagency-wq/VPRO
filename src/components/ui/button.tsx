@@ -3,21 +3,24 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[2px] font-mono text-xs font-bold uppercase tracking-[0.18em] transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-sans text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        // CTA principal: relleno fuego, hover plano mas claro
-        default: "bg-ember text-carbon hover:bg-ember-2",
-        // Contorno hairline
+        // CTA principal: azul órbita
+        default:
+          "bg-orbit text-white shadow-[0_10px_24px_-10px_rgba(47,91,255,0.7)] hover:bg-orbit-ink",
+        // Contorno sobre claro
         outline:
-          "border border-line bg-transparent text-chalk hover:border-ember hover:text-ember",
-        ghost: "text-ash hover:text-ember",
+          "border border-line bg-surface text-ink hover:border-ink/40 hover:shadow-soft",
+        // Sobre banda oscura
+        light: "bg-paper text-ink hover:bg-white",
+        ghost: "text-mute hover:text-ink",
       },
       size: {
         default: "h-11 px-6",
-        sm: "h-9 px-4 text-[0.7rem]",
-        lg: "h-12 px-8 text-sm",
+        sm: "h-9 px-4 text-[0.8rem]",
+        lg: "h-12 px-8 text-base",
       },
     },
     defaultVariants: {

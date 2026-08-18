@@ -3,32 +3,20 @@
 @tailwind utilities;
 
 /* ===========================================================
-   V PRO TOTAL TRAINING — "Performance telemetry"
-   Carbon negro + fuego (ember/gold) + acero (steel) para datos.
-   Display: Saira Condensed · Body: Inter · Datos: Space Mono
+   ORBIXEL — Agencia de IA · "minimalista + tecnológico"
+   Fondo claro (paper) · azul órbita como acento · banda oscura
+   de contraste. Display: Space Grotesk · Texto: Inter · Datos:
+   Space Mono. Firma: escáner orbital (orbit + pixel).
    =========================================================== */
 @layer base {
-  :root {
-    --background: 240 8% 4%;
-    --foreground: 220 12% 96%;
-    --border: 220 10% 100% / 0.1;
-    --ring: 16 100% 56%;
-  }
-
-  * {
-    border-color: hsl(var(--border));
-  }
-
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply bg-carbon font-sans text-chalk;
-    background-color: #0a0a0c;
-    /* clip (no hidden) para no convertir el body en scroll-container,
-       lo que romperia el sticky del hero y el scroll de la ventana */
+    @apply bg-paper font-sans text-ink;
     overflow-x: clip;
   }
 
@@ -36,188 +24,101 @@
   h2,
   h3 {
     @apply font-display;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
   ::selection {
-    background: #ff5a1f;
-    color: #0a0a0c;
+    background: #2f5bff;
+    color: #fff;
   }
 
   ::-webkit-scrollbar {
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #0a0a0c;
+    background: #eceef2;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2d34;
+    background: #c3c8d2;
+    border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #ff5a1f;
+    background: #2f5bff;
   }
 
   :focus-visible {
-    outline: 2px solid #ff5a1f;
+    outline: 2px solid #2f5bff;
     outline-offset: 3px;
+    border-radius: 3px;
   }
 }
 
 @layer components {
-  /* Etiqueta de canal mono: [ TEC · TECNIFICACION ] */
-  .channel {
-    @apply inline-flex items-center gap-2.5 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-steel;
+  /* Eyebrow mono con coordenada de canal: · AGENCIA DE IA */
+  .eyebrow {
+    @apply inline-flex items-center gap-2.5 font-mono text-[0.7rem] uppercase tracking-[0.24em] text-mute;
   }
-  .channel::before {
+  .eyebrow::before {
     content: "";
-    width: 26px;
+    width: 22px;
     height: 1px;
-    background: #ff5a1f;
+    background: #2f5bff;
     display: inline-block;
   }
 
-  /* Regla fina "chalk" */
-  .rule {
-    height: 1px;
-    width: 100%;
-    background: hsl(var(--border));
-    transform-origin: left;
+  /* Fondo de puntos de rejilla (textura tech sutil) */
+  .dotgrid {
+    background-image: radial-gradient(rgba(11, 13, 18, 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .dotgrid-dark {
+    background-image: radial-gradient(rgba(245, 246, 248, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
-  /* Panel de datos */
-  .panel {
-    background: #14161a;
-    border: 1px solid hsl(var(--border));
+  /* Tarjeta flotante minimalista */
+  .card {
+    @apply rounded-card border border-line bg-surface;
   }
 
-  /* Numero de dato grande (mono tabular) */
+  /* Dato mono tabular */
   .datum {
     font-family: "Space Mono", monospace;
     font-variant-numeric: tabular-nums;
   }
 
-  /* Input telemetria */
-  .vp-input {
-    width: 100%;
-    background: #0c0d10;
-    border: 1px solid hsl(var(--border));
-    border-radius: 2px;
-    padding: 0.7rem 0.85rem;
-    font-size: 0.9rem;
-    color: #f2f3f5;
-    outline: none;
-    transition: border-color 0.2s ease;
+  /* Input de contacto */
+  .field {
+    @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition-colors;
   }
-  .vp-input::placeholder {
-    color: rgba(155, 161, 171, 0.5);
+  .field::placeholder {
+    color: rgba(115, 120, 132, 0.7);
   }
-  .vp-input:focus {
-    border-color: #ff5a1f;
+  .field:focus {
+    border-color: #2f5bff;
+    box-shadow: 0 0 0 3px rgba(47, 91, 255, 0.12);
   }
 }
 
 @layer utilities {
-  /* Corchetes de esquina tipo HUD / lineas de campo */
-  .corner-tl,
-  .corner-tr,
-  .corner-bl,
-  .corner-br {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-color: currentColor;
-  }
-  .corner-tl {
-    top: 0;
-    left: 0;
-    border-top: 1px solid;
-    border-left: 1px solid;
-  }
-  .corner-tr {
-    top: 0;
-    right: 0;
-    border-top: 1px solid;
-    border-right: 1px solid;
-  }
-  .corner-bl {
-    bottom: 0;
-    left: 0;
-    border-bottom: 1px solid;
-    border-left: 1px solid;
-  }
-  .corner-br {
-    bottom: 0;
-    right: 0;
-    border-bottom: 1px solid;
-    border-right: 1px solid;
-  }
-}
-
-/* ===========================================================
-   Secuencia de arranque del HUD (focal). CSS puro: se reproduce
-   al renderizar (sin depender de rAF) y degrada al estado final
-   visible si las animaciones estan desactivadas.
-   =========================================================== */
-@keyframes hud-up {
-  from {
+  /* Reveal on scroll (activado por IntersectionObserver -> data-shown) */
+  .reveal {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(18px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
   }
-  to {
+  .reveal[data-shown="true"] {
     opacity: 1;
     transform: none;
   }
 }
-@keyframes hud-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes hud-frame {
-  from {
-    opacity: 0;
-    transform: scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes cross-x {
-  from {
-    transform: translateY(-50%) scaleX(0);
-  }
-  to {
-    transform: translateY(-50%) scaleX(1);
-  }
-}
-@keyframes cross-y {
-  from {
-    transform: translateX(-50%) scaleY(0);
-  }
-  to {
-    transform: translateX(-50%) scaleY(1);
-  }
-}
 
-.b-up {
-  animation: hud-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.b-in {
-  animation: hud-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.b-frame {
-  animation: hud-frame 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.b-crossx {
-  animation: cross-x 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
-}
-.b-crossy {
-  animation: cross-y 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+/* Arranque del hero (no depende de scroll) */
+.b-rise {
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -228,5 +129,9 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

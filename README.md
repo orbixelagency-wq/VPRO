@@ -1,39 +1,42 @@
-# V PRO Total Training — Web corporativa
+# Orbixel — Web corporativa
 
-Sitio web institucional _one-page_ cinematico para **V PRO Total Training**,
-centro de tecnificacion y alto rendimiento de futbol con sedes en **Girona** y **Olot**.
+Sitio web _one-page_ de **Orbixel**, agencia de inteligencia artificial que
+**audita** el negocio del cliente para detectar dónde pierde tiempo, ventas y
+eficiencia, y después **implementa** las soluciones de IA que lo resuelven
+(automatizaciones, WhatsApp, web e integraciones a medida).
 
-## Caracteristicas
+## Diseño
 
-- **Hero con video controlado por scroll** (scroll-driven scrubbing): la linea de
-  tiempo del video se vincula al desplazamiento y se funde con fotografias de
-  rendimiento mientras se revela informacion corporativa con parallax.
-- Estetica corporativa sobria de alta gama (fondo `#0b0f19`, acentos naranja,
-  tipografia **Syne** + **Inter**).
-- Secciones: Filosofia, Programa, Sedes (Girona / Olot), Metodo, Talento y Contacto.
-- 100% enfoque institucional y de contacto directo (sin reservas online).
+Minimalista y tecnológico. Base clara con acento azul órbita y una banda oscura
+de contraste.
+
+- **Firma visual:** un _escáner orbital_ — el negocio en el centro y un nodo que
+  recorre la órbita mientras un barrido de radar "detecta" los puntos débiles.
+  Encarna el nombre (orbit + pixel) y la acción central del servicio.
+- **Tipografía:** Space Grotesk (display) · Inter (texto) · Space Mono (datos),
+  auto-alojadas con Fontsource (sin dependencia de CDN).
+- **Paleta:** `paper #F5F6F8`, `surface #FFFFFF`, `ink #12141A`, `mute #737884`,
+  acento `orbit #2F5BFF`, banda oscura `void #0B0D12`.
+
+## Secciones
+
+Hero · Modelo (Fase 1 Auditoría → Fase 2 Aplicación) · Servicios · Propuesta de
+valor · Proceso · Contacto.
 
 ## Stack
 
-Vite · React 18 · TypeScript · Tailwind CSS · estructura shadcn.
+Vite · React 18 · TypeScript · Tailwind CSS · lucide-react.
 
 ## Desarrollo
 
 ```bash
 npm install
-npm run dev      # http://localhost:5174
-npm run build    # build de produccion en /dist
+npm run dev      # servidor de desarrollo
+npm run build    # build de producción en /dist
+npm run preview  # sirve el build
 ```
-
-## Assets oficiales de marca
-
-Las fotos e imagenes oficiales van en `public/brand/` (ver
-`public/brand/README.md` para los nombres de archivo esperados). Mientras no
-existan, se muestra un placeholder de marca. El video del hero esta en
-`public/media/vpro-hero.mp4`.
 
 ## Demo online (GitHub Pages)
 
-El workflow `.github/workflows/deploy.yml` publica automaticamente la demo en
-GitHub Pages en cada push a `main`. Para activarlo: **Settings → Pages → Source:
-GitHub Actions**.
+El workflow `.github/workflows/deploy.yml` publica la demo en GitHub Pages en
+cada push a `main`. Para activarlo: **Settings → Pages → Source: GitHub Actions**.
