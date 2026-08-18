@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react"
 const LINKS = [
   { href: "#modelo", label: "Modelo" },
   { href: "#servicios", label: "Servicios" },
+  { href: "#planes", label: "Planes" },
   { href: "#valor", label: "Por qué Orbixel" },
   { href: "#proceso", label: "Proceso" },
 ]
