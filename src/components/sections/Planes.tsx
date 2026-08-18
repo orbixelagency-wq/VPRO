@@ -1,33 +1,24 @@
-import { useState } from "react"
+import { lazy, Suspense, useState } from "react"
 import { Reveal } from "@/components/Reveal"
 import { Button } from "@/components/ui/button"
 import { OrbitMark } from "@/components/Logo"
-import {
-  PLANS,
-  priceFor,
-  checkoutUrl,
-  type Billing,
-  type Plan,
-} from "@/lib/plans"
+import { scrollToId } from "@/lib/scrollFX"
+import { PLANS, priceFor, type Billing, type Plan } from "@/lib/plans"
 import { Check, ArrowUpRight, ShieldCheck, Sparkles } from "lucide-react"
+
+const CheckoutModal = lazy(() =>
+  import("@/components/checkout/CheckoutModal").then((m) => ({
+    default: m.CheckoutModal,
+  }))
+)
 
 export function Planes() {
   const [billing, setBilling] = useState<Billing>("mensual")
+  const [checkout, setCheckout] = useState<{ plan: Plan; billing: Billing } | null>(
+    null
+  )
 
-  const onChoose = (plan: Plan) => {
-    const url = checkoutUrl(plan, billing)
-    if (url) {
-      window.location.href = url
-      return
-    }
-    // Sin enlace de pago aún: preselecciona el plan en el contacto.
-    window.dispatchEvent(
-      new CustomEvent("orbixel:selectPlan", {
-        detail: { name: plan.name, billing },
-      })
-    )
-    document.querySelector("#contacto")?.scrollIntoView({ behavior: "smooth" })
-  }
+  const onChoose = (plan: Plan) => setCheckout({ plan, billing })
 
   return (
     <section id="planes" className="border-t border-line py-24 sm:py-28">
@@ -72,11 +63,7 @@ export function Planes() {
           <p className="text-sm text-mute">
             ¿Necesitas algo a medida o un volumen mayor?{" "}
             <button
-              onClick={() =>
-                document
-                  .querySelector("#contacto")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
+              onClick={() => scrollToId("#contacto")}
               className="font-medium text-orbit underline-offset-4 hover:underline"
             >
               Hablemos de un plan enterprise
@@ -85,6 +72,16 @@ export function Planes() {
           </p>
         </Reveal>
       </div>
+
+      {checkout && (
+        <Suspense fallback={null}>
+          <CheckoutModal
+            plan={checkout.plan}
+            billing={checkout.billing}
+            onClose={() => setCheckout(null)}
+          />
+        </Suspense>
+      )}
     </section>
   )
 }

@@ -29,7 +29,7 @@ export function Contacto() {
   return (
     <section id="contacto" className="py-24 sm:py-28">
       <div className="container">
-        <div className="overflow-hidden rounded-[28px] border border-line bg-void text-paper shadow-float">
+        <div data-scrub-in className="overflow-hidden rounded-[28px] border border-line bg-void text-paper shadow-float">
           <div className="dotgrid-dark grid gap-10 p-8 sm:p-12 lg:grid-cols-[1.1fr_1fr] lg:gap-14">
             {/* Copy */}
             <Reveal>

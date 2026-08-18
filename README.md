@@ -23,21 +23,37 @@ de contraste.
 Hero · Modelo (Fase 1 Auditoría → Fase 2 Aplicación) · Servicios · Propuesta de
 valor · Planes (trabajador de IA) · Proceso · Contacto.
 
-## Planes y pagos (Stripe)
+## Planes y checkout embebido (Stripe)
 
 La sección **Planes** ofrece un "trabajador de IA" en tres niveles (Asistente,
-Operativo, Unlimited) con toggle mensual/anual. El cobro usa **Stripe Payment
-Links** (sin backend, apto para hosting estático):
+Operativo, Unlimited) con toggle mensual/anual. Al elegir un plan se abre un
+**checkout embebido en la propia web** (Stripe Payment Element, sin salir a otra
+página).
 
-1. En tu panel de Stripe crea un producto con precio recurrente por plan y genera
-   su _Payment link_ (uno por periodo: mensual y anual).
-2. Pega las URLs en `src/lib/plans.ts` (campo `links`) o defínelas como variables
-   de entorno en el build: `VITE_PAY_ASISTENTE_MENSUAL`, `VITE_PAY_ASISTENTE_ANUAL`,
-   `VITE_PAY_OPERATIVO_MENSUAL`, `VITE_PAY_OPERATIVO_ANUAL`,
-   `VITE_PAY_UNLIMITED_MENSUAL`, `VITE_PAY_UNLIMITED_ANUAL`.
+Como GitHub Pages sólo sirve ficheros estáticos, el cobro real necesita **una
+pequeña función serverless** (la clave secreta de Stripe nunca va en el
+frontend). Incluida en `api/create-subscription.js` — despliégala en Vercel,
+Netlify o Cloudflare Workers.
 
-Mientras un enlace esté vacío, el botón del plan lleva al formulario de contacto
-con el plan preseleccionado, así la sección funciona desde el primer día.
+Para activar el pago real:
+
+1. Despliega `api/create-subscription.js` y configura en su servidor
+   `STRIPE_SECRET_KEY`, los `PRICE_*` (ids de precio recurrente de Stripe) y
+   `ALLOWED_ORIGIN`.
+2. En el build del frontend define `VITE_STRIPE_PUBLISHABLE_KEY` y
+   `VITE_CHECKOUT_ENDPOINT` (ver `.env.example`).
+
+Sin esas variables, el checkout funciona en **modo demo** (simulación con tarjeta
+de prueba, claramente etiquetada, sin cobro) para poder mostrar el flujo. Como
+alternativa sin backend, `src/lib/plans.ts` también admite **Stripe Payment
+Links** por plan (`VITE_PAY_*`).
+
+## Animaciones y scroll
+
+Scroll suave con inercia (**Lenis**) sincronizado con **GSAP ScrollTrigger**:
+parallax de las tarjetas del hero, revelados "scrubbed" de los bloques oscuros y
+transiciones al entrar en viewport. Todo se desactiva con
+`prefers-reduced-motion`.
 
 ## Stack
 

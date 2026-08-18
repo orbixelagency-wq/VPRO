@@ -1,4 +1,5 @@
 import { Logo } from "@/components/Logo"
+import { scrollToId } from "@/lib/scrollFX"
 
 const NAV = [
   { href: "#modelo", label: "Modelo" },
@@ -8,8 +9,7 @@ const NAV = [
   { href: "#proceso", label: "Proceso" },
 ]
 
-const go = (href: string) =>
-  document.querySelector(href)?.scrollIntoView({ behavior: "smooth" })
+const go = (href: string) => scrollToId(href)
 
 export function Footer() {
   return (

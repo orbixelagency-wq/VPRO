@@ -1,3 +1,4 @@
+import { useSmoothScroll } from "@/lib/scrollFX"
 import { Navbar } from "@/components/Navbar"
 import { Hero } from "@/components/sections/Hero"
 import { Modelo } from "@/components/sections/Modelo"
@@ -9,6 +10,7 @@ import { Contacto } from "@/components/sections/Contacto"
 import { Footer } from "@/components/sections/Footer"
 
 export default function App() {
+  useSmoothScroll()
   return (
     <div className="relative min-h-screen bg-paper text-ink">
       <Navbar />
