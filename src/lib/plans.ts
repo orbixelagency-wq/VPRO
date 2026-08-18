@@ -34,6 +34,20 @@ export interface Plan {
 
 const env = import.meta.env as Record<string, string | undefined>
 
+/* ---- Checkout embebido (Stripe Payment Element) --------------------
+   Para cobrar dentro de la propia web necesitas dos cosas:
+   1) VITE_STRIPE_PUBLISHABLE_KEY — clave publicable (pk_live_… / pk_test_…)
+   2) VITE_CHECKOUT_ENDPOINT — URL de una función serverless (incluida en
+      /api/create-subscription.js) que crea la suscripción con tu clave
+      SECRETA de Stripe y devuelve el client_secret.
+   La clave secreta NUNCA va en el frontend: por eso hace falta esa
+   pequeña función (Vercel, Netlify o Cloudflare Workers).
+   Si falta cualquiera de las dos, el checkout entra en "modo demo"
+   (simulación, sin cobro real) para poder mostrar y probar el flujo. */
+export const STRIPE_PK = env.VITE_STRIPE_PUBLISHABLE_KEY
+export const CHECKOUT_ENDPOINT = env.VITE_CHECKOUT_ENDPOINT
+export const PAYMENTS_LIVE = Boolean(STRIPE_PK && CHECKOUT_ENDPOINT)
+
 export const PLANS: Plan[] = [
   {
     id: "asistente",

@@ -48,7 +48,7 @@ export function Valor() {
               </div>
             </Reveal>
 
-            <div className="grid gap-px overflow-hidden rounded-card border border-line-dark bg-line-dark sm:grid-cols-2">
+            <div data-scrub-in className="grid gap-px overflow-hidden rounded-card border border-line-dark bg-line-dark sm:grid-cols-2">
               {VALUE.map((v, i) => (
                 <Reveal key={v.title} delay={i * 70} className="bg-void">
                   <div className="h-full p-7">

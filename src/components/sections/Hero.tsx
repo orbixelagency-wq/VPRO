@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { OrbitScanner } from "@/components/OrbitScanner"
+import { scrollToId } from "@/lib/scrollFX"
 import { ArrowUpRight, MessageCircle, Check } from "lucide-react"
 
-const scrollTo = (id: string) =>
-  document.querySelector(id)?.scrollIntoView({ behavior: "smooth" })
+const scrollTo = scrollToId
 
 export function Hero() {
   return (
@@ -13,6 +13,7 @@ export function Hero() {
     >
       {/* Halo azul suave detrás del hero */}
       <div
+        data-parallax="24"
         className="pointer-events-none absolute left-1/2 top-24 -z-0 h-[520px] w-[820px] max-w-[95vw] -translate-x-1/2 rounded-full opacity-70 blur-3xl"
         style={{
           background:
@@ -68,19 +69,19 @@ export function Hero() {
         {/* Escenario: escáner + tarjetas flotantes */}
         <div className="relative mx-auto mt-14 max-w-5xl">
           {/* Tarjetas flotantes (solo desktop, alrededor del escáner) */}
-          <FloatingCard className="left-0 top-6 hidden lg:flex" delay="0.2s">
+          <FloatingCard className="left-0 top-6 hidden lg:flex" delay="0.2s" parallax={-22}>
             <ReportCard />
           </FloatingCard>
 
-          <FloatingCard className="bottom-4 left-2 hidden lg:flex" delay="0.5s">
+          <FloatingCard className="bottom-4 left-2 hidden lg:flex" delay="0.5s" parallax={14}>
             <WhatsAppCard />
           </FloatingCard>
 
-          <FloatingCard className="right-0 top-16 hidden lg:flex" delay="0.35s">
+          <FloatingCard className="right-0 top-16 hidden lg:flex" delay="0.35s" parallax={-12}>
             <IntegrationsCard />
           </FloatingCard>
 
-          <div className="relative z-10 py-6">
+          <div className="relative z-10 py-6" data-parallax="8">
             <OrbitScanner />
           </div>
 
@@ -103,14 +104,17 @@ function FloatingCard({
   children,
   className = "",
   delay = "0s",
+  parallax = 0,
 }: {
   children: React.ReactNode
   className?: string
   delay?: string
+  parallax?: number
 }) {
   return (
     <div
       className={`card absolute z-20 items-start shadow-float ${className}`}
+      data-parallax={parallax}
       style={{ animation: `rise 0.9s cubic-bezier(0.16,1,0.3,1) both`, animationDelay: delay }}
     >
       {children}

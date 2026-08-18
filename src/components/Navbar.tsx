@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/Logo"
 import { cn } from "@/lib/utils"
+import { scrollToId } from "@/lib/scrollFX"
 import { Menu, X } from "lucide-react"
 
 const LINKS = [
@@ -25,7 +26,7 @@ export function Navbar() {
 
   const go = (href: string) => {
     setOpen(false)
-    document.querySelector(href)?.scrollIntoView({ behavior: "smooth" })
+    scrollToId(href)
   }
 
   return (
