@@ -28,6 +28,14 @@ export interface Plan {
 /** Dominio de la tienda Shopify (checkout). */
 export const SHOPIFY_DOMAIN = "orbixel.es"
 
+/** Cuenta de cliente nativa de Shopify. /account redirige al portal
+ *  correcto (nuevas cuentas de cliente: acceso por email + código). */
+export const ACCOUNT_URLS = {
+  login: `https://${SHOPIFY_DOMAIN}/account`,
+  register: `https://${SHOPIFY_DOMAIN}/account`,
+  account: `https://${SHOPIFY_DOMAIN}/account`,
+}
+
 export const PLANS: Plan[] = [
   {
     id: "asistente",

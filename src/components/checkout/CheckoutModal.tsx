@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react"
-import { priceFor, checkoutUrl, type Plan, type Billing } from "@/lib/plans"
+import {
+  priceFor,
+  checkoutUrl,
+  ACCOUNT_URLS,
+  type Plan,
+  type Billing,
+} from "@/lib/plans"
 import { Button } from "@/components/ui/button"
 import { OrbitMark } from "@/components/Logo"
-import { X, Check, ShieldCheck, Lock, ArrowUpRight, Loader2 } from "lucide-react"
+import { X, Check, ShieldCheck, Lock, ArrowUpRight, Loader2, UserPlus } from "lucide-react"
 
 export function CheckoutModal({
   plan,
@@ -135,6 +141,20 @@ export function CheckoutModal({
               para completar la compra con tarjeta o los métodos de pago
               disponibles en la tienda.
             </p>
+
+            {/* Cuenta de cliente */}
+            <div className="mt-3 flex items-start gap-2 rounded-xl border border-line bg-paper px-3.5 py-2.5 text-[0.8rem] text-ink">
+              <UserPlus className="mt-0.5 h-4 w-4 shrink-0 text-orbit" />
+              <span>
+                Crea tu cuenta al pagar para gestionar tu suscripción.{" "}
+                <a
+                  href={ACCOUNT_URLS.login}
+                  className="font-medium text-orbit underline-offset-2 hover:underline"
+                >
+                  ¿Ya tienes cuenta? Inicia sesión
+                </a>
+              </span>
+            </div>
 
             <div className="datum mt-3 flex flex-wrap gap-1.5">
               {["Visa", "Mastercard", "Amex", "Apple Pay", "Google Pay"].map((m) => (
