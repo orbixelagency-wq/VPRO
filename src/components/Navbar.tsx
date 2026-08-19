@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/Logo"
 import { cn } from "@/lib/utils"
 import { scrollToId } from "@/lib/scrollFX"
-import { Menu, X } from "lucide-react"
+import { ACCOUNT_URLS } from "@/lib/plans"
+import { Menu, X, User } from "lucide-react"
 
 const LINKS = [
   { href: "#modelo", label: "Modelo" },
@@ -55,7 +56,14 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
+          <a
+            href={ACCOUNT_URLS.login}
+            className="inline-flex items-center gap-1.5 text-sm text-mute transition-colors hover:text-ink"
+          >
+            <User className="h-4 w-4" />
+            Iniciar sesión
+          </a>
           <Button size="sm" onClick={() => go("#contacto")}>
             Solicitar auditoría
           </Button>
@@ -82,6 +90,13 @@ export function Navbar() {
                 {l.label}
               </button>
             ))}
+            <a
+              href={ACCOUNT_URLS.login}
+              className="inline-flex items-center gap-1.5 text-left text-sm text-mute"
+            >
+              <User className="h-4 w-4" />
+              Iniciar sesión
+            </a>
             <Button size="sm" onClick={() => go("#contacto")}>
               Solicitar auditoría
             </Button>

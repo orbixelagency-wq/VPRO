@@ -1,5 +1,6 @@
 import { Logo } from "@/components/Logo"
 import { scrollToId } from "@/lib/scrollFX"
+import { ACCOUNT_URLS } from "@/lib/plans"
 
 const NAV = [
   { href: "#modelo", label: "Modelo" },
@@ -56,6 +57,24 @@ export function Footer() {
               >
                 Solicitar auditoría
               </button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <span className="datum text-[0.62rem] uppercase tracking-[0.18em] text-mute">
+                Cuenta
+              </span>
+              <a
+                href={ACCOUNT_URLS.login}
+                className="text-sm text-ink transition-colors hover:text-orbit"
+              >
+                Iniciar sesión
+              </a>
+              <a
+                href={ACCOUNT_URLS.register}
+                className="text-sm text-ink transition-colors hover:text-orbit"
+              >
+                Crear cuenta
+              </a>
             </div>
           </div>
         </div>
