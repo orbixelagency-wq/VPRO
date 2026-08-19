@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { OrbitScanner } from "@/components/OrbitScanner"
+import { RotatingWord } from "@/components/RotatingWord"
 import { scrollToId } from "@/lib/scrollFX"
 import { ArrowUpRight, MessageCircle, Check } from "lucide-react"
 
@@ -33,7 +34,13 @@ export function Hero() {
             style={{ animationDelay: "80ms" }}
           >
             Escaneamos tu negocio.
-            <span className="block text-mute">Lo potenciamos con IA.</span>
+            <span className="mt-1 block text-mute">
+              Lo potenciamos con{" "}
+              <RotatingWord
+                words={["IA", "ventas", "WhatsApp", "datos", "automatización"]}
+              />
+              <span className="sr-only">IA y automatización.</span>
+            </span>
           </h1>
 
           <p

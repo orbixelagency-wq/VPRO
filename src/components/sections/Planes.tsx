@@ -1,16 +1,11 @@
-import { lazy, Suspense, useState } from "react"
+import { useState } from "react"
 import { Reveal } from "@/components/Reveal"
 import { Button } from "@/components/ui/button"
 import { OrbitMark } from "@/components/Logo"
+import { CheckoutModal } from "@/components/checkout/CheckoutModal"
 import { scrollToId } from "@/lib/scrollFX"
 import { PLANS, priceFor, type Billing, type Plan } from "@/lib/plans"
 import { Check, ArrowUpRight, ShieldCheck, Sparkles } from "lucide-react"
-
-const CheckoutModal = lazy(() =>
-  import("@/components/checkout/CheckoutModal").then((m) => ({
-    default: m.CheckoutModal,
-  }))
-)
 
 export function Planes() {
   const [billing, setBilling] = useState<Billing>("mensual")
@@ -74,13 +69,11 @@ export function Planes() {
       </div>
 
       {checkout && (
-        <Suspense fallback={null}>
-          <CheckoutModal
-            plan={checkout.plan}
-            billing={checkout.billing}
-            onClose={() => setCheckout(null)}
-          />
-        </Suspense>
+        <CheckoutModal
+          plan={checkout.plan}
+          billing={checkout.billing}
+          onClose={() => setCheckout(null)}
+        />
       )}
     </section>
   )
