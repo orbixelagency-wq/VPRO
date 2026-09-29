@@ -23,3 +23,10 @@ npm run dev            # http://localhost:5175
 npm run build          # PWA en dist/
 npm run build:single   # un único HTML autocontenido en dist-single/
 ```
+
+## Publicar en Netlify
+
+- **Arrastrar y soltar**: `npm run build` y arrastra la carpeta `dist/` (o un zip de su contenido) a https://app.netlify.com/drop.
+- **Desde GitHub**: nuevo sitio → este repositorio, *Base directory* `gym-tracker` (el resto lo toma de `netlify.toml`).
+
+Netlify sirve la app por HTTPS, así que se puede instalar en el móvil («Añadir a pantalla de inicio») y funciona sin conexión.

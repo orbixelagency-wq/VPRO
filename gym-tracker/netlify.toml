@@ -1,0 +1,4 @@
+# Despliegue en Netlify desde el repositorio (base directory: gym-tracker)
+[build]
+  command = "npm run build"
+  publish = "dist"
