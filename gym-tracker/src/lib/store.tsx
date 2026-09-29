@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import { DEFAULT_RM, type RmKey, type SessionId, type WellnessKey } from "../data/plan"
 import { mondayOf, todayISO, type MatchDay } from "./schedule"
+import { connectCloud, type Cloud } from "./cloud"
 
 export type SetLog = { kg?: number; reps?: number; rir?: number; done: boolean }
 
@@ -118,19 +119,94 @@ export function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4)
 }
 
+export type SyncStatus = "local" | "connecting" | "synced" | "error"
+
 type Ctx = {
   state: State
   update: (fn: (s: State) => State) => void
   replace: (s: State) => void
   persisted: boolean
+  sync: SyncStatus
 }
 
 const StoreContext = createContext<Ctx | null>(null)
 
+const SAVED_AT = "matchday-v1-savedAt"
+const SYNC_KEYS = ["settings", "gym", "loads", "checkins", "nutrition", "weights", "tests", "matches", "selfTalk"] as const
+type SyncKey = (typeof SYNC_KEYS)[number]
+
+function readSavedAt(): number {
+  try {
+    return Number(localStorage.getItem(SAVED_AT)) || 0
+  } catch {
+    return 0
+  }
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(load)
   const [persisted, setPersisted] = useState(true)
+  const [sync, setSync] = useState<SyncStatus>("connecting")
   const first = useRef(true)
+  const cloud = useRef<Cloud | null>(null)
+  const pushed = useRef<Partial<Record<SyncKey, unknown>>>({})
+  const chains = useRef<Partial<Record<SyncKey, Promise<void>>>>({})
+  const latest = useRef(state)
+  latest.current = state
+
+  const push = useCallback((s: State) => {
+    const c = cloud.current
+    if (!c) return
+    const t = Date.now()
+    for (const k of SYNC_KEYS) {
+      if (pushed.current[k] === s[k]) continue
+      const value = s[k]
+      pushed.current[k] = value
+      // Una escritura cada vez por documento.
+      chains.current[k] = (chains.current[k] ?? Promise.resolve())
+        .then(() => c.doc(k).set({ v: value as unknown, t }))
+        .then(() => setSync("synced"))
+        .catch(() => {
+          pushed.current[k] = undefined
+          setSync("error")
+        })
+    }
+  }, [])
+
+  // Al abrir: conecta con el espacio privado y trae lo más reciente de cada parte.
+  useEffect(() => {
+    let cancelled = false
+    connectCloud().then(async (c) => {
+      if (cancelled) return
+      if (!c) return setSync("local")
+      try {
+        const snaps = await Promise.all(SYNC_KEYS.map((k) => c.doc(k).get()))
+        if (cancelled) return
+        const localAt = readSavedAt()
+        const merged = { ...latest.current } as State
+        const fromRemote: Partial<Record<SyncKey, boolean>> = {}
+        snaps.forEach((snap, i) => {
+          const k = SYNC_KEYS[i]
+          const body = snap.exists ? (snap.data() as { v?: unknown; t?: number }) : undefined
+          if (body && body.v !== undefined && (body.t ?? 0) >= localAt) {
+            ;(merged as Record<SyncKey, unknown>)[k] = body.v
+            fromRemote[k] = true
+          }
+        })
+        merged.settings = { ...initialState().settings, ...merged.settings }
+        cloud.current = c
+        for (const k of SYNC_KEYS) if (fromRemote[k]) pushed.current[k] = merged[k]
+        setState(merged)
+        setSync("synced")
+        push(merged)
+      } catch {
+        setSync("error")
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [push])
 
   useEffect(() => {
     if (first.current) {
@@ -139,16 +215,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
     try {
       localStorage.setItem(KEY, JSON.stringify(state))
+      localStorage.setItem(SAVED_AT, String(Date.now()))
       setPersisted(true)
     } catch {
       setPersisted(false)
     }
-  }, [state])
+    if (!cloud.current) return
+    const id = setTimeout(() => push(latest.current), 900)
+    return () => clearTimeout(id)
+  }, [state, push])
 
   const update = useCallback((fn: (s: State) => State) => setState((s) => fn(s)), [])
   const replace = useCallback((s: State) => setState(s), [])
 
-  return <StoreContext.Provider value={{ state, update, replace, persisted }}>{children}</StoreContext.Provider>
+  return <StoreContext.Provider value={{ state, update, replace, persisted, sync }}>{children}</StoreContext.Provider>
 }
 
 export function useStore(): Ctx {

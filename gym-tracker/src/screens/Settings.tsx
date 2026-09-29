@@ -4,6 +4,7 @@ import { useNav } from "../App"
 import { RM_LABELS, type RmKey } from "../data/plan"
 import { mondayOf, todayISO, type MatchDay } from "../lib/schedule"
 import { initialState, useStore, type State } from "../lib/store"
+import { saveFile } from "../lib/cloud"
 import { NumField, Seg, Sheet } from "../components/ui"
 
 type Theme = "auto" | "light" | "dark"
@@ -18,7 +19,7 @@ function readTheme(): Theme {
 }
 
 export function SettingsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { state, update, replace } = useStore()
+  const { state, update, replace, sync } = useStore()
   const { toast } = useNav()
   const [theme, setTheme] = useState<Theme>(readTheme)
   const [confirmReset, setConfirmReset] = useState(false)
@@ -38,14 +39,10 @@ export function SettingsSheet({ open, onClose }: { open: boolean; onClose: () =>
     }
   }
 
-  const exportData = () => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" })
-    const a = document.createElement("a")
-    a.href = URL.createObjectURL(blob)
-    a.download = `matchday-${todayISO()}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
-    toast("Copia exportada")
+  const exportData = async () => {
+    const r = await saveFile(`matchday-${todayISO()}.json`, JSON.stringify(state, null, 2))
+    if (r === "saved") toast("Copia exportada")
+    else if (r === "failed") toast("No se pudo exportar la copia")
   }
 
   const importData = async (f: File) => {
@@ -112,7 +109,15 @@ export function SettingsSheet({ open, onClose }: { open: boolean; onClose: () =>
 
         <section className="card stack">
           <h3 className="h-card">Tus datos</h3>
-          <p className="small muted">Todo se guarda en este dispositivo. Exporta una copia de vez en cuando para no perder tu progreso o para pasarlo a otro móvil.</p>
+          <p className="small muted">
+            {sync === "synced"
+              ? "Guardado en este dispositivo y en tu cuenta de Claude (espacio privado): lo verás igual en cualquier móvil donde abras la app con tu cuenta."
+              : sync === "connecting"
+                ? "Conectando con tu cuenta…"
+                : sync === "error"
+                  ? "No se pudo sincronizar con tu cuenta. Tus datos siguen guardados en este dispositivo; exporta una copia por si acaso."
+                  : "Todo se guarda en este dispositivo. Exporta una copia de vez en cuando para no perder tu progreso o pasarlo a otro móvil."}
+          </p>
           <div className="grid-2">
             <button className="btn" onClick={exportData}>
               <Download size={16} /> Exportar
