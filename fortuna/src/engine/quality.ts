@@ -15,6 +15,13 @@ export interface QualityPreset {
   /** Luces puntuales reales cerca del jugador por la noche. */
   lampLights: number;
   antialias: boolean;
+  /** Radio con edificios detallados (streaming). */
+  detailRadius: number;
+  /** Vehículos y peatones simulados cerca del jugador (en hora punta). */
+  cars: number;
+  peds: number;
+  /** Densidad de partículas de lluvia y nieve (0–1,5). */
+  weatherFx: number;
 }
 
 export const QUALITY: Record<Quality, QualityPreset> = {
@@ -27,6 +34,10 @@ export const QUALITY: Record<Quality, QualityPreset> = {
     bloom: false,
     lampLights: 0,
     antialias: false,
+    detailRadius: 260,
+    cars: 24,
+    peds: 45,
+    weatherFx: 0.3,
   },
   medio: {
     label: 'Medio',
@@ -37,6 +48,10 @@ export const QUALITY: Record<Quality, QualityPreset> = {
     bloom: false,
     lampLights: 4,
     antialias: true,
+    detailRadius: 380,
+    cars: 42,
+    peds: 85,
+    weatherFx: 0.7,
   },
   alto: {
     label: 'Alto',
@@ -47,6 +62,10 @@ export const QUALITY: Record<Quality, QualityPreset> = {
     bloom: true,
     lampLights: 6,
     antialias: true,
+    detailRadius: 520,
+    cars: 62,
+    peds: 130,
+    weatherFx: 1,
   },
   ultra: {
     label: 'Ultra',
@@ -57,5 +76,9 @@ export const QUALITY: Record<Quality, QualityPreset> = {
     bloom: true,
     lampLights: 8,
     antialias: true,
+    detailRadius: 720,
+    cars: 85,
+    peds: 180,
+    weatherFx: 1.5,
   },
 };

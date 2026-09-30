@@ -9,6 +9,8 @@ export interface InputFrame {
   lookX: number;
   lookY: number;
   zoom: number;
+  /** Tecla de acción (E / botón X del mando): entrar, usar, comprar. */
+  interact: boolean;
 }
 
 export class Input {
@@ -17,6 +19,8 @@ export class Input {
   private dy = 0;
   private wheel = 0;
   private jumpQueued = false;
+  private interactQueued = false;
+  private padInteract = false;
   enabled = true;
   private dragging = false;
 
@@ -38,6 +42,7 @@ export class Input {
       this.jumpQueued = true;
       e.preventDefault();
     }
+    if (e.code === 'KeyE' && !e.repeat) this.interactQueued = true;
   };
   private onKeyUp = (e: KeyboardEvent) => this.keys.delete(e.code);
   private onBlur = () => this.keys.clear();
@@ -71,6 +76,7 @@ export class Input {
       (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
     let run = k.has('ShiftLeft') || k.has('ShiftRight');
     let jump = this.jumpQueued;
+    let interact = this.interactQueued;
     let lookX = this.dx;
     let lookY = this.dy;
     const pad = navigator.getGamepads?.()[0];
@@ -82,16 +88,20 @@ export class Input {
       lookY += dead(pad.axes[3] ?? 0) * 10;
       run ||= !!pad.buttons[10]?.pressed || !!pad.buttons[5]?.pressed;
       jump ||= !!pad.buttons[0]?.pressed;
+      const x = !!pad.buttons[2]?.pressed;
+      interact ||= x && !this.padInteract;
+      this.padInteract = x;
     }
     const zoom = this.wheel;
     this.dx = this.dy = this.wheel = 0;
     this.jumpQueued = false;
+    this.interactQueued = false;
     const len = Math.hypot(moveX, moveZ);
     if (len > 1) {
       moveX /= len;
       moveZ /= len;
     }
-    return { moveX, moveZ, run, jump, lookX, lookY, zoom };
+    return { moveX, moveZ, run, jump, lookX, lookY, zoom, interact };
   }
 
   dispose(): void {

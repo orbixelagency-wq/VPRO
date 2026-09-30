@@ -368,3 +368,85 @@ export function makeTiles(seed: number): THREE.CanvasTexture {
   }
   return toTexture(c);
 }
+
+/** Sillería de piedra clara (neutra: el color real lo pone el color de vértice). 2 m × 2 m. */
+export function makeStone(seed: number): THREE.CanvasTexture {
+  const rng = Rng.fromSeed(seed, 'stone');
+  const [c, ctx] = canvas(256, 256);
+  ctx.fillStyle = '#d8d8d8';
+  ctx.fillRect(0, 0, 256, 256);
+  const rowH = 32;
+  for (let y = 0; y < 256; y += rowH) {
+    const off = (y / rowH) % 2 ? 40 : 0;
+    for (let x = -off; x < 256; x += 80) {
+      const v = Math.round(rng.range(-10, 10));
+      ctx.fillStyle = `rgb(${236 + v},${236 + v},${236 + v})`;
+      ctx.fillRect(x + 1, y + 1, 78, rowH - 2);
+    }
+  }
+  noise(ctx, 256, 256, rng, 2500, 0.05);
+  return toTexture(c);
+}
+
+/** Tarima de madera para interiores. 2 m × 2 m. */
+export function makePlanks(seed: number): THREE.CanvasTexture {
+  const rng = Rng.fromSeed(seed, 'planks');
+  const [c, ctx] = canvas(256, 256);
+  for (let x = 0; x < 256; x += 32) {
+    const v = Math.round(rng.range(-14, 14));
+    ctx.fillStyle = `rgb(${226 + v},${226 + v},${226 + v})`;
+    ctx.fillRect(x, 0, 32, 256);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(x, 0, 1, 256);
+    const cut = rng.range(0, 256);
+    ctx.fillRect(x, cut, 32, 1);
+  }
+  noise(ctx, 256, 256, rng, 1800, 0.06);
+  return toTexture(c);
+}
+
+/** Rótulo: texto centrado sobre fondo transparente. */
+export function makeSignTexture(
+  text: string,
+  aspect: number,
+  color = '#ffffff',
+): THREE.CanvasTexture {
+  const h = 128;
+  const w = Math.min(2048, Math.max(128, Math.round(h * aspect)));
+  const [c, ctx] = canvas(w, h);
+  ctx.clearRect(0, 0, w, h);
+  let size = h * 0.62;
+  ctx.font = `600 ${size}px Georgia, 'Times New Roman', serif`;
+  while (ctx.measureText(text).width > w * 0.92 && size > 10) {
+    size -= 2;
+    ctx.font = `600 ${size}px Georgia, 'Times New Roman', serif`;
+  }
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, w / 2, h / 2 + 2);
+  return toTexture(c, true, false);
+}
+
+/** Lienzo reutilizable para texturas dinámicas (reloj, panel de cotizaciones). */
+export function makeDynamicCanvas(
+  w: number,
+  h: number,
+): {
+  texture: THREE.CanvasTexture;
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+  w: number;
+  h: number;
+} {
+  const [c, ctx] = canvas(w, h);
+  return { texture: toTexture(c, true, false), ctx, w, h };
+}
+
+/** Paso de cebra: franjas blancas sobre transparente (4 m a lo largo de la calzada). */
+export function makeZebra(): THREE.CanvasTexture {
+  const [c, ctx] = canvas(128, 64);
+  ctx.clearRect(0, 0, 128, 64);
+  ctx.fillStyle = 'rgba(240,240,236,0.92)';
+  for (let x = 0; x < 128; x += 32) ctx.fillRect(x + 4, 2, 16, 60);
+  return toTexture(c);
+}

@@ -3,6 +3,7 @@
  */
 import RAPIER from '@dimforge/rapier3d-compat';
 import type { CityLayout } from '../world/cityGen';
+import type { Part } from '../world/landmarks';
 
 let ready: Promise<void> | null = null;
 
@@ -14,8 +15,15 @@ export function initPhysics(): Promise<void> {
 export interface PhysicsWorld {
   world: RAPIER.World;
   rapier: typeof RAPIER;
+  /** Añade las piezas sólidas (edificios singulares, interiores). */
+  addParts(parts: Part[]): void;
+  /** Cuerpos cinemáticos para los coches cercanos (el jugador choca con ellos). */
+  vehicles: RAPIER.RigidBody[];
   dispose(): void;
 }
+
+/** Coches con colisión física a la vez (los más cercanos al jugador). */
+export const VEHICLE_BODIES = 14;
 
 const SIDEWALK_H = 0.15;
 
@@ -79,5 +87,26 @@ export function buildPhysics(city: CityLayout): PhysicsWorld {
   // Muelle: una pared invisible impide caer al mar.
   for (let z = city.bounds.z0 - 400; z < city.bounds.z1 + 400; z += 200)
     box(city.coastX - 1, 2, z, 1, 4, 100);
-  return { world, rapier: RAPIER, dispose: () => world.free() };
+  const addParts = (parts: Part[]) => {
+    for (const p of parts) {
+      if (!p.solid) continue;
+      if (p.shape === 'cyl')
+        world.createCollider(
+          RAPIER.ColliderDesc.cylinder(p.h / 2, p.w / 2).setTranslation(p.x, p.y + p.h / 2, p.z),
+          fixed,
+        );
+      else box(p.x, p.y + p.h / 2, p.z, p.w / 2, p.h / 2, p.d / 2);
+    }
+  };
+  for (const l of city.landmarks) addParts(l.parts);
+  // Coches: cuerpos cinemáticos aparcados lejos hasta que se asignan a un vehículo cercano.
+  const vehicles: RAPIER.RigidBody[] = [];
+  for (let i = 0; i < VEHICLE_BODIES; i++) {
+    const body = world.createRigidBody(
+      RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0, -500 - i * 10, 0),
+    );
+    world.createCollider(RAPIER.ColliderDesc.cuboid(0.9, 0.75, 2.2), body);
+    vehicles.push(body);
+  }
+  return { world, rapier: RAPIER, addParts, vehicles, dispose: () => world.free() };
 }

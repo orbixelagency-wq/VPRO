@@ -1,11 +1,18 @@
 /**
- * Convierte el plano procedural en mallas de Three.js. Los edificios se fusionan por zona
- * de 400 m y estilo de fachada (pocas llamadas de dibujo y recorte por frustum); el mobiliario
- * urbano usa instancias.
+ * Convierte el plano procedural en mallas de Three.js con streaming por teselas:
+ * - Edificios: cada tesela de 200 m tiene una versión lejana ligera (siempre cargada, dos
+ *   materiales) y una detallada (todos los estilos de fachada, casetones, tejados a dos aguas)
+ *   que se construye poco a poco al acercarse y se libera al alejarse.
+ * - Mobiliario (farolas, árboles, bancos, fuentes): instancias por tesela de 400 m, ocultas
+ *   más allá de la distancia de detalle.
+ * - Calles, aceras, pasos de cebra, semáforos, mar y edificios singulares: estáticos.
  */
 import * as THREE from 'three/webgpu';
 import { Rng } from '../economy/rng';
-import { COAST_X, type Building, type CityLayout, type Rect } from './cityGen';
+import { COAST_X, type Building, type CityLayout } from './cityGen';
+import { addBox, flat, GeoBuilder, mergeGeos } from './geo';
+import { buildParts, PartMaterials, type PartsMesh } from './partsMesh';
+import { signalAt, type RoadGraph } from './roads';
 import {
   BAY_W,
   FACADE_BAYS,
@@ -18,95 +25,19 @@ import {
   makePaving,
   makeRoof,
   makeTiles,
+  makeZebra,
   type FacadeTextures,
 } from './textures';
 
-const TILE = 400;
+const TILE = 200;
+const PROP_TILE = 400;
 const SIDEWALK_H = 0.15;
-
-class GeoBuilder {
-  pos: number[] = [];
-  nor: number[] = [];
-  uv: number[] = [];
-  col: number[] = [];
-  idx: number[] = [];
-  groups: { start: number; count: number; material: number }[] = [];
-  private cur = -1;
-
-  setMaterial(m: number): void {
-    if (this.cur === m) return;
-    this.cur = m;
-    this.groups.push({ start: this.idx.length, count: 0, material: m });
-  }
-
-  /** Cuadrilátero a-b-c-d (antihorario visto desde fuera). */
-  quad(
-    a: number[],
-    b: number[],
-    c: number[],
-    dd: number[],
-    n: number[],
-    uvs: number[][],
-    color: THREE.Color,
-  ): void {
-    const base = this.pos.length / 3;
-    for (const [p, t] of [
-      [a, uvs[0]],
-      [b, uvs[1]],
-      [c, uvs[2]],
-      [dd, uvs[3]],
-    ] as const) {
-      this.pos.push(p[0]!, p[1]!, p[2]!);
-      this.nor.push(n[0]!, n[1]!, n[2]!);
-      this.uv.push(t![0]!, t![1]!);
-      this.col.push(color.r, color.g, color.b);
-    }
-    this.idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
-    this.groups[this.groups.length - 1]!.count += 6;
-  }
-
-  tri(
-    a: number[],
-    b: number[],
-    c: number[],
-    n: number[],
-    uvs: number[][],
-    color: THREE.Color,
-  ): void {
-    const base = this.pos.length / 3;
-    for (const [p, t] of [
-      [a, uvs[0]],
-      [b, uvs[1]],
-      [c, uvs[2]],
-    ] as const) {
-      this.pos.push(p[0]!, p[1]!, p[2]!);
-      this.nor.push(n[0]!, n[1]!, n[2]!);
-      this.uv.push(t![0]!, t![1]!);
-      this.col.push(color.r, color.g, color.b);
-    }
-    this.idx.push(base, base + 1, base + 2);
-    this.groups[this.groups.length - 1]!.count += 3;
-  }
-
-  build(): THREE.BufferGeometry {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(this.pos, 3));
-    g.setAttribute('normal', new THREE.Float32BufferAttribute(this.nor, 3));
-    g.setAttribute('uv', new THREE.Float32BufferAttribute(this.uv, 2));
-    g.setAttribute('color', new THREE.Float32BufferAttribute(this.col, 3));
-    g.setIndex(this.idx);
-    for (const gr of this.groups) if (gr.count > 0) g.addGroup(gr.start, gr.count, gr.material);
-    g.computeBoundingSphere();
-    g.computeBoundingBox();
-    return g;
-  }
-}
 
 const U_PERIOD = BAY_W * FACADE_BAYS;
 const V_PERIOD = FLOOR_H * FACADE_FLOORS;
 
 /** Material 0 = fachada, 1 = tejado plano, 2 = tejado de teja. */
-function addBuilding(gb: GeoBuilder, b: Building, rng: Rng, base: number): void {
+function addBuilding(gb: GeoBuilder, b: Building, rng: Rng, base: number, far = false): void {
   const x0 = b.x - b.w / 2;
   const x1 = b.x + b.w / 2;
   const z0 = b.z - b.d / 2;
@@ -141,6 +72,22 @@ function addBuilding(gb: GeoBuilder, b: Building, rng: Rng, base: number): void 
   wall(x1, z0, x0, z0, [0, 0, -1]);
   wall(x0, z0, x0, z1, [-1, 0, 0]);
   const roofColor = new THREE.Color().setHSL(0, 0, rng.range(0.55, 0.8));
+  if (far) {
+    // Versión lejana: sin tejados a dos aguas ni casetones.
+    // La tapa usa el mismo material que la fachada, muestreando un texel de pared (una sola
+    // llamada de dibujo por estilo y tesela).
+    const t = [0.002, 0.998];
+    gb.quad(
+      [x0, y1, z1],
+      [x1, y1, z1],
+      [x1, y1, z0],
+      [x0, y1, z0],
+      [0, 1, 0],
+      [t, t, t, t],
+      roofColor.multiplyScalar(0.8),
+    );
+    return;
+  }
   if (b.roof === 'plano') {
     gb.setMaterial(1);
     gb.quad(
@@ -288,117 +235,37 @@ function uvRect(a: number, b: number, c: number, dd: number): number[][] {
   ];
 }
 
-function addBox(
-  gb: GeoBuilder,
-  x0: number,
-  y0: number,
-  z0: number,
-  x1: number,
-  y1: number,
-  z1: number,
-  color: THREE.Color,
-  uvScale = 1,
-): void {
-  const u = (v: number) => v / uvScale;
-  gb.quad(
-    [x0, y0, z1],
-    [x1, y0, z1],
-    [x1, y1, z1],
-    [x0, y1, z1],
-    [0, 0, 1],
-    [
-      [u(x0), u(y0)],
-      [u(x1), u(y0)],
-      [u(x1), u(y1)],
-      [u(x0), u(y1)],
-    ],
-    color,
-  );
-  gb.quad(
-    [x1, y0, z1],
-    [x1, y0, z0],
-    [x1, y1, z0],
-    [x1, y1, z1],
-    [1, 0, 0],
-    [
-      [u(z1), u(y0)],
-      [u(z0), u(y0)],
-      [u(z0), u(y1)],
-      [u(z1), u(y1)],
-    ],
-    color,
-  );
-  gb.quad(
-    [x1, y0, z0],
-    [x0, y0, z0],
-    [x0, y1, z0],
-    [x1, y1, z0],
-    [0, 0, -1],
-    [
-      [u(x1), u(y0)],
-      [u(x0), u(y0)],
-      [u(x0), u(y1)],
-      [u(x1), u(y1)],
-    ],
-    color,
-  );
-  gb.quad(
-    [x0, y0, z0],
-    [x0, y0, z1],
-    [x0, y1, z1],
-    [x0, y1, z0],
-    [-1, 0, 0],
-    [
-      [u(z0), u(y0)],
-      [u(z1), u(y0)],
-      [u(z1), u(y1)],
-      [u(z0), u(y1)],
-    ],
-    color,
-  );
-  gb.quad(
-    [x0, y1, z1],
-    [x1, y1, z1],
-    [x1, y1, z0],
-    [x0, y1, z0],
-    [0, 1, 0],
-    [
-      [u(x0), u(z1)],
-      [u(x1), u(z1)],
-      [u(x1), u(z0)],
-      [u(x0), u(z0)],
-    ],
-    color,
-  );
-}
-
-function flat(gb: GeoBuilder, r: Rect, y: number, uvScale: number, color: THREE.Color): void {
-  gb.quad(
-    [r.x0, y, r.z1],
-    [r.x1, y, r.z1],
-    [r.x1, y, r.z0],
-    [r.x0, y, r.z0],
-    [0, 1, 0],
-    [
-      [r.x0 / uvScale, r.z1 / uvScale],
-      [r.x1 / uvScale, r.z1 / uvScale],
-      [r.x1 / uvScale, r.z0 / uvScale],
-      [r.x0 / uvScale, r.z0 / uvScale],
-    ],
-    color,
-  );
-}
-
 export interface CityMeshes {
   group: THREE.Group;
   facades: THREE.MeshStandardMaterial[];
-  lampHeads: THREE.InstancedMesh;
+  /** Material de los cabezales de farola (su brillo lo controla el entorno). */
+  lampHeadMaterial: THREE.MeshStandardMaterial;
   lampPositions: THREE.Vector3[];
   water: THREE.Mesh;
+  /** Materiales de asfalto y acera (el entorno los moja cuando llueve). */
+  groundMaterials: THREE.MeshStandardMaterial[];
+  partMaterials: PartMaterials;
+  landmarks: PartsMesh;
+  /** Streaming: carga y libera teselas según la posición del jugador. */
+  update(focus: THREE.Vector3, timeSec: number): void;
+  setDetailRadius(r: number): void;
+  streamStats(): { near: number; pending: number; propTiles: number };
   dispose(): void;
 }
 
-export function buildCityMeshes(city: CityLayout): CityMeshes {
+interface Chunk {
+  key: string;
+  cx: number;
+  cz: number;
+  buildings: { b: Building; index: number }[];
+  far: THREE.Mesh | null;
+  near: THREE.Group | null;
+}
+
+/** Estilos de fachada que se agrupan en la versión lejana: cristal y resto. */
+const FAR_STYLE = [1, 1, 1, 3, 3, 1, 1, 1];
+
+export function buildCityMeshes(city: CityLayout, graph: RoadGraph): CityMeshes {
   const rng = Rng.fromSeed(city.seed, 'citymesh');
   const group = new THREE.Group();
   group.name = 'ciudad';
@@ -457,26 +324,82 @@ export function buildCityMeshes(city: CityLayout): CityMeshes {
     new THREE.MeshStandardMaterial({ map: track(makeGrass(city.seed, true)), roughness: 1 }),
   );
 
-  // --- Edificios: una malla por zona de 400 m y estilo de fachada ---
-  const chunks = new Map<string, GeoBuilder>();
-  for (const b of city.buildings) {
-    const key = `${Math.floor(b.x / TILE)},${Math.floor(b.z / TILE)},${b.facade}`;
-    let gb = chunks.get(key);
-    if (!gb) {
-      gb = new GeoBuilder();
-      chunks.set(key, gb);
+  // --- Edificios en teselas ---
+  const chunks = new Map<string, Chunk>();
+  city.buildings.forEach((b, index) => {
+    const cx = Math.floor(b.x / TILE);
+    const cz = Math.floor(b.z / TILE);
+    const key = `${cx},${cz}`;
+    let c = chunks.get(key);
+    if (!c) {
+      c = { key, cx, cz, buildings: [], far: null, near: null };
+      chunks.set(key, c);
     }
-    addBuilding(gb, b, rng, SIDEWALK_H);
-  }
-  for (const [key, gb] of chunks) {
-    const facade = Number(key.split(',')[2]);
-    const geo = track(gb.build());
-    const mesh = new THREE.Mesh(geo, [facades[facade]!, roofMat, tileMat]);
-    mesh.castShadow = true;
+    c.buildings.push({ b, index });
+  });
+  const bRng = (index: number) => Rng.fromSeed(city.seed, `b${index}`);
+  for (const c of chunks.values()) {
+    const gb = new GeoBuilder();
+    const groups = new Map<number, GeoBuilder>();
+    for (const { b, index } of c.buildings) {
+      const style = FAR_STYLE[b.facade] ?? 1;
+      let g = groups.get(style);
+      if (!g) {
+        g = new GeoBuilder();
+        groups.set(style, g);
+      }
+      addBuilding(g, b, bRng(index), SIDEWALK_H, true);
+    }
+    // Una malla por tesela con un grupo por estilo lejano.
+    const mats: THREE.Material[] = [];
+    for (const [style, g] of groups) {
+      const base = mats.length;
+      mats.push(facades[style]!);
+      for (const gr of g.groups) {
+        gb.setMaterial(base + gr.material);
+        const offset = gb.pos.length / 3;
+        for (let k = gr.start; k < gr.start + gr.count; k++) gb.idx.push(g.idx[k]! + offset);
+        gb.groups[gb.groups.length - 1]!.count += gr.count;
+      }
+      // Copia de los atributos después de reindexar.
+      gb.pos.push(...g.pos);
+      gb.nor.push(...g.nor);
+      gb.uv.push(...g.uv);
+      gb.col.push(...g.col);
+    }
+    const mesh = new THREE.Mesh(track(gb.build()), mats);
+    mesh.name = `edificios lejanos ${c.key}`;
     mesh.receiveShadow = true;
-    mesh.name = `edificios ${key}`;
+    c.far = mesh;
     group.add(mesh);
   }
+
+  const buildNear = (c: Chunk): THREE.Group => {
+    const g = new THREE.Group();
+    g.name = `edificios ${c.key}`;
+    const byStyle = new Map<number, GeoBuilder>();
+    for (const { b, index } of c.buildings) {
+      let gb = byStyle.get(b.facade);
+      if (!gb) {
+        gb = new GeoBuilder();
+        byStyle.set(b.facade, gb);
+      }
+      addBuilding(gb, b, bRng(index), SIDEWALK_H);
+    }
+    for (const [style, gb] of byStyle) {
+      const mesh = new THREE.Mesh(gb.build(), [facades[style]!, roofMat, tileMat]);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      g.add(mesh);
+    }
+    return g;
+  };
+  const freeNear = (c: Chunk) => {
+    if (!c.near) return;
+    group.remove(c.near);
+    for (const m of c.near.children) (m as THREE.Mesh).geometry.dispose();
+    c.near = null;
+  };
 
   // --- Calles ---
   for (const avenue of [true, false]) {
@@ -526,6 +449,136 @@ export function buildCityMeshes(city: CityLayout): CityMeshes {
     mesh.name = avenue ? 'avenidas' : 'calles';
     group.add(mesh);
   }
+
+  // --- Pasos de cebra junto a cada cruce ---
+  {
+    const gb = new GeoBuilder();
+    gb.setMaterial(0);
+    const white = new THREE.Color('#ffffff');
+    const { xs, zs } = city.grid;
+    for (const n of graph.nodes) {
+      const xl = xs[n.i]!;
+      const zl = zs[n.j]!;
+      const y = 0.035;
+      // Cruzan la calle norte-sur (xl) por encima y por debajo del cruce, y la este-oeste (zl).
+      for (const s of [-1, 1]) {
+        const z0 = n.z + s * (zl.width / 2 + 0.3);
+        const z1 = n.z + s * (zl.width / 2 + 3.3);
+        const a = Math.min(z0, z1);
+        const b = Math.max(z0, z1);
+        gb.quad(
+          [n.x - xl.width / 2, y, b],
+          [n.x + xl.width / 2, y, b],
+          [n.x + xl.width / 2, y, a],
+          [n.x - xl.width / 2, y, a],
+          [0, 1, 0],
+          [
+            [0, 0],
+            [xl.width / 4, 0],
+            [xl.width / 4, 1],
+            [0, 1],
+          ],
+          white,
+        );
+        const x0 = n.x + s * (xl.width / 2 + 0.3);
+        const x1 = n.x + s * (xl.width / 2 + 3.3);
+        const l = Math.min(x0, x1);
+        const r = Math.max(x0, x1);
+        gb.quad(
+          [l, y, n.z + zl.width / 2],
+          [r, y, n.z + zl.width / 2],
+          [r, y, n.z - zl.width / 2],
+          [l, y, n.z - zl.width / 2],
+          [0, 1, 0],
+          [
+            [0, 0],
+            [0, 1],
+            [zl.width / 4, 1],
+            [zl.width / 4, 0],
+          ],
+          white,
+        );
+      }
+    }
+    const zebra = new THREE.Mesh(
+      track(gb.build()),
+      track(
+        new THREE.MeshStandardMaterial({
+          map: track(makeZebra()),
+          transparent: true,
+          roughness: 0.7,
+          depthWrite: false,
+        }),
+      ),
+    );
+    zebra.receiveShadow = true;
+    zebra.name = 'pasos de cebra';
+    zebra.renderOrder = 1;
+    group.add(zebra);
+  }
+
+  // --- Semáforos: un poste en cada esquina con un foco por eje ---
+  const blockAt = new Map<string, (typeof city.blocks)[number]>();
+  for (const b of city.blocks) blockAt.set(`${b.gi},${b.gj}`, b);
+  const poles: { x: number; z: number; node: number }[] = [];
+  for (const n of graph.nodes) {
+    const corners: [number, number, 'x0' | 'x1', 'z0' | 'z1', number, number][] = [
+      [n.i, n.j, 'x0', 'z0', 0.7, 0.7],
+      [n.i - 1, n.j, 'x1', 'z0', -0.7, 0.7],
+      [n.i, n.j - 1, 'x0', 'z1', 0.7, -0.7],
+      [n.i - 1, n.j - 1, 'x1', 'z1', -0.7, -0.7],
+    ];
+    for (const [gi, gj, kx, kz, ox, oz] of corners) {
+      const b = blockAt.get(`${gi},${gj}`);
+      if (b) poles.push({ x: b.rect[kx] + ox, z: b.rect[kz] + oz, node: n.id });
+    }
+  }
+  const signalPole = new THREE.InstancedMesh(
+    track(
+      mergeGeos([
+        new THREE.CylinderGeometry(0.08, 0.1, 3.6, 8).translate(0, 1.8, 0),
+        new THREE.BoxGeometry(0.34, 0.95, 0.3).translate(0, 3.3, 0.22),
+        new THREE.BoxGeometry(0.3, 0.95, 0.34).translate(0.22, 3.3, 0),
+      ]),
+    ),
+    track(new THREE.MeshStandardMaterial({ color: '#2d3136', roughness: 0.5, metalness: 0.5 })),
+    poles.length,
+  );
+  // Dos focos por poste: uno para el tráfico este-oeste (mira a z) y otro para el norte-sur.
+  const signalHead = new THREE.InstancedMesh(
+    track(new THREE.SphereGeometry(0.13, 8, 6)),
+    track(new THREE.MeshBasicMaterial({ color: '#ffffff' })),
+    poles.length * 2,
+  );
+  {
+    const m4 = new THREE.Matrix4();
+    poles.forEach((p, i) => {
+      m4.makeTranslation(p.x, SIDEWALK_H, p.z);
+      signalPole.setMatrixAt(i, m4);
+      m4.makeTranslation(p.x, SIDEWALK_H + 3.4, p.z + 0.38);
+      signalHead.setMatrixAt(i * 2, m4);
+      m4.makeTranslation(p.x + 0.38, SIDEWALK_H + 3.4, p.z);
+      signalHead.setMatrixAt(i * 2 + 1, m4);
+    });
+    signalPole.castShadow = true;
+    signalPole.computeBoundingSphere();
+    signalHead.computeBoundingSphere();
+    group.add(signalPole, signalHead);
+  }
+  const SIGNAL_COLORS = {
+    green: new THREE.Color('#2bff7a'),
+    amber: new THREE.Color('#ffb21a'),
+    red: new THREE.Color('#ff2d1f'),
+  };
+  const updateSignals = (focus: THREE.Vector3, timeSec: number) => {
+    poles.forEach((p, i) => {
+      if (Math.abs(p.x - focus.x) > 350 || Math.abs(p.z - focus.z) > 350) return;
+      const node = graph.nodes[p.node]!;
+      signalHead.setColorAt(i * 2, SIGNAL_COLORS[signalAt(node, 'x', timeSec)]);
+      signalHead.setColorAt(i * 2 + 1, SIGNAL_COLORS[signalAt(node, 'z', timeSec)]);
+    });
+    if (signalHead.instanceColor) signalHead.instanceColor.needsUpdate = true;
+  };
 
   // --- Aceras (con bordillo) y suelo de cada manzana ---
   const walk = new GeoBuilder();
@@ -589,11 +642,16 @@ export function buildCityMeshes(city: CityLayout): CityMeshes {
   water.name = 'mar';
   group.add(water);
 
-  // --- Mobiliario urbano instanciado ---
-  const lamps = city.props.filter((p) => p.kind === 'farola');
-  const trees = city.props.filter((p) => p.kind === 'arbol');
-  const benches = city.props.filter((p) => p.kind === 'banco');
-  const fountains = city.props.filter((p) => p.kind === 'fuente');
+  // --- Edificios singulares ---
+  const partMaterials = new PartMaterials(city.seed, facades);
+  const landmarks = buildParts(
+    city.landmarks.flatMap((l) => l.parts),
+    partMaterials,
+    'edificios singulares',
+  );
+  group.add(landmarks.group);
+
+  // --- Mobiliario urbano instanciado, por teselas de 400 m ---
   const m4 = new THREE.Matrix4();
   const q = new THREE.Quaternion();
   const up = new THREE.Vector3(0, 1, 0);
@@ -611,74 +669,30 @@ export function buildCityMeshes(city: CityLayout): CityMeshes {
     m4.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(s, sy, s));
     mesh.setMatrixAt(i, m4);
   };
-
   const poleGeo = track(
     mergeGeos([
       new THREE.CylinderGeometry(0.07, 0.1, 6, 8).translate(0, 3, 0),
       new THREE.BoxGeometry(1.5, 0.08, 0.08).translate(0.7, 5.95, 0),
     ]),
   );
-  const pole = new THREE.InstancedMesh(
-    poleGeo,
-    track(new THREE.MeshStandardMaterial({ color: '#3c4146', roughness: 0.5, metalness: 0.6 })),
-    lamps.length,
+  const poleMat = track(
+    new THREE.MeshStandardMaterial({ color: '#3c4146', roughness: 0.5, metalness: 0.6 }),
   );
   const headGeo = track(new THREE.BoxGeometry(0.55, 0.14, 0.3).translate(1.35, 5.86, 0));
-  const lampHeads = new THREE.InstancedMesh(
-    headGeo,
-    track(
-      new THREE.MeshStandardMaterial({
-        color: '#dfe3e6',
-        emissive: new THREE.Color('#ffcf8a'),
-        emissiveIntensity: 0,
-        roughness: 0.3,
-      }),
-    ),
-    lamps.length,
+  const lampHeadMaterial = track(
+    new THREE.MeshStandardMaterial({
+      color: '#dfe3e6',
+      emissive: new THREE.Color('#ffcf8a'),
+      emissiveIntensity: 0,
+      roughness: 0.3,
+    }),
   );
-  const lampPositions: THREE.Vector3[] = [];
-  lamps.forEach((l, i) => {
-    place(pole, i, l.x, SIDEWALK_H, l.z, l.rot, 1);
-    place(lampHeads, i, l.x, SIDEWALK_H, l.z, l.rot, 1);
-    lampPositions.push(
-      new THREE.Vector3(l.x + Math.cos(-l.rot) * 1.35, 5.7, l.z + Math.sin(-l.rot) * 1.35),
-    );
-  });
-  pole.castShadow = true;
-  group.add(pole, lampHeads);
-
-  const trunk = new THREE.InstancedMesh(
-    track(new THREE.CylinderGeometry(0.14, 0.22, 3.2, 6).translate(0, 1.6, 0)),
-    track(new THREE.MeshStandardMaterial({ color: '#5a4636', roughness: 1 })),
-    trees.length,
-  );
+  const trunkGeo = track(new THREE.CylinderGeometry(0.14, 0.22, 3.2, 6).translate(0, 1.6, 0));
+  const trunkMat = track(new THREE.MeshStandardMaterial({ color: '#5a4636', roughness: 1 }));
   const canopyGeo = track(new THREE.IcosahedronGeometry(2.2, 1).translate(0, 4.4, 0));
-  const canopy = new THREE.InstancedMesh(
-    canopyGeo,
-    track(new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.95, flatShading: true })),
-    trees.length,
+  const canopyMat = track(
+    new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.95, flatShading: true }),
   );
-  const leaf = new THREE.Color();
-  trees.forEach((t, i) => {
-    const s = t.scale;
-    place(trunk, i, t.x, SIDEWALK_H, t.z, rng.range(0, 6), s);
-    place(
-      canopy,
-      i,
-      t.x,
-      SIDEWALK_H,
-      t.z,
-      rng.range(0, 6),
-      s * rng.range(0.85, 1.15),
-      s * rng.range(0.8, 1.2),
-    );
-    leaf.setHSL(rng.range(0.22, 0.32), rng.range(0.35, 0.55), rng.range(0.22, 0.34));
-    canopy.setColorAt(i, leaf);
-  });
-  trunk.castShadow = canopy.castShadow = true;
-  canopy.receiveShadow = true;
-  group.add(trunk, canopy);
-
   const benchGeo = track(
     mergeGeos([
       new THREE.BoxGeometry(1.8, 0.08, 0.5).translate(0, 0.45, 0),
@@ -687,15 +701,7 @@ export function buildCityMeshes(city: CityLayout): CityMeshes {
       new THREE.BoxGeometry(0.08, 0.45, 0.45).translate(0.8, 0.22, 0),
     ]),
   );
-  const bench = new THREE.InstancedMesh(
-    benchGeo,
-    track(new THREE.MeshStandardMaterial({ color: '#7a5a3c', roughness: 0.8 })),
-    benches.length,
-  );
-  benches.forEach((b, i) => place(bench, i, b.x, SIDEWALK_H, b.z, b.rot, 1));
-  bench.castShadow = true;
-  group.add(bench);
-
+  const benchMat = track(new THREE.MeshStandardMaterial({ color: '#7a5a3c', roughness: 0.8 }));
   const basinGeo = track(
     mergeGeos([
       new THREE.CylinderGeometry(4, 4.2, 0.6, 32).translate(0, 0.3, 0),
@@ -703,58 +709,151 @@ export function buildCityMeshes(city: CityLayout): CityMeshes {
       new THREE.CylinderGeometry(1.2, 0.3, 0.3, 16).translate(0, 2.4, 0),
     ]),
   );
-  const basin = new THREE.InstancedMesh(
-    basinGeo,
-    track(new THREE.MeshStandardMaterial({ color: '#d8d2c6', roughness: 0.7 })),
-    fountains.length,
-  );
-  fountains.forEach((f, i) => place(basin, i, f.x, SIDEWALK_H, f.z, 0, 1));
-  basin.castShadow = basin.receiveShadow = true;
-  group.add(basin);
+  const basinMat = track(new THREE.MeshStandardMaterial({ color: '#d8d2c6', roughness: 0.7 }));
 
-  for (const im of [pole, lampHeads, trunk, canopy, bench, basin]) {
-    im.instanceMatrix.needsUpdate = true;
-    im.computeBoundingSphere();
+  const lampPositions: THREE.Vector3[] = [];
+  const propTiles = new Map<string, { group: THREE.Group; cx: number; cz: number }>();
+  const byTile = new Map<string, typeof city.props>();
+  for (const p of city.props) {
+    const key = `${Math.floor(p.x / PROP_TILE)},${Math.floor(p.z / PROP_TILE)}`;
+    const list = byTile.get(key) ?? [];
+    list.push(p);
+    byTile.set(key, list);
   }
+  for (const [key, props] of byTile) {
+    const [cx, cz] = key.split(',').map(Number) as [number, number];
+    const g = new THREE.Group();
+    g.name = `mobiliario ${key}`;
+    const lamps = props.filter((p) => p.kind === 'farola');
+    const trees = props.filter((p) => p.kind === 'arbol');
+    const benches = props.filter((p) => p.kind === 'banco');
+    const fountains = props.filter((p) => p.kind === 'fuente');
+    const made: THREE.InstancedMesh[] = [];
+    if (lamps.length) {
+      const pole = new THREE.InstancedMesh(poleGeo, poleMat, lamps.length);
+      const head = new THREE.InstancedMesh(headGeo, lampHeadMaterial, lamps.length);
+      lamps.forEach((l, i) => {
+        place(pole, i, l.x, SIDEWALK_H, l.z, l.rot, 1);
+        place(head, i, l.x, SIDEWALK_H, l.z, l.rot, 1);
+        lampPositions.push(
+          new THREE.Vector3(l.x + Math.cos(-l.rot) * 1.35, 5.7, l.z + Math.sin(-l.rot) * 1.35),
+        );
+      });
+      pole.castShadow = true;
+      made.push(pole, head);
+    }
+    if (trees.length) {
+      const trunk = new THREE.InstancedMesh(trunkGeo, trunkMat, trees.length);
+      const canopy = new THREE.InstancedMesh(canopyGeo, canopyMat, trees.length);
+      const leaf = new THREE.Color();
+      trees.forEach((t, i) => {
+        const s = t.scale;
+        place(trunk, i, t.x, SIDEWALK_H, t.z, rng.range(0, 6), s);
+        place(
+          canopy,
+          i,
+          t.x,
+          SIDEWALK_H,
+          t.z,
+          rng.range(0, 6),
+          s * rng.range(0.85, 1.15),
+          s * rng.range(0.8, 1.2),
+        );
+        leaf.setHSL(rng.range(0.22, 0.32), rng.range(0.35, 0.55), rng.range(0.22, 0.34));
+        canopy.setColorAt(i, leaf);
+      });
+      trunk.castShadow = canopy.castShadow = true;
+      canopy.receiveShadow = true;
+      made.push(trunk, canopy);
+    }
+    if (benches.length) {
+      const bench = new THREE.InstancedMesh(benchGeo, benchMat, benches.length);
+      benches.forEach((b, i) => place(bench, i, b.x, SIDEWALK_H, b.z, b.rot, 1));
+      bench.castShadow = true;
+      made.push(bench);
+    }
+    if (fountains.length) {
+      const basin = new THREE.InstancedMesh(basinGeo, basinMat, fountains.length);
+      fountains.forEach((f, i) => place(basin, i, f.x, SIDEWALK_H, f.z, 0, 1));
+      basin.castShadow = basin.receiveShadow = true;
+      made.push(basin);
+    }
+    for (const im of made) {
+      im.instanceMatrix.needsUpdate = true;
+      im.computeBoundingSphere();
+      g.add(im);
+      disposables.push(im);
+    }
+    group.add(g);
+    propTiles.set(key, { group: g, cx, cz });
+  }
+
+  // --- Streaming ---
+  let detailRadius = 450;
+  const pending: Chunk[] = [];
+  let lastStream = -1;
+  const update = (focus: THREE.Vector3, timeSec: number) => {
+    // Construye como mucho una tesela detallada por fotograma.
+    const next = pending.shift();
+    if (next && !next.near) {
+      next.near = buildNear(next);
+      group.add(next.near);
+      if (next.far) next.far.visible = false;
+    }
+    if (timeSec - lastStream < 0.4 && lastStream >= 0) return;
+    lastStream = timeSec;
+    updateSignals(focus, timeSec);
+    for (const c of chunks.values()) {
+      const dx = (c.cx + 0.5) * TILE - focus.x;
+      const dz = (c.cz + 0.5) * TILE - focus.z;
+      const d = Math.hypot(dx, dz);
+      if (d < detailRadius) {
+        if (!c.near && !pending.includes(c)) pending.push(c);
+      } else if (d > detailRadius + 150 && c.near) {
+        freeNear(c);
+        if (c.far) c.far.visible = true;
+      }
+    }
+    // Primero lo más cercano.
+    pending.sort(
+      (a, b) =>
+        Math.hypot((a.cx + 0.5) * TILE - focus.x, (a.cz + 0.5) * TILE - focus.z) -
+        Math.hypot((b.cx + 0.5) * TILE - focus.x, (b.cz + 0.5) * TILE - focus.z),
+    );
+    const propR = Math.max(260, detailRadius * 0.9);
+    for (const t of propTiles.values()) {
+      const dx = Math.max(0, Math.abs((t.cx + 0.5) * PROP_TILE - focus.x) - PROP_TILE / 2);
+      const dz = Math.max(0, Math.abs((t.cz + 0.5) * PROP_TILE - focus.z) - PROP_TILE / 2);
+      t.group.visible = Math.hypot(dx, dz) < propR;
+    }
+  };
 
   return {
     group,
     facades,
-    lampHeads,
+    lampHeadMaterial,
     lampPositions,
     water,
+    groundMaterials: [avenueMat, streetMat, pavingMat],
+    partMaterials,
+    landmarks,
+    update,
+    setDetailRadius(r: number) {
+      detailRadius = r;
+      lastStream = -1;
+    },
+    streamStats() {
+      let near = 0;
+      for (const c of chunks.values()) if (c.near) near++;
+      let props = 0;
+      for (const t of propTiles.values()) if (t.group.visible) props++;
+      return { near, pending: pending.length, propTiles: props };
+    },
     dispose() {
+      for (const c of chunks.values()) freeNear(c);
+      landmarks.dispose();
+      partMaterials.dispose();
       for (const d of disposables) d.dispose();
     },
   };
-}
-
-/** Fusiona geometrías no indexadas o indexadas sencillas (sin dependencias externas). */
-function mergeGeos(geos: THREE.BufferGeometry[]): THREE.BufferGeometry {
-  const gb = new GeoBuilder();
-  gb.setMaterial(0);
-  const white = new THREE.Color('#ffffff');
-  for (const g0 of geos) {
-    const g = g0.index ? g0.toNonIndexed() : g0;
-    const p = g.getAttribute('position');
-    const n = g.getAttribute('normal');
-    const uv = g.getAttribute('uv');
-    for (let i = 0; i < p.count; i += 3) {
-      const pt = (k: number) => [p.getX(i + k), p.getY(i + k), p.getZ(i + k)];
-      const uvp = (k: number) => (uv ? [uv.getX(i + k), uv.getY(i + k)] : [0, 0]);
-      gb.tri(
-        pt(0),
-        pt(1),
-        pt(2),
-        [n.getX(i), n.getY(i), n.getZ(i)],
-        [uvp(0), uvp(1), uvp(2)],
-        white,
-      );
-    }
-    g0.dispose();
-  }
-  const out = gb.build();
-  // La normal por cara es suficiente para objetos pequeños; se recalcula por vértice.
-  out.computeVertexNormals();
-  return out;
 }

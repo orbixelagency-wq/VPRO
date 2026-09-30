@@ -21,6 +21,11 @@ export class ThirdPersonCamera {
     private exclude: RAPIER.Collider,
   ) {}
 
+  /** Coloca la cámara sin suavizado (tras un teletransporte). */
+  snap(): void {
+    this.initialized = false;
+  }
+
   update(dt: number, input: InputFrame, target: THREE.Vector3, invertY = false): void {
     this.yaw -= input.lookX * this.sensitivity;
     this.pitch += input.lookY * this.sensitivity * (invertY ? -1 : 1);
