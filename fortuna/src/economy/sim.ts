@@ -61,6 +61,8 @@ export function newGame(opts: NewGameOptions): SimState {
   const state = createWorld(opts.seed, { ...DEFAULT_SETTINGS, ...opts.settings });
   // Año de historia previa (sin jugador) para que haya gráficos y noticias.
   while (state.tick < GAME_START_TICK) step(state);
+  // La vida del jugador empieza a las 10 de la mañana del 1 de enero.
+  while (dateFromTick(state.tick).hour < 10) step(state);
   state.outbox = [];
   state.news = state.news.slice(-40);
   state.player = createPlayer(opts.playerName ?? 'Jugador');

@@ -4,8 +4,9 @@ import type { NewGameOptions } from '../economy/sim';
 import type { SimEvent } from '../economy/types';
 import type { SimView } from '../economy/view';
 import { AUTOSAVE_SLOT, writeSave } from '../save/saveStore';
+import { applyUiSettings, loadUiSettings, saveUiSettings, type UiSettings } from './settings';
 
-export type Screen = 'boot' | 'setup' | 'loading' | 'console';
+export type Screen = 'boot' | 'setup' | 'loading' | 'game';
 export type Tab = 'explore' | 'stocks' | 'bonds' | 'bank' | 'portfolio' | 'macro';
 
 export interface Toast {
@@ -27,6 +28,11 @@ interface UiState {
   /** Qué ficha muestra la columna derecha. */
   focus: 'company' | 'instrument';
   quizOpen: boolean;
+  /** La terminal del inversor abierta sobre la ciudad. */
+  terminalOpen: boolean;
+  /** El mundo 3D no pudo arrancar (sin WebGPU ni WebGL2): se juega desde la terminal. */
+  worldFailed: boolean;
+  settings: UiSettings;
   debug: boolean;
   notebookOpen: boolean;
   notebookFocus: string | null;
@@ -41,6 +47,8 @@ interface UiState {
   select(id: string | null): void;
   selectInstrument(id: string | null): void;
   setQuizOpen(open: boolean): void;
+  setTerminal(open: boolean): void;
+  setSettings(patch: Partial<UiSettings>): void;
   toggleDebug(): void;
   openNotebook(focus?: string | null): void;
   closeNotebook(): void;
@@ -57,7 +65,7 @@ export function getClient(): SimClient {
   return client;
 }
 
-const SPEED_VALUES = [0, 1, 6, 24, 24 * 7, 24 * 30];
+export const SPEED_VALUES = [0, 1, 6, 24, 24 * 7, 24 * 30];
 export const SPEED_LABELS = ['Pausa', '1 h/s', '6 h/s', '1 día/s', '1 sem/s', '1 mes/s'];
 
 function toastFromEvent(e: SimEvent): Omit<Toast, 'id' | 'at'> | null {
@@ -84,7 +92,13 @@ export const useGame = create<UiState>((set, get) => {
     if (client) return client;
     client = new SimClient({
       onReady: (view) => {
-        set({ view, screen: 'console', selected: view.selected?.id ?? null, speedIndex: 0 });
+        set({
+          view,
+          screen: 'game',
+          terminalOpen: false,
+          selected: view.selected?.id ?? null,
+          speedIndex: 0,
+        });
       },
       onView: (view, events) => {
         set({ view });
@@ -118,6 +132,9 @@ export const useGame = create<UiState>((set, get) => {
     selectedInstrument: null,
     focus: 'company',
     quizOpen: false,
+    terminalOpen: false,
+    worldFailed: false,
+    settings: loadUiSettings(),
     debug: false,
     notebookOpen: false,
     notebookFocus: null,
@@ -147,6 +164,13 @@ export const useGame = create<UiState>((set, get) => {
       ensureClient().send({ type: 'selectInstrument', id });
     },
     setQuizOpen: (quizOpen) => set({ quizOpen }),
+    setTerminal: (terminalOpen) => set({ terminalOpen }),
+    setSettings: (patch) => {
+      const settings = { ...get().settings, ...patch };
+      saveUiSettings(settings);
+      applyUiSettings(settings);
+      set({ settings });
+    },
     toggleDebug: () => {
       const debug = !get().debug;
       set({ debug });

@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react';
-import { applyUiSettings, loadUiSettings, saveUiSettings, type UiSettings } from '../settings';
+import { useEffect } from 'react';
+import { QUALITY, type Quality } from '../../engine/quality';
+import { useGame } from '../store';
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
-  const [s, setS] = useState<UiSettings>(loadUiSettings);
-  useEffect(() => {
-    applyUiSettings(s);
-    saveUiSettings(s);
-  }, [s]);
+  const s = useGame((st) => st.settings);
+  const set = useGame((st) => st.setSettings);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
@@ -28,6 +26,64 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         <div className="panel-body settings-body">
+          <div className="eyebrow">Gráficos</div>
+          <div className="setting">
+            <span>
+              <b>Calidad</b>
+              <small className="muted">
+                Sombras, distancia de dibujado, resolución máxima y efectos
+              </small>
+            </span>
+            <div className="tabs small-tabs">
+              {(Object.keys(QUALITY) as Quality[]).map((q) => (
+                <button
+                  key={q}
+                  className={`tab ${s.quality === q ? 'active' : ''}`}
+                  onClick={() => set({ quality: q })}
+                >
+                  {QUALITY[q].label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <label className="setting">
+            <span>
+              <b>Forzar WebGL2</b>
+              <small className="muted">
+                Si tu navegador tiene problemas con WebGPU (se aplica en la próxima partida)
+              </small>
+            </span>
+            <input
+              type="checkbox"
+              checked={s.forceWebGL}
+              onChange={(e) => set({ forceWebGL: e.target.checked })}
+            />
+          </label>
+          <label className="setting">
+            <span>
+              <b>Panel de rendimiento</b>
+              <small className="muted">
+                FPS, milisegundos, llamadas de dibujo y resolución (F3)
+              </small>
+            </span>
+            <input
+              type="checkbox"
+              checked={s.showStats}
+              onChange={(e) => set({ showStats: e.target.checked })}
+            />
+          </label>
+          <div className="eyebrow">Controles</div>
+          <label className="setting">
+            <span>
+              <b>Invertir eje vertical de la cámara</b>
+            </span>
+            <input
+              type="checkbox"
+              checked={s.invertY}
+              onChange={(e) => set({ invertY: e.target.checked })}
+            />
+          </label>
+          <div className="eyebrow">Accesibilidad</div>
           <label className="setting">
             <span>
               <b>Tamaño del texto</b>
@@ -39,7 +95,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               max={1.35}
               step={0.05}
               value={s.textScale}
-              onChange={(e) => setS({ ...s, textScale: Number(e.target.value) })}
+              onChange={(e) => set({ textScale: Number(e.target.value) })}
             />
             <span className="mono">{Math.round(s.textScale * 100)} %</span>
           </label>
@@ -51,12 +107,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
             <input
               type="checkbox"
               checked={s.colorblind}
-              onChange={(e) => setS({ ...s, colorblind: e.target.checked })}
+              onChange={(e) => set({ colorblind: e.target.checked })}
             />
           </label>
-          <p className="muted small">
-            Gráficos, audio, controles y más idiomas llegarán con el mundo 3D (fases 3–11).
-          </p>
         </div>
       </div>
     </div>

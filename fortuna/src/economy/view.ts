@@ -146,6 +146,7 @@ export interface HoldingRow {
 }
 
 export interface SimView {
+  seed: number;
   tick: number;
   gameDay: number;
   date: string;
@@ -423,6 +424,7 @@ export function buildView(state: SimState, opts: ViewOptions = {}): SimView {
   }
 
   return {
+    seed: state.seed,
     tick: state.tick,
     gameDay: Math.max(0, Math.floor((state.tick - GAME_START_TICK) / 24)),
     date: formatDate(state.tick),

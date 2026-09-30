@@ -11,6 +11,8 @@ export function TopBar() {
   const debug = useGame((s) => s.debug);
   const setScreen = useGame((s) => s.setScreen);
   const lastSavedAt = useGame((s) => s.lastSavedAt);
+  const worldFailed = useGame((s) => s.worldFailed);
+  const setTerminal = useGame((s) => s.setTerminal);
   const hist = view.player.netWorthHistory;
   const dayChange = hist.length > 1 ? view.player.netWorth - hist[hist.length - 2]! : 0;
 
@@ -61,6 +63,15 @@ export function TopBar() {
       </div>
 
       <div className="topbar-right">
+        {!worldFailed && (
+          <button
+            className="btn sm gold"
+            onClick={() => setTerminal(false)}
+            title="Volver a la ciudad (Tab)"
+          >
+            Volver a la ciudad
+          </button>
+        )}
         <div className="nw">
           <span className="eyebrow">Patrimonio neto</span>
           <span className="nw-value mono">{money(view.player.netWorth)}</span>

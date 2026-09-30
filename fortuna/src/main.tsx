@@ -10,6 +10,7 @@ import { applyUiSettings, loadUiSettings } from './ui/settings';
 import './ui/styles/app.css';
 import './ui/styles/screens.css';
 import './ui/styles/console.css';
+import './ui/styles/world.css';
 
 applyUiSettings(loadUiSettings());
 
