@@ -19,6 +19,7 @@ export function WealthCard() {
     { k: 'Ahorro', v: p.savings + p.deposits, c: 'var(--blue)' },
     { k: 'Acciones', v: p.stocks, c: 'var(--gold)' },
     { k: 'Bonos', v: p.bonds, c: 'var(--up)' },
+    { k: 'Alternativos', v: p.alternatives + p.margin, c: '#c69cf0' },
   ];
   const gross = parts.reduce((a, x) => a + Math.max(0, x.v), 0) || 1;
   return (

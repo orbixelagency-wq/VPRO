@@ -3,10 +3,16 @@ import { getClient, useGame } from '../store';
 
 export function PortfolioPanel() {
   const p = useGame((s) => s.view!.player);
+  const alt = useGame((s) => s.view!.catalogHoldings);
+  const altOrders = useGame((s) => s.view!.catalogOrders);
+  const selectInstrument = useGame((s) => s.selectInstrument);
   const select = useGame((s) => s.select);
   const setTab = useGame((s) => s.setTab);
-  const totalValue = p.holdings.reduce((a, h) => a + h.value, 0);
-  const totalCost = p.holdings.reduce((a, h) => a + h.cost, 0);
+  const totalValue =
+    p.holdings.reduce((a, h) => a + h.value, 0) + alt.reduce((a, h) => a + h.value, 0);
+  const totalCost =
+    p.holdings.reduce((a, h) => a + h.cost, 0) +
+    alt.reduce((a, h) => a + (h.cls === 'future' || h.cls === 'cfd' ? h.value : h.cost), 0);
   const t = p.tax;
   return (
     <div className="portfolio">
@@ -30,6 +36,63 @@ export function PortfolioPanel() {
           <div className="v">{money(t.dividendsYtd + t.interestYtd)}</div>
         </div>
       </div>
+      {alt.length > 0 && (
+        <>
+          <div className="eyebrow section-gap">Inversiones alternativas</div>
+          <table className="data">
+            <thead>
+              <tr>
+                <th>Activo</th>
+                <th className="r">Cantidad</th>
+                <th className="r">Valor</th>
+                <th className="r">Coste</th>
+                <th className="r">Resultado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {alt.map((h) => (
+                <tr key={h.id} onClick={() => selectInstrument(h.id)}>
+                  <td>
+                    <span className="inst-name">{h.name}</span>{' '}
+                    {h.selling && <span className="chip tiny gold">en venta</span>}
+                    <br />
+                    <span className="faint small">{h.id}</span>
+                  </td>
+                  <td className="r mono">{num(h.qty, 0)}</td>
+                  <td className="r mono">{money(h.value)}</td>
+                  <td className="r mono faint">{money(h.cost)}</td>
+                  <td className={`r mono ${toneClass(h.pnl)}`}>{money(h.pnl)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+      {altOrders.length > 0 && (
+        <>
+          <div className="eyebrow section-gap">Órdenes del catálogo (se ejecutan a las 18:00)</div>
+          {altOrders.map((o) => (
+            <div key={o.id} className="line-item">
+              <span className={o.side === 'buy' || o.side === 'long' ? 'up' : 'down'}>
+                {
+                  { buy: 'Compra', sell: 'Venta', long: 'Largo', short: 'Corto', close: 'Cierre' }[
+                    o.side
+                  ]
+                }
+              </span>
+              <span>{o.name}</span>
+              <span className="faint small">{o.date}</span>
+              <button
+                className="btn ghost sm"
+                onClick={() => getClient().command({ type: 'invCancelOrder', orderId: o.id })}
+              >
+                Cancelar
+              </button>
+            </div>
+          ))}
+        </>
+      )}
+      <div className="eyebrow section-gap">Bolsa y bonos</div>
       {p.holdings.length === 0 ? (
         <div className="empty-state">
           <p>Todavía no tienes inversiones.</p>

@@ -6,7 +6,7 @@ import type { SimView } from '../economy/view';
 import { AUTOSAVE_SLOT, writeSave } from '../save/saveStore';
 
 export type Screen = 'boot' | 'setup' | 'loading' | 'console';
-export type Tab = 'stocks' | 'bonds' | 'bank' | 'portfolio' | 'macro';
+export type Tab = 'explore' | 'stocks' | 'bonds' | 'bank' | 'portfolio' | 'macro';
 
 export interface Toast {
   id: number;
@@ -23,6 +23,10 @@ interface UiState {
   speedIndex: number;
   tab: Tab;
   selected: string | null;
+  selectedInstrument: string | null;
+  /** Qué ficha muestra la columna derecha. */
+  focus: 'company' | 'instrument';
+  quizOpen: boolean;
   debug: boolean;
   notebookOpen: boolean;
   notebookFocus: string | null;
@@ -35,6 +39,8 @@ interface UiState {
   setSpeed(i: number): void;
   setTab(t: Tab): void;
   select(id: string | null): void;
+  selectInstrument(id: string | null): void;
+  setQuizOpen(open: boolean): void;
   toggleDebug(): void;
   openNotebook(focus?: string | null): void;
   closeNotebook(): void;
@@ -107,8 +113,11 @@ export const useGame = create<UiState>((set, get) => {
     loadingLabel: '',
     view: null,
     speedIndex: 0,
-    tab: 'stocks',
+    tab: 'explore',
     selected: null,
+    selectedInstrument: null,
+    focus: 'company',
+    quizOpen: false,
     debug: false,
     notebookOpen: false,
     notebookFocus: null,
@@ -130,9 +139,14 @@ export const useGame = create<UiState>((set, get) => {
     },
     setTab: (tab) => set({ tab }),
     select: (id) => {
-      set({ selected: id });
+      set({ selected: id, focus: 'company' });
       ensureClient().send({ type: 'select', id });
     },
+    selectInstrument: (id) => {
+      set({ selectedInstrument: id, focus: id ? 'instrument' : 'company' });
+      ensureClient().send({ type: 'selectInstrument', id });
+    },
+    setQuizOpen: (quizOpen) => set({ quizOpen }),
     toggleDebug: () => {
       const debug = !get().debug;
       set({ debug });

@@ -261,6 +261,10 @@
 }
 .alloc-legend .mono {
   margin-left: auto;
+  white-space: nowrap;
+}
+.alloc-legend span {
+  white-space: nowrap;
 }
 
 .panel-body.tight {
@@ -830,5 +834,266 @@ td.debug {
   }
   .clock-date {
     min-width: 0;
+  }
+}
+
+/* ---------- Explorador del catálogo ---------- */
+.explorer {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+}
+.class-list {
+  border-right: 1px solid var(--line);
+  padding: 10px 8px 14px;
+}
+.class-total {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 8px 10px;
+}
+.class-total .mono {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gold-2);
+  letter-spacing: -0.02em;
+}
+.class-group {
+  margin-top: 10px;
+}
+.class-group .eyebrow {
+  padding: 4px 8px;
+  font-size: 9.5px;
+}
+.class-item {
+  display: grid;
+  grid-template-columns: 20px 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--paper-2);
+  transition: background 0.15s;
+}
+.class-item:hover {
+  background: rgba(236, 228, 210, 0.04);
+  color: var(--paper);
+}
+.class-item.active {
+  background: var(--gold-dim);
+  color: var(--gold-2);
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+.class-item .glyph {
+  color: var(--gold);
+  text-align: center;
+  font-size: 13px;
+}
+.class-item .cname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.class-item .ccount {
+  font-size: 11px;
+  color: var(--faint);
+}
+.class-item .pill-held {
+  margin: 0;
+}
+.catalog {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.catalog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 0;
+}
+.catalog-head p {
+  margin: 3px 0 0;
+  max-width: 560px;
+}
+.catalog-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 450;
+}
+.risk {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+}
+.risk span {
+  width: 14px;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--ink-4);
+}
+.risk span.on {
+  background: linear-gradient(90deg, var(--warn), var(--down));
+}
+.risk small {
+  margin-left: 6px;
+}
+.price-cap {
+  width: 120px;
+  flex: none !important;
+}
+.catalog-table {
+  flex: 1;
+}
+.inst-cell {
+  min-width: 250px;
+  max-width: 460px;
+  white-space: normal !important;
+}
+.inst-name {
+  font-size: 12.5px;
+  color: var(--paper);
+}
+.more {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+}
+.chip.lock {
+  color: var(--warn);
+  border-color: rgba(227, 179, 65, 0.35);
+}
+
+/* ---------- Ficha de instrumento ---------- */
+.inst-title {
+  font-size: 16px;
+  line-height: 1.3;
+}
+.stat .v.small-v {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  white-space: normal;
+}
+.attr-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 12px 0 8px;
+  border-top: 1px solid var(--line);
+}
+.attr-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+.attr-list .mono {
+  text-align: right;
+}
+.research {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--r-md);
+  border: 1px dashed rgba(216, 176, 98, 0.35);
+  background: linear-gradient(180deg, rgba(216, 176, 98, 0.06), transparent);
+}
+.research-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.hidden-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12.5px;
+  border-top: 1px solid var(--line);
+}
+.hidden-row.good .mono {
+  color: var(--up);
+}
+.hidden-row.bad .mono {
+  color: var(--down);
+}
+.debug-inline {
+  grid-column: 1 / -1;
+  color: var(--blue);
+  font-size: 11px;
+}
+.mortgage {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mortgage input[type='range'] {
+  accent-color: var(--gold);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.sell-modes {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Test de derivados ---------- */
+.modal.quiz {
+  width: min(640px, 100%);
+}
+.quiz-q {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  margin: 0 0 10px;
+}
+.quiz-q legend {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 4px;
+}
+.quiz-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.quiz-opt input {
+  height: auto;
+  accent-color: var(--gold);
+}
+.quiz-opt.right {
+  color: var(--up);
+}
+.quiz-opt.wrong {
+  color: var(--down);
+}
+
+@media (max-width: 860px) {
+  .explorer {
+    grid-template-columns: 1fr;
+  }
+  .class-list {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    max-height: 220px;
   }
 }

@@ -3,6 +3,9 @@ import { useGame, type Tab } from '../store';
 import { BankPanel } from './BankPanel';
 import { BondsTable } from './BondsTable';
 import { CompanyPanel } from './CompanyPanel';
+import { Explorer } from './Explorer';
+import { InstrumentPanel } from './InstrumentPanel';
+import { QuizModal } from './QuizModal';
 import { IndicesCard, PulseCard, WealthCard } from './LeftColumn';
 import { MacroPanel } from './MacroPanel';
 import { NewsFeed } from './NewsFeed';
@@ -12,6 +15,7 @@ import { StocksTable } from './StocksTable';
 import { TopBar } from './TopBar';
 
 const TABS: { id: Tab; label: string }[] = [
+  { id: 'explore', label: 'Explorar' },
   { id: 'stocks', label: 'Acciones' },
   { id: 'bonds', label: 'Bonos' },
   { id: 'bank', label: 'Banco' },
@@ -25,7 +29,8 @@ export function Console() {
   const tab = useGame((s) => s.tab);
   const setTab = useGame((s) => s.setTab);
   const bankrupt = useGame((s) => s.view!.player.bankrupt);
-  const holdings = useGame((s) => s.view!.player.holdings.length);
+  const holdings = useGame((s) => s.view!.player.holdings.length + s.view!.catalogHoldings.length);
+  const focus = useGame((s) => s.focus);
 
   // Atajos de teclado: espacio pausa, 1–5 velocidades, N cuaderno, º depuración.
   useEffect(() => {
@@ -100,6 +105,7 @@ export function Console() {
               </nav>
             </div>
             <div className="main-body">
+              {tab === 'explore' && <Explorer />}
               {tab === 'stocks' && <StocksTable />}
               {tab === 'bonds' && <BondsTable />}
               {tab === 'bank' && (
@@ -122,10 +128,11 @@ export function Console() {
           <NewsFeed />
         </div>
         <div className="col right">
-          <CompanyPanel />
+          {focus === 'instrument' ? <InstrumentPanel /> : <CompanyPanel />}
         </div>
       </main>
       <NotebookModal />
+      <QuizModal />
     </div>
   );
 }
