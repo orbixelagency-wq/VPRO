@@ -18,7 +18,8 @@
     "e2e": "playwright test",
     "sim": "tsx src/tools/simReport.ts",
     "balance": "tsx src/tools/balance.ts",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build",
+    "catalog": "tsx src/tools/catalogReport.ts"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

@@ -19,7 +19,8 @@ referencia rápida para trabajar en el proyecto. El plan por fases está en `PLA
 | `npm run e2e` | Prueba de humo en Chromium (compila y sirve en :4173) |
 | `npm run check` | CI local: typecheck + lint + formato + tests + build |
 | `npm run sim -- <semilla> <años>` | Informe de calibración del mundo |
-| `npm run balance -- <semillas> <años>` | Tabla de resultados de los bots de balance |
+| `npm run balance -- <semillas> <años>` | Tabla de resultados de los bots de balance (bolsa y catálogo) |
+| `npm run catalog -- <semilla> <años> [--clase id] [--csv f]` | Inspector del catálogo de inversiones |
 | `BALANCE_SEEDS=20 BALANCE_YEARS=10 npm run test:balance` | Balance largo |
 
 ## Reglas de arquitectura
@@ -37,6 +38,14 @@ referencia rápida para trabajar en el proyecto. El plan por fases está en `PLA
 6. **El jugador solo cambia el mundo mediante `PlayerCommand`** (`applyCommand` en `sim.ts`).
 7. Si cambias el esquema de `SimState`, sube `SCHEMA_VERSION` y añade una migración en
    `src/save/migrations.ts`.
+8. **Catálogo de inversiones** (`src/investments`): un instrumento genérico (`types.ts`) valorado
+   por factores (`factors.ts`) y un motor común (`engine.ts`) de operativa, ventas ilíquidas,
+   investigación e impuestos. Cada clase de activo es un `ClassRules` en `classes/` (generación,
+   eventos, rentas). Para añadir una clase: reglas + entrada en `classes/index.ts` + metadatos en
+   `meta.ts`. Los textos de presentación (etiquetas de atributos y de información oculta) viven
+   en `meta.ts`.
+9. Lo que no cotiza en vivo se ejecuta al precio de las 18:00 (`execution: 'close'`). No rompas
+   esta regla: evita arbitrajes con información de la tarde.
 
 ## Convenciones
 - Código y comentarios en español; identificadores en inglés.

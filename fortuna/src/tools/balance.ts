@@ -4,6 +4,7 @@
  */
 import { newGame } from '../economy/sim';
 import { median, runBot, STRATEGIES, type BotResult } from './bots';
+import { ALT_STRATEGIES } from './botsAlt';
 
 const nSeeds = Number(process.argv[2] ?? 8);
 const years = Number(process.argv[3] ?? 6);
@@ -11,7 +12,7 @@ const results: BotResult[] = [];
 const t0 = performance.now();
 for (let seed = 1; seed <= nSeeds; seed++) {
   const base = newGame({ seed });
-  for (const st of STRATEGIES) results.push(runBot(st, seed, years, base));
+  for (const st of [...STRATEGIES, ...ALT_STRATEGIES]) results.push(runBot(st, seed, years, base));
 }
 const fmt = (x: number) => Math.round(x).toLocaleString('es-ES').padStart(10);
 console.log(
@@ -28,7 +29,7 @@ console.log(
   'DD med',
   'comis.'.padStart(8),
 );
-for (const st of STRATEGIES) {
+for (const st of [...STRATEGIES, ...ALT_STRATEGIES]) {
   const r = results.filter((x) => x.strategy === st.id);
   const nw = r.map((x) => x.finalNetWorth).sort((a, b) => a - b);
   const p = (q: number) => nw[Math.min(nw.length - 1, Math.floor(q * nw.length))] ?? 0;

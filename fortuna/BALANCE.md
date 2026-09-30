@@ -20,6 +20,19 @@ npm run sim -- 42 10       # informe del mundo: índice, volatilidad, fases, qui
 | Temerario apalancado | Ruina ≥ 35 % (hoy ~60 %), con algún ganador ocasional |
 | Cualquiera | Nunca más de 25× lo aportado (sin atajos de dinero infinito) |
 
+## Catálogo (Fase 2) — `tests/investments/balance-alt.test.ts`
+| Bot | Objetivo |
+|---|---|
+| Casero con hipoteca | Sin atajos: los costes de compra (≈ 10 %) y de venta (3 %) se comen años de alquiler |
+| Especulador cripto | Acaba peor que el colchón (la mayoría de tokens se hunden) |
+| Futuros 12x | Ruina o pérdida > 20 % en al menos un cuarto de las partidas |
+| P2P diversificado | Nunca se arruina |
+| Coleccionista impulsivo | No gana más que el colchón (márgenes del 25–30 % y custodia) |
+| Cualquiera | Nunca más de 20× lo aportado |
+
+Principio: **todo lo que se compra y se vende al instante pierde dinero** (test que recorre todas
+las clases), y lo que no cotiza en vivo se liquida al precio de las 18:00.
+
 ## Calibración del mundo (10 años, varias semillas)
 - Índice local: 3–8 % anual en precio (+ ~3 % de dividendos), volatilidad 22–27 %, caídas
   máximas 40–63 % en crisis. Acciones individuales: volatilidad mediana ~35 %.
