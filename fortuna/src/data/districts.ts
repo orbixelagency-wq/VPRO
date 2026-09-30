@@ -30,6 +30,8 @@ export interface DistrictDef {
     >
   >;
   description: string;
+  /** Centro del barrio en el mapa 3D (metros; x = este, z = sur). */
+  pos: [number, number];
 }
 
 export const DISTRICTS: readonly DistrictDef[] = [
@@ -44,6 +46,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     mix: { piso: 6, estudio: 3, local: 2, nave: 1 },
     description:
       'Bloques de los años sesenta junto a los astilleros. Barato, ruidoso y con artistas empezando a llegar.',
+    pos: [-220, 60],
   },
   {
     id: 'casco',
@@ -56,6 +59,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     mix: { piso: 4, estudio: 3, local: 3, vacacional: 4, edificio: 1 },
     description:
       'Callejuelas, turismo y pisos turísticos. La normativa de alquiler vacacional cambia cada pocos años.',
+    pos: [40, -200],
   },
   {
     id: 'lonja',
@@ -67,6 +71,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     vol: 0.07,
     mix: { oficina: 6, piso: 2, local: 2, edificio: 1 },
     description: 'Torres de cristal, la Bolsa de Valmera y la sede del Banco de Castelia.',
+    pos: [300, -20],
   },
   {
     id: 'campus',
@@ -79,6 +84,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     mix: { estudio: 5, piso: 4, local: 2 },
     description:
       'Alquiler por habitaciones, bares baratos y demanda que nunca falta en septiembre.',
+    pos: [330, -430],
   },
   {
     id: 'puerto',
@@ -90,6 +96,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     vol: 0.07,
     mix: { nave: 6, terreno: 2, oficina: 1, local: 1 },
     description: 'Grúas, contenedores y naves logísticas. Vive del comercio exterior.',
+    pos: [-470, -40],
   },
   {
     id: 'almendros',
@@ -101,6 +108,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     vol: 0.05,
     mix: { chalet: 5, piso: 3, terreno: 1 },
     description: 'Villas con vistas a la bahía. Aquí vive quien ya ganó la partida.',
+    pos: [430, 430],
   },
   {
     id: 'villanueva',
@@ -112,6 +120,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     vol: 0.04,
     mix: { piso: 5, chalet: 3, local: 1, terreno: 1 },
     description: 'Adosados, colegios y centros comerciales. Familias y coches.',
+    pos: [60, 440],
   },
   {
     id: 'poligono',
@@ -123,6 +132,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     vol: 0.06,
     mix: { nave: 7, terreno: 3, oficina: 1 },
     description: 'Talleres, almacenes y el mercado central. Rentable si el inquilino paga.',
+    pos: [-300, 470],
   },
   {
     id: 'vega',
@@ -134,6 +144,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     vol: 0.05,
     mix: { terreno: 5, chalet: 2, nave: 1 },
     description: 'Huertas, masías y suelo que algún día puede ser urbanizable. O no.',
+    pos: [680, 120],
   },
   {
     id: 'costa',
@@ -145,6 +156,7 @@ export const DISTRICTS: readonly DistrictDef[] = [
     vol: 0.06,
     mix: { vacacional: 6, piso: 3, chalet: 2, local: 1 },
     description: 'Playa, apartamentos de verano y restaurantes que cierran en invierno.',
+    pos: [-330, -470],
   },
 ];
 
