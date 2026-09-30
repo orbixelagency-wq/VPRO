@@ -5,6 +5,7 @@
 import type { CommandResult, NewGameOptions, PlayerCommand } from '../economy/sim';
 import type { SimEvent } from '../economy/types';
 import type { SimView } from '../economy/view';
+import type { CatalogPage, CatalogQuery } from '../investments/view';
 import type { FromWorker, QuoteView, SaveMeta, ToWorker } from '../worker/protocol';
 
 type Listener = {
@@ -46,6 +47,9 @@ export class SimClient {
         break;
       case 'quote':
         this.resolve(msg.requestId, msg.quote);
+        break;
+      case 'catalog':
+        this.resolve(msg.requestId, msg.page);
         break;
       case 'saved':
         this.resolve(msg.requestId, { state: msg.state, meta: msg.meta });
@@ -89,6 +93,10 @@ export class SimClient {
     qty: number,
   ): Promise<QuoteView> {
     return this.request((requestId) => ({ type: 'quote', requestId, asset, id, side, qty }));
+  }
+
+  catalog(query: CatalogQuery): Promise<CatalogPage> {
+    return this.request((requestId) => ({ type: 'catalog', requestId, query }));
   }
 
   save(): Promise<{ state: string; meta: SaveMeta }> {

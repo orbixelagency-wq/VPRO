@@ -8,6 +8,7 @@ import {
   LAST_NAMES,
 } from '../data/names';
 import { SECTORS } from '../data/sectors';
+import { createInvestments } from '../investments/engine';
 import { HOURS_PER_DAY } from './calendar';
 import { createLedger } from './ledger';
 import { Rng, seedState } from './rng';
@@ -33,7 +34,7 @@ import {
   TICKS_PER_YEAR,
 } from './valuation';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const DEFAULT_SETTINGS: SimSettings = { volatility: 1, crisisFrequency: 1, sandbox: false };
 
@@ -417,6 +418,7 @@ export function createWorld(seed: number, settings: SimSettings = DEFAULT_SETTIN
     player: createPlayer(),
     news: [],
     nextId: 1,
+    inv: undefined as unknown as SimState['inv'],
     ipoQueue: [],
     outbox: [],
   };
@@ -433,6 +435,7 @@ export function createWorld(seed: number, settings: SimSettings = DEFAULT_SETTIN
     const raw = indexRawValue(state, idx);
     idx.divisor = raw / idx.value;
   }
+  createInvestments(state);
   return state;
 }
 

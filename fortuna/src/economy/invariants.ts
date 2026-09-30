@@ -49,6 +49,25 @@ export function checkInvariants(state: SimState): string[] {
       if (!Number.isFinite(v)) errors.push(`${ct.id}.${k} no finito`);
     if (ct.policyRate < 0) errors.push(`${ct.id}: tipo oficial negativo`);
   }
+  if (state.inv) {
+    const ids = new Set<string>();
+    for (const i of state.inv.instruments) {
+      if (ids.has(i.id)) errors.push(`Instrumento duplicado: ${i.id}`);
+      ids.add(i.id);
+      if (!(i.price >= 0) || !Number.isFinite(i.price))
+        errors.push(`Precio no válido en ${i.id} (${i.cls}): ${i.price}`);
+    }
+    let margin = 0;
+    for (const [id, pos] of Object.entries(state.inv.positions)) {
+      if (!ids.has(id)) errors.push(`Posición sobre un instrumento inexistente: ${id}`);
+      if (!Number.isFinite(pos.qty) || pos.qty === 0 || !Number.isInteger(pos.qty))
+        errors.push(`Posición no válida en ${id}: ${pos.qty}`);
+      if (pos.margin !== undefined) margin += pos.margin;
+      else if (pos.qty < 0) errors.push(`Posición corta sin margen en ${id}`);
+    }
+    if (margin !== state.ledger.balances['player:margin'])
+      errors.push(`Garantías descuadradas: ${margin} vs ${state.ledger.balances['player:margin']}`);
+  }
   for (const idx of state.indices)
     if (!(idx.value > 0) || !Number.isFinite(idx.value))
       errors.push(`Índice ${idx.id} no válido: ${idx.value}`);

@@ -1,4 +1,5 @@
 import type { Cents, LedgerState } from './ledger';
+import type { InvestmentsState } from '../investments/types';
 import type { RngState } from './rng';
 
 export type CyclePhase = 'expansion' | 'overheating' | 'recession' | 'recovery';
@@ -155,7 +156,9 @@ export interface TermDeposit {
 
 export interface Loan {
   id: number;
-  kind: 'personal';
+  kind: 'personal' | 'mortgage';
+  /** Inmueble que garantiza la hipoteca. */
+  collateral?: string;
   principal: Cents;
   outstanding: Cents;
   rate: number;
@@ -282,6 +285,8 @@ export interface SimState {
   player: PlayerState;
   news: NewsItem[];
   nextId: number;
+  /** Catálogo de inversiones alternativas (Fase 2). */
+  inv: InvestmentsState;
   /** Salidas a bolsa programadas para reponer empresas excluidas. */
   ipoQueue: Array<{ day: number; country: string }>;
   /** Eventos emitidos desde el último drenado por el anfitrión. */

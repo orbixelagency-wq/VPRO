@@ -11,6 +11,7 @@ import { applyCommand, drainEvents, newGame, step } from '../economy/sim';
 import { quoteBond, quoteStock } from '../economy/trading';
 import type { SimEvent, SimState } from '../economy/types';
 import { buildView } from '../economy/view';
+import { queryCatalog } from '../investments/view';
 import { migrate } from '../save/migrations';
 import type { FromWorker, ToWorker } from './protocol';
 
@@ -19,6 +20,7 @@ declare const self: DedicatedWorkerGlobalScope;
 let state: SimState | null = null;
 let hoursPerSecond = 0;
 let selected: string | null = null;
+let selectedInstrument: string | null = null;
 let debug = false;
 let carry = 0;
 let last = performance.now();
@@ -36,7 +38,11 @@ function post(msg: FromWorker): void {
 
 function pushView(): void {
   if (!state) return;
-  post({ type: 'view', view: buildView(state, { selected, debug }), events: pending });
+  post({
+    type: 'view',
+    view: buildView(state, { selected, selectedInstrument, debug }),
+    events: pending,
+  });
   pending = [];
   dirty = false;
 }
@@ -71,14 +77,14 @@ self.onmessage = (e: MessageEvent<ToWorker>) => {
         state = newGame(msg.options);
         pending = [];
         selected = state.companies.find((c) => c.status === 'listed')?.id ?? null;
-        post({ type: 'ready', view: buildView(state, { selected, debug }) });
+        post({ type: 'ready', view: buildView(state, { selected, selectedInstrument, debug }) });
         break;
       }
       case 'load': {
         state = migrate(JSON.parse(msg.state));
         pending = [];
         selected = state.companies.find((c) => c.status === 'listed')?.id ?? null;
-        post({ type: 'ready', view: buildView(state, { selected, debug }) });
+        post({ type: 'ready', view: buildView(state, { selected, selectedInstrument, debug }) });
         break;
       }
       case 'speed':
@@ -89,6 +95,15 @@ self.onmessage = (e: MessageEvent<ToWorker>) => {
         selected = msg.id;
         dirty = true;
         break;
+      case 'selectInstrument':
+        selectedInstrument = msg.id;
+        dirty = true;
+        break;
+      case 'catalog': {
+        if (!state) return;
+        post({ type: 'catalog', requestId: msg.requestId, page: queryCatalog(state, msg.query) });
+        break;
+      }
       case 'debug':
         debug = msg.enabled;
         dirty = true;

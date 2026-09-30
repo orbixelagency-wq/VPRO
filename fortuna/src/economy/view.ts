@@ -3,6 +3,14 @@
  * recibe esta proyección desde el worker. La información oculta solo viaja en modo depuración.
  */
 import { COUNTRIES } from '../data/countries';
+import {
+  catalogHoldings,
+  catalogSummary,
+  instrumentDetail,
+  pendingCatalogOrders,
+  type ClassSummary,
+  type InstrumentDetail,
+} from '../investments/view';
 import { depositRate, loanRate, maxLoan, savingsRate } from './bank';
 import { formatDate, isMarketOpen } from './calendar';
 import { findCompany } from './generate';
@@ -157,6 +165,8 @@ export interface SimView {
     deposits: number;
     stocks: number;
     bonds: number;
+    alternatives: number;
+    margin: number;
     debt: number;
     netWorth: number;
     netWorthHistory: number[];
@@ -210,10 +220,19 @@ export interface SimView {
   bonds: BondRow[];
   news: NewsRow[];
   selected: CompanyDetail | null;
+  catalog: { classes: ClassSummary[]; total: number };
+  instrument: InstrumentDetail | null;
+  catalogHoldings: ReturnType<typeof catalogHoldings>;
+  catalogOrders: ReturnType<typeof pendingCatalogOrders>;
+  unlocks: { derivatives: boolean; accredited: boolean };
+  reputation: Record<string, number>;
+  weather: number;
+  cryptoRegime: string;
 }
 
 export interface ViewOptions {
   selected?: string | null;
+  selectedInstrument?: string | null;
   debug?: boolean;
 }
 
@@ -434,6 +453,8 @@ export function buildView(state: SimState, opts: ViewOptions = {}): SimView {
       deposits: fromCents(summary.deposits),
       stocks: fromCents(summary.stocks),
       bonds: fromCents(summary.bonds),
+      alternatives: fromCents(summary.alternatives),
+      margin: fromCents(summary.margin),
       debt: fromCents(summary.debt),
       netWorth: fromCents(summary.netWorth),
       netWorthHistory: p.netWorthHistory.slice(-730).map(fromCents),
@@ -522,5 +543,15 @@ export function buildView(state: SimState, opts: ViewOptions = {}): SimView {
       .reverse()
       .map((n) => newsRow(n, debug)),
     selected,
+    catalog: catalogSummary(state),
+    instrument: opts.selectedInstrument
+      ? instrumentDetail(state, opts.selectedInstrument, debug)
+      : null,
+    catalogHoldings: catalogHoldings(state),
+    catalogOrders: pendingCatalogOrders(state),
+    unlocks: { ...state.inv.unlocks },
+    reputation: { ...state.inv.reputation },
+    weather: state.inv.weather,
+    cryptoRegime: state.inv.crypto.regime,
   };
 }

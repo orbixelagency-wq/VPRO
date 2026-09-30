@@ -1,3 +1,4 @@
+import { catalogValue } from '../investments/engine';
 import { findCompany } from './generate';
 import type { Cents } from './ledger';
 import type { SimState } from './types';
@@ -9,6 +10,10 @@ export interface PortfolioSummary {
   deposits: Cents;
   stocks: Cents;
   bonds: Cents;
+  /** Catálogo de inversiones alternativas (valor de mercado o tasación). */
+  alternatives: Cents;
+  /** Garantías depositadas en productos apalancados. */
+  margin: Cents;
   debt: Cents;
   netWorth: Cents;
 }
@@ -36,14 +41,17 @@ export function portfolioSummary(state: SimState): PortfolioSummary {
   const deposits = L['player:deposits'];
   const s = Math.round(stocks);
   const bd = Math.round(bonds);
+  const cat = state.inv ? catalogValue(state) : { value: 0, margin: 0 };
   return {
     cash,
     savings,
     deposits,
     stocks: s,
     bonds: bd,
+    alternatives: cat.value,
+    margin: cat.margin,
     debt,
-    netWorth: cash + savings + deposits + s + bd - debt,
+    netWorth: cash + savings + deposits + s + bd + cat.value + cat.margin - debt,
   };
 }
 

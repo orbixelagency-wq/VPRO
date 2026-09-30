@@ -6,12 +6,19 @@ import { sectorDef } from './valuation';
 
 const NEWS_LIMIT = 300;
 
+const esFormats = new Map<number, Intl.NumberFormat>();
+
 /** Número con coma decimal para los textos (los datos se guardan sin formato). */
 export function esNum(x: number, decimals = 2): string {
-  return x.toLocaleString('es-ES', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+  let f = esFormats.get(decimals);
+  if (!f) {
+    f = new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+    esFormats.set(decimals, f);
+  }
+  return f.format(x);
 }
 
 export type NewsDraft = Omit<NewsItem, 'id' | 'tick'>;

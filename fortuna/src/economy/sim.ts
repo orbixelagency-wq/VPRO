@@ -28,6 +28,20 @@ import { discoverConcept } from './notebook';
 import { netWorth } from './portfolio';
 import type { SimEvent, SimSettings, SimState } from './types';
 import { cancelOrder, placeOrder, processOrders } from './trading';
+import {
+  cancelCatalogOrder,
+  cancelSale,
+  closeLeveraged,
+  investmentsDaily,
+  investmentsMonthly,
+  investmentsWeekly,
+  investmentsYearly,
+  openLeveraged,
+  placeCatalogBuy,
+  placeCatalogSell,
+  startResearch,
+} from '../investments/engine';
+import { unlockDerivatives } from '../investments/quiz';
 
 /** Tick en el que empieza la partida: tras un año de historia simulada. */
 export const GAME_START_TICK = DAYS_PER_YEAR * HOURS_PER_DAY;
@@ -101,6 +115,11 @@ export function step(state: SimState): void {
     }
   }
   if (!trading && d.hour === MARKET_CLOSE_HOUR) stepFearDaily(state, 0);
+  // Catálogo de inversiones: valor liquidativo diario, semana y mes.
+  if (d.hour === 18) investmentsDaily(state, trading);
+  if (d.hour === 1 && d.day === 1) investmentsMonthly(state);
+  if (d.hour === 2 && d.dayOfYear === 0) investmentsYearly(state);
+  if (d.hour === 12 && d.weekday === 5) investmentsWeekly(state);
   if (d.hour === 23 && state.tick > GAME_START_TICK) {
     state.player.netWorthHistory.push(netWorth(state));
     if (state.player.netWorthHistory.length === 365 * 2) discoverConcept(state, 'ciclo');
@@ -133,7 +152,16 @@ export type PlayerCommand =
   | { type: 'openDeposit'; amount: number; months: number }
   | { type: 'breakDeposit'; depositId: number }
   | { type: 'takeLoan'; amount: number; months: number }
-  | { type: 'repayLoan'; loanId: number; amount: number };
+  | { type: 'repayLoan'; loanId: number; amount: number }
+  // Catálogo de inversiones (Fase 2)
+  | { type: 'invBuy'; id: string; qty: number; mortgage?: { ltv: number; years: number } }
+  | { type: 'invSell'; id: string; qty: number; quick?: boolean }
+  | { type: 'invCancelSale'; id: string }
+  | { type: 'invCancelOrder'; orderId: number }
+  | { type: 'invOpen'; id: string; direction: 'long' | 'short'; qty: number }
+  | { type: 'invClose'; id: string }
+  | { type: 'invResearch'; id: string }
+  | { type: 'unlockDerivatives'; answers: number[] };
 
 export interface CommandResult {
   ok: boolean;
@@ -168,6 +196,22 @@ export function applyCommand(state: SimState, cmd: PlayerCommand): CommandResult
       return takeLoan(state, c(cmd.amount), cmd.months);
     case 'repayLoan':
       return repayLoan(state, cmd.loanId, c(cmd.amount));
+    case 'invBuy':
+      return placeCatalogBuy(state, cmd.id, cmd.qty, cmd.mortgage);
+    case 'invSell':
+      return placeCatalogSell(state, cmd.id, cmd.qty, cmd.quick ? 'quick' : 'normal');
+    case 'invCancelSale':
+      return cancelSale(state, cmd.id);
+    case 'invCancelOrder':
+      return cancelCatalogOrder(state, cmd.orderId);
+    case 'invOpen':
+      return openLeveraged(state, cmd.id, cmd.direction, cmd.qty);
+    case 'invClose':
+      return closeLeveraged(state, cmd.id);
+    case 'invResearch':
+      return startResearch(state, cmd.id);
+    case 'unlockDerivatives':
+      return unlockDerivatives(state, cmd.answers);
   }
 }
 

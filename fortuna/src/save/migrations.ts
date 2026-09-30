@@ -1,4 +1,5 @@
 import { SCHEMA_VERSION } from '../economy/generate';
+import { createInvestments } from '../investments/engine';
 import type { SimState } from '../economy/types';
 
 /**
@@ -8,7 +9,14 @@ import type { SimState } from '../economy/types';
 type Migration = (s: Record<string, unknown>) => Record<string, unknown>;
 
 const MIGRATIONS: Record<number, Migration> = {
-  // 1 → 2: (ejemplo para futuras versiones)
+  // 1 → 2: catálogo de inversiones alternativas, cuenta de garantías y tipos de préstamo.
+  1: (s) => {
+    const state = s as unknown as SimState;
+    state.ledger.balances['player:margin'] = 0;
+    for (const l of state.player.loans) l.kind = l.kind ?? 'personal';
+    createInvestments(state);
+    return state as unknown as Record<string, unknown>;
+  },
 };
 
 export function migrate(raw: unknown): SimState {

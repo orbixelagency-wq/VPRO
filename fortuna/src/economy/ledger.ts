@@ -13,7 +13,8 @@ export type AccountId =
   | 'gov' // hacienda del país de residencia
   | 'player:cash' // cuenta corriente (puede ir a descubierto)
   | 'player:savings' // cuenta remunerada
-  | 'player:deposits'; // depósitos a plazo
+  | 'player:deposits' // depósitos a plazo
+  | 'player:margin'; // garantías de derivados y productos apalancados
 
 export const ACCOUNT_IDS: readonly AccountId[] = [
   'world',
@@ -24,6 +25,7 @@ export const ACCOUNT_IDS: readonly AccountId[] = [
   'player:cash',
   'player:savings',
   'player:deposits',
+  'player:margin',
 ];
 
 export interface LedgerEntry {

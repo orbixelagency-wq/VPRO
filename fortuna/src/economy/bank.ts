@@ -330,7 +330,8 @@ export function stepBankMonthly(state: SimState): void {
 export function checkPersonalBankruptcy(state: SimState): void {
   const p = state.player;
   if (p.bankrupt || state.settings.sandbox) return;
-  const defaulted = p.loans.some((l) => l.missedPayments >= 3);
+  // Las hipotecas impagadas se resuelven ejecutando el inmueble, no con la bancarrota.
+  const defaulted = p.loans.some((l) => l.kind !== 'mortgage' && l.missedPayments >= 3);
   if (state.ledger.balances['player:cash'] < OVERDRAFT_LIMIT) {
     p.overdraftMonths++;
     state.outbox.push({
