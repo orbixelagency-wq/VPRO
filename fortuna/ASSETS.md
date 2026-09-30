@@ -25,6 +25,16 @@ assets/
 5. **Licencias**: solo recursos con licencia compatible con distribución comercial (CC0, CC-BY con
    atribución en `assets/CREDITS.md`, o licencias compradas). Nada con marcas reales.
 
+## Qué es procedural hoy y dónde se cambia (Fase 3)
+| Recurso | Código | Cómo sustituirlo |
+|---|---|---|
+| Fachadas (8 estilos) | `src/world/textures.ts` → `makeFacade` | Devuelve `{map, emissive, roughness, metalness}` para una tesela de 8×8 vanos de 3 × 3,2 m. Carga tus texturas KTX2 con esas mismas dimensiones (u = 24 m, v = 25,6 m) y el mapeo UV en metros de `cityMesh.ts` seguirá valiendo. |
+| Asfalto, aceras, césped, tejados | `makeAsphalt`, `makePaving`, `makeGrass`, `makeRoof`, `makeTiles` | Igual: devuelven `THREE.Texture` repetible. |
+| Edificios | `src/world/cityMesh.ts` (cajas fusionadas) | Un edificio clave con GLB propio se coloca por id en su manzana y se excluye de la fusión (Fase 10). |
+| Mobiliario (farolas, árboles, bancos, fuentes) | `cityMesh.ts` → mallas instanciadas | Sustituye la geometría del `InstancedMesh` por la del GLB (misma escala: metros, base en y = 0). |
+| Personaje | `src/entities/playerModel.ts` | Clase con `root` y `animate(dt, speed, grounded)`. Un GLB con esqueleto se integra con un `AnimationMixer` detrás de la misma interfaz (clips `idle`, `walk`, `run`, `jump`). |
+| Cielo | `SkyMesh` de Three.js en `world/environment.ts` | Parámetros físicos; se puede cambiar por un HDRI por hora del día. |
+
 ## Bibliotecas recomendadas
 - Modelos y texturas CC0: Poly Haven, ambientCG, Kenney, Quaternius.
 - Sonido: Freesound (revisar licencia de cada clip), Sonniss GDC bundles.

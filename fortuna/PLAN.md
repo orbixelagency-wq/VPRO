@@ -105,10 +105,57 @@ juego arrancando y resumen.
 (0,12 s sin catálogo). Plan: simulación por niveles de detalle (instrumentos lejanos a paso
 mensual) y generación perezosa de oportunidades.
 
-## Fase 3 — Render 3D base y jugador (siguiente)
+## Fase 3 — Render 3D base y jugador ✅
+- **Renderer** (`engine/renderer.ts`): Three.js r184 `WebGPURenderer` con WebGL2 automático si no
+  hay WebGPU, más un segundo respaldo: si WebGPU arranca pero falla al dibujar, el mundo se
+  recrea en WebGL2 sin perder la partida. Tone mapping ACES, sombras PCF suaves, bloom TSL en
+  Alto/Ultra. Presets Bajo/Medio/Alto/Ultra (`engine/quality.ts`: sombras, distancia de
+  dibujado, tope de píxeles hasta 3× para 4K, luces de farola, antialias).
+- **Resolución dinámica**: ventanas de 750 ms; baja un 10 % si el fotograma pasa de 18,7 ms y
+  recupera un 3 % cuando sobra margen (mínimo 50 %). Panel de rendimiento con `F3`.
+- **Ciudad procedural** (`world/cityGen.ts`, pura y testeada): retícula de avenidas (18 m) y
+  calles (11 m), 256 manzanas y ~1.470 edificios en los diez barrios con estilos propios
+  (`world/districtStyle.ts`: manzanas con patio, torres con zócalo, naves, villas, adosados,
+  huertas, parques y plazas con fuente), 3.700 elementos urbanos (farolas, árboles, bancos).
+  Se genera en ~20 ms con la semilla de la partida.
+- **Mallas** (`world/cityMesh.ts`): edificios fusionados por tesela de 400 m × estilo de fachada
+  (~700 draw calls en Medio), texturas de fachada generadas en canvas con ventanas iluminadas de
+  noche (`world/textures.ts`), mobiliario instanciado.
+- **Entorno** (`world/environment.ts` + `world/sun.ts`): sol astronómico a 39° N (días largos en
+  verano), cielo físico con nubes, luna, estrellas, niebla por hora, ventanas y farolas que se
+  encienden al anochecer y un grupo de luces puntuales en las farolas más cercanas.
+- **Física y jugador**: Rapier (WASM) con controlador cinemático de personaje (escalones de
+  acera, rampas de 50°, salto, pegado al suelo), caminar 1,9 m/s y correr 6,2 m/s, paso fijo de
+  1/60 s. Cámara en tercera persona con colisión (incluye copas de árboles como sensores).
+  Teclado, ratón (arrastre o puntero bloqueado) y mando.
+- **Integración**: la partida arranca en la ciudad; el reloj del mundo es el de la simulación
+  (interpolado entre ticks) y la terminal del inversor se abre con `Tab` pausando el mundo.
+  La partida empieza a las 10:00. Banner al entrar en cada barrio.
+- **Pruebas**: `tests/world` (determinismo de la ciudad, sin edificios sobre calzada, aparición
+  en acera libre, farolas fuera de edificios, sol y estaciones, física del jugador) y la prueba de
+  humo ahora entra en la ciudad, camina y abre la terminal con `Tab`.
+
+**Decisiones**
+- three **0.184** fijado: r186 falla en algunos Chrome con WebGPU (`swizzle` en
+  `GPUTextureViewDescriptor`).
+- El suelo físico va en teselas de 200 m: un único cuboide de 6 km hacía que el controlador de
+  personaje perdiera precisión y el jugador se hundiera.
+- El motor 3D se carga de forma perezosa (trozo de ~5 MB con el WASM de Rapier); la interfaz
+  inicial pesa ~260 KB.
+- `castShadow` del sol nunca cambia (cambiarlo recompila todos los shaders) y la resolución
+  dinámica se aplica antes de dibujar (cambiar el tamaño vacía el lienzo): ambos causaban
+  fotogramas negros.
+
+**Rendimiento**: medido solo con render por software (SwiftShader, sin GPU): 12–15 fps a 1280×760.
+En GPU real el objetivo es 60 fps en Medio a 1080p; la resolución dinámica protege el objetivo.
+Siguiente paso (Fase 10): LOD e impostores para edificios lejanos, reducción de draw calls con
+`BatchedMesh` y culling por teselas.
+
+**Falta (fases siguientes)**: peatones, tráfico y vehículos (Fase 4), interiores y puertas,
+audio ambiente, edificios clave con modelo propio.
 
 ## Fases 4–12
-Pendientes según el documento maestro: ciudad viva (4), teléfono y UI
+Pendientes según el documento maestro: ciudad viva (4, siguiente), teléfono y UI
 financiera (5), vida diaria y niveles 1–3 (6), negocios (7), rivales y narrativa (8), niveles
 altos (9), calidad AAA (10), pulido y balance (11), empaquetado (12).
 

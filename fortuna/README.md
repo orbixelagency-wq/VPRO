@@ -3,9 +3,9 @@
 Simulador de vida económica en mundo abierto: empiezas sin nada en Puerto Valmera y construyes
 tu fortuna invirtiendo de miles de formas mientras vives una vida completa.
 
-> Estado: **Fase 2 completada** — motor económico determinista, catálogo de más de 5.000
-> inversiones y consola de juego 2D.
-> El mundo abierto 3D llega en las fases 3–4. Ver `PLAN.md`.
+> Estado: **Fase 3 completada** — ciudad 3D procedural de Puerto Valmera (WebGPU/WebGL2) con
+> ciclo día/noche y jugador en tercera persona, motor económico determinista y catálogo de más
+> de 5.000 inversiones en la terminal del inversor. Ver `PLAN.md`.
 
 ## Jugar
 ```bash
@@ -14,10 +14,20 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-**Controles**: `Espacio` pausa/reanuda · `1`–`5` velocidad del tiempo · `N` Cuaderno del
-inversor · `º` modo depuración (muestra la información oculta de la simulación).
+**En la ciudad**: `WASD`/flechas moverse · `Mayús` correr · `Espacio` saltar · clic para
+controlar la cámara con el ratón (rueda: zoom) · mando compatible · `Tab` terminal del
+inversor · `1`–`5` velocidad del tiempo · `P` pausa · `F3` rendimiento · `N` Cuaderno.
+
+**En la terminal**: `Espacio` pausa/reanuda · `1`–`5` velocidad · `N` Cuaderno · `º` modo
+depuración (muestra la información oculta de la simulación) · `Tab` volver a la ciudad.
+
+Ajustes → Gráficos: calidad Bajo/Medio/Alto/Ultra y "Forzar WebGL2" si tu navegador tiene
+problemas con WebGPU.
 
 ## Qué hay ahora
+- Puerto Valmera en 3D: diez barrios con carácter propio (torres de cristal, casco viejo,
+  naves del polígono, villas, huertas), sol real según la estación, farolas y ventanas que se
+  encienden de noche, colisiones físicas y resolución dinámica.
 - 6 países con ciclo económico, bancos centrales, inflación, divisas y crisis sistémicas.
 - 50 empresas cotizadas con resultados, dividendos, fraudes, OPA, quiebras y salidas a bolsa.
 - 48+ bonos soberanos y corporativos, banca (remunerada, depósitos, préstamos) y fiscalidad.
