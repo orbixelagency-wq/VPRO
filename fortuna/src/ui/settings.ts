@@ -10,6 +10,10 @@ export interface UiSettings {
   forceWebGL: boolean;
   invertY: boolean;
   showStats: boolean;
+  /** Volúmenes 0–1. */
+  volMaster: number;
+  volAmbient: number;
+  volEffects: number;
 }
 
 export const DEFAULT_SETTINGS: UiSettings = {
@@ -19,6 +23,9 @@ export const DEFAULT_SETTINGS: UiSettings = {
   forceWebGL: false,
   invertY: false,
   showStats: false,
+  volMaster: 0.8,
+  volAmbient: 0.8,
+  volEffects: 0.8,
 };
 
 export function loadUiSettings(): UiSettings {

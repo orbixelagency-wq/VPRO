@@ -35,14 +35,29 @@ test('arranque, nueva partida, compra, catálogo y paso del tiempo', async ({ pa
   const start = await page.evaluate(() => window.__fortuna!.stats());
   expect(start.district).toBe('Las Grúas');
   await page.locator('.world-canvas').focus();
-  await page.keyboard.down('KeyW');
-  await page.waitForTimeout(1500);
-  await page.keyboard.up('KeyW');
+  // La cámara mira al portal: S aleja al jugador hacia la calle y W lo devuelve a la puerta.
+  // (Se espera a la posición, no a un tiempo fijo: sin GPU el render va a pocos fps.)
+  const walked = async () => {
+    const p = (await page.evaluate(() => window.__fortuna!.stats())).position;
+    return Math.hypot(p.x - start.position.x, p.z - start.position.z);
+  };
+  await page.keyboard.down('KeyS');
+  await expect.poll(walked, { timeout: 20_000 }).toBeGreaterThan(0.8);
+  await page.keyboard.up('KeyS');
   const moved = await page.evaluate(() => window.__fortuna!.stats());
   expect(moved.drawCalls).toBeGreaterThan(50);
-  expect(
-    Math.hypot(moved.position.x - start.position.x, moved.position.z - start.position.z),
-  ).toBeGreaterThan(0.3);
+
+  // Delante del portal aparece la acción "Entrar en casa": se entra y se vuelve a salir.
+  await page.keyboard.down('KeyW');
+  await expect(page.locator('.hud-prompt')).toContainText('Entrar en casa', { timeout: 20_000 });
+  await page.keyboard.up('KeyW');
+  await page.keyboard.press('KeyE');
+  await expect(page.locator('.hud-interior')).toHaveText('Tu piso', { timeout: 10_000 });
+  await page.keyboard.down('KeyS');
+  await expect(page.locator('.hud-prompt')).toContainText('Salir a la calle', { timeout: 20_000 });
+  await page.keyboard.up('KeyS');
+  await page.keyboard.press('KeyE');
+  await expect(page.locator('.hud-interior')).toHaveCount(0, { timeout: 10_000 });
 
   // Tab abre la terminal del inversor.
   await page.keyboard.press('Tab');

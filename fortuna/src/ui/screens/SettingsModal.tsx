@@ -72,6 +72,30 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               onChange={(e) => set({ showStats: e.target.checked })}
             />
           </label>
+          <div className="eyebrow">Sonido</div>
+          {(
+            [
+              ['volMaster', 'Volumen general', 'Todo el sonido del juego'],
+              ['volAmbient', 'Ambiente', 'Ciudad, tráfico, lluvia, viento, gente'],
+              ['volEffects', 'Efectos', 'Pasos, truenos, campana de la Bolsa, interfaz'],
+            ] as const
+          ).map(([key, label, hint]) => (
+            <label className="setting" key={key}>
+              <span>
+                <b>{label}</b>
+                <small className="muted">{hint}</small>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={s[key]}
+                onChange={(e) => set({ [key]: Number(e.target.value) })}
+              />
+              <span className="mono">{Math.round(s[key] * 100)} %</span>
+            </label>
+          ))}
           <div className="eyebrow">Controles</div>
           <label className="setting">
             <span>
