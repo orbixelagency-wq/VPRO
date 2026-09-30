@@ -151,13 +151,76 @@ En GPU real el objetivo es 60 fps en Medio a 1080p; la resolución dinámica pro
 Siguiente paso (Fase 10): LOD e impostores para edificios lejanos, reducción de draw calls con
 `BatchedMesh` y culling por teselas.
 
-**Falta (fases siguientes)**: peatones, tráfico y vehículos (Fase 4), interiores y puertas,
-audio ambiente, edificios clave con modelo propio.
+## Fase 4 — Ciudad viva ✅
+- **Clima** (`economy/weather.ts`, puro y determinista por semilla y hora): mediterráneo, con
+  frentes de 2–3 días, tormentas de tarde en verano, nieblas matinales de otoño e invierno,
+  nevadas rarísimas, temperatura con ciclo diario y anomalías, suelo que tarda horas en secarse.
+  Calibrado: ~6 días de lluvia al mes en invierno, <1 en julio; máximas de 16 °C en enero y
+  32 °C en julio. La vista (`SimView.meteo`, `forecast`) trae el tiempo y la previsión de 4 días.
+- **Efectos de clima** (`world/weatherFx.ts` + `environment.ts`): lluvia y nieve alrededor de la
+  cámara, relámpagos, nubes y cielo gris, niebla densa, asfalto mojado (más oscuro y brillante).
+- **Edificios singulares** (`world/landmarks.ts`, datos puros): Bolsa de Valmera (pórtico de
+  columnas, frontón y cúpula de cobre), sede del Banco de Valmera (torre de 96 m con corona
+  iluminada), Ayuntamiento con torre y **reloj que marca la hora del juego**, Universidad y
+  Hospital. Más tu portal en Las Grúas y Ultramarinos La Esquina (toldo, escaparates, rótulo).
+  Se dibujan con `world/partsMesh.ts` (piezas fusionadas por material, rótulos con texto).
+- **Interiores sin pantalla de carga** (`world/interiors.ts`): tu piso (cama, ordenador, sofá,
+  cocina), la tienda, el banco (ventanillas, cajero) y la Bolsa (corro, puestos y **panel de
+  cotizaciones con los precios reales de la simulación**). Se entra con `E` y un fundido de
+  0,4 s. Horarios reales (`world/hours.ts`): banco de 8 a 15 los laborables, Bolsa los días de
+  mercado, tienda todos los días.
+- **Acciones**: el ordenador de casa, la ventanilla del banco y la mesa de la Bolsa abren la
+  terminal en la pestaña adecuada; la cama duerme hasta las 8:00 (comando `waitUntil`); el
+  mostrador vende café, periódico (muestra los titulares del día), bocadillo… (comando
+  `purchase`, partida doble contra `world`).
+- **Tráfico** (`world/roads.ts`, `world/traffic.ts`): grafo de 270 cruces con carriles por la
+  derecha (dos por sentido en avenidas), semáforos de ciclo 40 s con todo rojo de seguridad,
+  modelo de conductor inteligente (IDM), giros con curvas de Bézier, reserva del carril de
+  destino en los cruces, autobuses por avenidas, taxis y furgonetas. Ceden el paso a peatones y
+  al jugador. Densidad según la hora (horas punta a las 8 y a las 18), fin de semana y lluvia.
+  Los 14 coches más cercanos tienen cuerpo físico: el jugador choca con ellos.
+- **Peatones** (`world/pedestrians.ts`): pasean por las aceras, se paran a mirar escaparates,
+  cruzan por los pasos de cebra cuando su semáforo lo permite y esquivan al jugador. Densidad
+  por barrio, hora (paseo de la tarde) y clima; con lluvia sacan paraguas. Animación de
+  piernas y brazos por instancias (`world/actorsMesh.ts`).
+- **Streaming del mundo** (`cityMesh.ts`): teselas de 200 m con versión lejana ligera (una
+  llamada de dibujo por estilo) y detallada construida de una en una por fotograma al acercarse
+  y liberada al alejarse; mobiliario por teselas de 400 m oculto a distancia; tráfico y
+  peatones solo en un radio alrededor del jugador. Radio de detalle por calidad (260–720 m).
+- **Pasos de cebra y semáforos** en todos los cruces, con los focos cambiando de color.
+- **Audio ambiental** (`audio/ambience.ts`, WebAudio sintetizado): rumor de ciudad, tráfico y
+  motor del coche más cercano, lluvia (amortiguada bajo techo), viento, gente, mar, pájaros en
+  parques, gaviotas en la costa, truenos con el retraso del sonido, campana de la Bolsa a la
+  apertura y al cierre, tono de cada interior y pasos. Volúmenes general, ambiente y efectos en
+  Ajustes.
+- **HUD**: clima con temperatura y previsión desplegable, aviso de acción con `E` (y motivo si
+  está cerrado), nombre del interior, fundido.
+- **Pruebas**: `tests/world/life.test.ts` (clima mediterráneo, suelo mojado, edificios
+  singulares y puertas, interiores, carriles a la derecha, semáforos sin verdes simultáneos,
+  15 min de tráfico sin choques, parada ante peatones y en rojo, peatones que nunca pisan la
+  calzada salvo al cruzar ni entran en edificios) y `tests/economy/city.test.ts` (compras,
+  dormir, horarios). La prueba de humo entra en casa y sale con `E`.
 
-## Fases 4–12
-Pendientes según el documento maestro: ciudad viva (4, siguiente), teléfono y UI
-financiera (5), vida diaria y niveles 1–3 (6), negocios (7), rivales y narrativa (8), niveles
-altos (9), calidad AAA (10), pulido y balance (11), empaquetado (12).
+**Decisiones**
+- El clima no vive en `SimState`: es una función pura de (semilla, tick). Así no hay que migrar
+  partidas y cualquier sistema (economía, teléfono, mundo) obtiene exactamente el mismo tiempo.
+- Tráfico y peatones son visuales y locales (no deterministas con el juego): la economía no
+  depende de ellos. Usan `Rng` propio para que las pruebas sean reproducibles.
+- Los interiores están lejos de la ciudad (x ≥ 6000) en vez de dentro de los edificios: así no
+  hay que vaciar mallas fusionadas, se oculta la ciudad al entrar (rinde más) y la cámara no
+  choca con fachadas. La cámara se recoloca sin suavizado al teletransportar.
+- La versión lejana de cada tesela usa un solo material por estilo (la tapa muestrea un texel
+  de pared): pasó de ~1.300–1.900 a ~300–500 llamadas de dibujo en Medio.
+
+**Falta (fases siguientes)**: coches que el jugador pueda conducir y transporte público usable
+(Fase 6), más interiores (restaurantes, oficinas, negocios propios en la Fase 7), eventos
+urbanos (manifestaciones, partidos, conciertos: Fase 8), música y radio (Fase 10), el índice
+agrícola del catálogo (`inv.weather`) aún no usa el clima nuevo.
+
+## Fases 5–12
+Pendientes según el documento maestro: teléfono y UI financiera (5, siguiente), vida diaria y
+niveles 1–3 (6), negocios (7), rivales y narrativa (8), niveles altos (9), calidad AAA (10),
+pulido y balance (11), empaquetado (12).
 
 ## Deuda conocida
 - `CompanyRow.marketCap` se expresa en millones de ₳; los fundamentales en millones de divisa local.

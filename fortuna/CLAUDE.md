@@ -50,14 +50,24 @@ referencia rápida para trabajar en el proyecto. El plan por fases está en `PLA
 10. **Mundo 3D** (`src/engine`, `src/world`, `src/gameplay`, `src/entities`): `world/cityGen.ts` y
     `world/sun.ts` son puros (sin Three.js) y se testean en Node; `cityMesh.ts`/`environment.ts`
     solo convierten esos datos en mallas. `engine/game.ts` (`GameWorld`) orquesta renderer,
-    física (paso fijo 1/60), jugador, cámara y entorno. El mundo **nunca** decide nada económico:
-    lee la hora del reloj de la simulación (`setClock`) y en fases siguientes enviará
+    física (paso fijo 1/60), jugador, cámara, entorno, tráfico, peatones, interiores, puntos de
+    interacción y audio. El mundo **nunca** decide nada económico: lee la hora del reloj de la
+    simulación (`setClock`) y comunica acciones a la UI (`onAction`), que envía los
     `PlayerCommand`. Los presets gráficos viven en `engine/quality.ts` (sin Three.js, para no
     arrastrar el motor al bundle inicial).
-11. No cambies `castShadow` ni el número de luces en caliente: recompila todos los shaders.
-12. Pruebas del mundo: `window.__fortuna.stats()` (fps, draw calls, posición, barrio) y
-    `window.__fortuna.world`. En headless fuerza WebGL2 con
+11. No cambies `castShadow`, el número de luces ni la presencia de niebla en caliente: recompila
+    todos los shaders (fotogramas negros). Los `InstancedMesh` con color por instancia deben
+    tener `instanceColor` creado antes del primer dibujo.
+12. Pruebas del mundo: `window.__fortuna.stats()` (fps, draw calls, posición, barrio, coches,
+    peatones, clima, interior) y `window.__fortuna.world` (`debugEnter(id)`, `debugWeather({…})`,
+    `exit()`, `setClock(tick, 0)`). En headless fuerza WebGL2 con
     `localStorage['fortuna:settings'] = {"forceWebGL":true}` (las capturas de WebGPU fallan).
+13. **Clima**: `economy/weather.ts` es una función pura de (semilla, tick); no lo guardes en el
+    estado. Lógica urbana pura y testeable: `world/roads.ts`, `traffic.ts`, `pedestrians.ts`,
+    `landmarks.ts`, `interiors.ts`, `hours.ts`; su dibujo va en `actorsMesh.ts`/`partsMesh.ts`.
+14. Contenido nuevo de la ciudad: un edificio singular es una función que devuelve `Part[]` en
+    `landmarks.ts`; un interior, un constructor en `interiors.ts` con `spots` (acciones
+    `SpotAction`); los artículos de la tienda están en `data/shop.ts`.
 
 ## Convenciones
 - Código y comentarios en español; identificadores en inglés.
