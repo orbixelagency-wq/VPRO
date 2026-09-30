@@ -3,7 +3,16 @@ import { buildPhysics, initPhysics, type PhysicsWorld } from '../../src/engine/p
 import { PlayerController } from '../../src/gameplay/playerController';
 import { generateCity, type CityLayout } from '../../src/world/cityGen';
 
-const idle = { moveX: 0, moveZ: 0, run: false, jump: false, lookX: 0, lookY: 0, zoom: 0 };
+const idle = {
+  moveX: 0,
+  moveZ: 0,
+  run: false,
+  jump: false,
+  lookX: 0,
+  lookY: 0,
+  zoom: 0,
+  interact: false,
+};
 
 describe('Física del jugador', () => {
   let city: CityLayout;
@@ -21,25 +30,35 @@ describe('Física del jugador', () => {
     }
   };
 
+  /** Punto en mitad de una avenida larga (espacio libre para caminar). */
+  const openRoad = () => {
+    const r = city.roads.find((x) => x.axis === 'x' && x.avenue)!;
+    return { x: (r.rect.x0 + r.rect.x1) / 2 + 3, z: (r.rect.z0 + r.rect.z1) / 2 };
+  };
+
   it('aterriza en la acera y no se hunde al caminar ni al bajar el bordillo', () => {
     const pc = new PlayerController(phys, { x: city.spawn.x, y: 1, z: city.spawn.z });
     run(pc, 60);
     expect(pc.grounded).toBe(true);
     expect(pc.position.y).toBeGreaterThan(0.1);
-    // Hacia el oeste: baja de la acera a la calzada.
-    run(pc, 180, { ...idle, moveZ: 1 }, Math.PI / 2);
+    // Desde el portal hacia la calle: baja de la acera a la calzada.
+    const home = city.landmarks.find((l) => l.id === 'casa')!;
+    const yaw = Math.atan2(-home.door.nx, -home.door.nz);
+    run(pc, 180, { ...idle, moveZ: 1 }, yaw);
     expect(pc.position.y).toBeGreaterThan(-0.02);
     expect(pc.position.y).toBeLessThan(0.1);
   });
 
   it('camina a la velocidad esperada y corre más', () => {
-    const pc = new PlayerController(phys, { x: city.spawn.x - 6, y: 0.1, z: city.spawn.z });
+    const o = openRoad();
+    const pc = new PlayerController(phys, { x: o.x, y: 0.1, z: o.z });
     run(pc, 30);
     const a = pc.position.clone();
-    run(pc, 60, { ...idle, moveZ: 1 }, 0);
+    // Hacia el este (a lo largo de la avenida).
+    run(pc, 60, { ...idle, moveZ: 1 }, -Math.PI / 2);
     const walk = pc.position.distanceTo(a);
     const b = pc.position.clone();
-    run(pc, 60, { ...idle, moveZ: 1, run: true }, 0);
+    run(pc, 60, { ...idle, moveZ: 1, run: true }, -Math.PI / 2);
     const sprint = pc.position.distanceTo(b);
     expect(walk).toBeGreaterThan(1);
     expect(sprint).toBeGreaterThan(walk * 2);
@@ -55,7 +74,8 @@ describe('Física del jugador', () => {
   });
 
   it('salta y vuelve a caer', () => {
-    const pc = new PlayerController(phys, { x: city.spawn.x - 6, y: 0.1, z: city.spawn.z });
+    const o = openRoad();
+    const pc = new PlayerController(phys, { x: o.x, y: 0.1, z: o.z });
     run(pc, 30);
     const y0 = pc.position.y;
     run(pc, 1, { ...idle, jump: true });

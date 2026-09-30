@@ -6,6 +6,7 @@
 import { DISTRICTS } from '../data/districts';
 import { Rng } from '../economy/rng';
 import { DISTRICT_STYLES, type BlockUse } from './districtStyle';
+import { placeLandmarks, type Landmark, type LandmarkId } from './landmarks';
 
 export interface Rect {
   x0: number;
@@ -50,6 +51,11 @@ export interface Block {
   inner: Rect;
   district: string;
   use: BlockUse;
+  /** Posición en la retícula (índices de las calles que la delimitan por el oeste y el norte). */
+  gi: number;
+  gj: number;
+  /** Edificio singular que ocupa la manzana, si lo hay. */
+  landmark?: LandmarkId;
 }
 
 export interface CityLayout {
@@ -62,6 +68,9 @@ export interface CityLayout {
   blocks: Block[];
   buildings: Building[];
   props: Prop[];
+  /** Ejes de la retícula: calles norte-sur (xs) y este-oeste (zs). */
+  grid: { xs: GridLine[]; zs: GridLine[] };
+  landmarks: Landmark[];
   spawn: { x: number; z: number };
 }
 
@@ -86,7 +95,7 @@ export function districtAt(x: number, z: number): string {
   return best;
 }
 
-interface GridLine {
+export interface GridLine {
   pos: number;
   width: number;
   avenue: boolean;
@@ -164,31 +173,18 @@ export function generateCity(seed: number): CityLayout {
       const district = districtAt(cx, cz);
       const style = DISTRICT_STYLES[district]!;
       const use = rng.weighted(Object.keys(style.uses) as BlockUse[], (u) => style.uses[u] ?? 0);
-      const block: Block = { rect, inner: inset(rect, SIDEWALK), district, use };
+      const block: Block = { rect, inner: inset(rect, SIDEWALK), district, use, gi: i, gj: j };
       blocks.push(block);
       fillBlock(rng, block, buildings, props);
     }
   }
   streetProps(rng, roads, blocks, props);
 
-  // Punto de partida: acera de la manzana de Las Grúas más cercana a su centro.
-  const gruas = DISTRICTS.find((x) => x.id === 'gruas')!.pos;
-  let spawnBlock = blocks[0]!;
-  let best = Infinity;
-  for (const b of blocks) {
-    const dist = Math.hypot(
-      (b.rect.x0 + b.rect.x1) / 2 - gruas[0],
-      (b.rect.z0 + b.rect.z1) / 2 - gruas[1],
-    );
-    if (dist < best) {
-      best = dist;
-      spawnBlock = b;
-    }
-  }
-  const spawn = {
-    x: spawnBlock.rect.x0 + SIDEWALK / 2,
-    z: (spawnBlock.rect.z0 + spawnBlock.rect.z1) / 2,
-  };
+  // Edificios singulares (bolsa, banco, ayuntamiento…) y la casa y la tienda del jugador.
+  const lm = placeLandmarks(Rng.fromSeed(seed, 'landmarks'), blocks, buildings, props, SIDEWALK);
+  const home = lm.landmarks.find((l) => l.id === 'casa')!;
+  // Punto de partida: en la acera, delante del portal de casa.
+  const spawn = { x: home.door.x + home.door.nx * 1.4, z: home.door.z + home.door.nz * 1.4 };
   return {
     seed,
     bounds: B,
@@ -196,8 +192,10 @@ export function generateCity(seed: number): CityLayout {
     sidewalk: SIDEWALK,
     roads,
     blocks,
-    buildings,
-    props,
+    buildings: lm.buildings,
+    props: lm.props,
+    grid: { xs, zs },
+    landmarks: lm.landmarks,
     spawn,
   };
 }

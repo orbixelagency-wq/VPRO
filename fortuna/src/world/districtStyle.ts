@@ -125,3 +125,17 @@ export const DISTRICT_STYLES: Record<string, DistrictStyle> = {
     trees: 0.7,
   },
 };
+
+/** Vida de cada barrio: gente por la calle y naturaleza (pájaros) de 0 a ~1,2. */
+export const DISTRICT_LIFE: Record<string, { crowd: number; nature: number }> = {
+  gruas: { crowd: 0.9, nature: 0.15 },
+  casco: { crowd: 1.2, nature: 0.25 },
+  lonja: { crowd: 1.15, nature: 0.1 },
+  campus: { crowd: 1, nature: 0.5 },
+  puerto: { crowd: 0.45, nature: 0.05 },
+  almendros: { crowd: 0.35, nature: 0.8 },
+  villanueva: { crowd: 0.75, nature: 0.35 },
+  poligono: { crowd: 0.3, nature: 0.1 },
+  vega: { crowd: 0.12, nature: 1 },
+  costa: { crowd: 0.6, nature: 0.4 },
+};

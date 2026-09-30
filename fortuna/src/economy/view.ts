@@ -16,6 +16,7 @@ import { formatDate, isMarketOpen } from './calendar';
 import { findCompany } from './generate';
 import { fromCents } from './ledger';
 import { PHASE_LABEL } from './macro';
+import { forecastDay, weatherAt, type DayForecast, type Weather } from './weather';
 import { portfolioSummary } from './portfolio';
 import { GAME_START_TICK } from './sim';
 import type { CyclePhase, NewsCategory, SimState } from './types';
@@ -148,6 +149,9 @@ export interface HoldingRow {
 export interface SimView {
   seed: number;
   tick: number;
+  /** Tiempo ahora y previsión de hoy y los tres próximos días. */
+  meteo: Weather;
+  forecast: DayForecast[];
   gameDay: number;
   date: string;
   marketOpen: boolean;
@@ -426,6 +430,8 @@ export function buildView(state: SimState, opts: ViewOptions = {}): SimView {
   return {
     seed: state.seed,
     tick: state.tick,
+    meteo: weatherAt(state.seed, state.tick),
+    forecast: [0, 1, 2, 3].map((k) => forecastDay(state.seed, Math.floor(state.tick / 24) + k)),
     gameDay: Math.max(0, Math.floor((state.tick - GAME_START_TICK) / 24)),
     date: formatDate(state.tick),
     marketOpen: isMarketOpen(state.tick),

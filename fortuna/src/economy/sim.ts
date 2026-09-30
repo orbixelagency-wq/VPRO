@@ -1,4 +1,5 @@
 import { HOME_COUNTRY_ID } from '../data/countries';
+import { SHOP_ITEMS } from '../data/shop';
 import {
   breakDeposit,
   moveToSavings,
@@ -163,7 +164,11 @@ export type PlayerCommand =
   | { type: 'invOpen'; id: string; direction: 'long' | 'short'; qty: number }
   | { type: 'invClose'; id: string }
   | { type: 'invResearch'; id: string }
-  | { type: 'unlockDerivatives'; answers: number[] };
+  | { type: 'unlockDerivatives'; answers: number[] }
+  // Vida en la ciudad (Fase 4)
+  | { type: 'purchase'; item: string }
+  /** Deja pasar el tiempo (dormir, esperar) hasta la próxima hora dada del reloj. */
+  | { type: 'waitUntil'; hour: number };
 
 export interface CommandResult {
   ok: boolean;
@@ -214,6 +219,22 @@ export function applyCommand(state: SimState, cmd: PlayerCommand): CommandResult
       return startResearch(state, cmd.id);
     case 'unlockDerivatives':
       return unlockDerivatives(state, cmd.answers);
+    case 'purchase': {
+      const item = SHOP_ITEMS.find((i) => i.id === cmd.item);
+      if (!item) return { ok: false, message: 'Ese artículo no existe' };
+      if (state.player.bankrupt) return { ok: false, message: 'Estás en quiebra' };
+      transfer(state.ledger, state.tick, 'player:cash', 'world', c(item.price), item.name);
+      return { ok: true, message: `${item.name}: ${item.price.toFixed(2).replace('.', ',')} ₳` };
+    }
+    case 'waitUntil': {
+      const hour = Math.max(0, Math.min(23, Math.floor(cmd.hour)));
+      let hours = 0;
+      do {
+        step(state);
+        hours++;
+      } while (dateFromTick(state.tick).hour !== hour && hours < 24);
+      return { ok: true, message: `Han pasado ${hours} horas` };
+    }
   }
 }
 
